@@ -1,0 +1,18 @@
+# Placeholder — production frontend build will be implemented in feature/cicd-deployment
+# This file is referenced by docker-compose.prod.yml.
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# Production stage — to be configured in feature/cicd-deployment
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80

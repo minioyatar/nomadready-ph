@@ -1,0 +1,8 @@
+# Deploy Workflow — will be implemented in feature/cicd-deployment
+# name: Deploy
+# on:
+#   push:
+#     branches: [main]
+# jobs:
+#   deploy:
+#     ...

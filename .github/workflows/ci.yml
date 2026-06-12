@@ -1,0 +1,8 @@
+# CI Workflow — will be implemented in feature/cicd-deployment
+# name: CI
+# on: [push, pull_request]
+# jobs:
+#   backend-tests:
+#     ...
+#   frontend-build:
+#     ...
