@@ -1,0 +1,196 @@
+# CodeRabbit configuration for NomadReady PH
+# Hackathon MVP — LGU Digital Nomad Readiness Dashboard
+# Pilot destination: Carles, Iloilo
+#
+# These rules mirror CLAUDE.md and must be enforced on every PR.
+# Do not approve changes that violate the non-negotiable product rules below.
+
+language: "en-US"
+
+tone_instructions: |
+  Be direct and specific. This is a hackathon project with strict scope rules.
+  Flag any code that violates the non-negotiable product rules immediately.
+  Tone should be constructive but firm — the rules exist for a reason.
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  # ─── GLOBAL RULES ──────────────────────────────────────────────────────────
+  # Applied to every file in every PR.
+  path_instructions:
+
+    # ── Scoring engine — the most critical file in the project ──────────────
+    - path: "backend/apps/scoring/services.py"
+      instructions: |
+        This file contains ALL numeric score calculation for NomadReady PH.
+        Enforce these rules strictly — request changes if any are violated:
+
+        1. REQUIRED functions (must all be present and return correct types):
+           - calculate_internet_work_score(listings) -> int
+           - calculate_accommodation_score(listings) -> int
+           - calculate_safety_services_score(listings) -> int
+           - calculate_transport_score(listings) -> int
+           - calculate_tourism_lifestyle_score(listings) -> int
+           - calculate_overall_score(category_scores) -> dict
+           - get_score_label(overall_score) -> str
+           - get_top_gaps(category_scores, listings) -> list
+           - calculate_destination_score(destination_id) -> ScoreSnapshot
+
+        2. SCORING FORMULA — verify weights are exactly:
+           Internet & Work Readiness:   0.30
+           Long-Stay Accommodation:     0.20
+           Safety & Essential Services: 0.20
+           Transport & Access:          0.15
+           Tourism & Lifestyle Appeal:  0.15
+           Total must equal 1.00.
+
+        3. SCORE LABELS — verify these exact ranges:
+           0–39:   "Not Yet NomadReady"
+           40–59:  "Emerging Destination"
+           60–74:  "Developing NomadReady Destination"
+           75–89:  "NomadReady Destination"
+           90–100: "Highly NomadReady Destination"
+
+        4. HARD RULES — request changes if violated:
+           - Category scores must be capped at 100. Flag any missing min(score, 100).
+           - Overall score must be rounded to nearest whole number. Flag any missing round().
+           - Only lgu_verified listings must be used. Flag any query that does not filter
+             by verification_status="lgu_verified".
+           - Draft listings must never increase the score.
+           - Missing data must lower the score, not be ignored.
+           - OpenAI must never be called from this file. Flag any import of openai.
+
+    # ── AI advisor — OpenAI is allowed here and ONLY here ───────────────────
+    - path: "backend/apps/ai_advisor/services.py"
+      instructions: |
+        This file contains ALL OpenAI integration for NomadReady PH.
+        Enforce these rules strictly:
+
+        1. REQUIRED function:
+           - generate_readiness_advice(destination_id, score_snapshot_id) -> dict
+
+        2. OpenAI MUST receive these inputs from the backend (not calculate them):
+           - destination name
+           - overall_score (already calculated by scoring/services.py)
+           - score_label
+           - category scores (already calculated)
+           - strongest_category, weakest_category
+           - top_gaps
+           - verified listing summary
+           - missing data notes
+
+        3. OpenAI output MUST include these keys in the returned dict:
+           - summary
+           - strengths
+           - weaknesses
+           - recommendations
+
+        4. HARD RULES — request changes if violated:
+           - OpenAI must NEVER calculate or modify the numeric score.
+             Flag any prompt that asks OpenAI to produce a number for the score.
+           - OpenAI must NEVER invent places, statistics, or listings not in the payload.
+           - The numeric overall_score passed to OpenAI must come from ScoreSnapshot,
+             never be recalculated inside this file.
+           - Flag any use of response.choices[0].text that could overwrite the score.
+
+    # ── All other scoring app files ──────────────────────────────────────────
+    - path: "backend/apps/scoring/**"
+      instructions: |
+        The scoring app is for deterministic Python score calculation only.
+        No OpenAI calls are allowed anywhere in this app.
+        Flag any import of openai in any file under backend/apps/scoring/.
+
+    # ── Listings model — verification status is critical ────────────────────
+    - path: "backend/apps/listings/models.py"
+      instructions: |
+        The Listing model has a verification_status field with three choices:
+        draft, lgu_verified, needs_update.
+
+        Only lgu_verified listings count toward scoring.
+        Flag any default that changes verification_status away from "draft".
+        Flag removal of any verification_status choice.
+
+    # ── Migrations — no accidental drops ────────────────────────────────────
+    - path: "backend/**/migrations/*.py"
+      instructions: |
+        Review migrations carefully:
+        - Flag any DeleteModel or RemoveField operation — confirm it is intentional.
+        - Flag any migration that removes the verification_status field from Listing.
+        - Flag any migration that removes the details JSONField from Listing.
+        - Flag any migration that removes top_gaps JSONField from ScoreSnapshot.
+        - Confirm dependency chain is correct (listings depends on destinations, etc).
+
+    # ── Frontend API service — all calls must be centralized ────────────────
+    - path: "frontend/src/services/api.js"
+      instructions: |
+        All backend API calls for the frontend must go through this file.
+        Flag any direct fetch() or axios() call found outside this file
+        (i.e., inside route or component files) unless explicitly approved.
+
+    # ── Frontend routes — only 4 screens are allowed ────────────────────────
+    - path: "frontend/src/routes/**"
+      instructions: |
+        Only these 4 route files are in scope for the hackathon MVP:
+        - Dashboard.jsx  → /dashboard
+        - Assets.jsx     → /assets
+        - MapView.jsx    → /map
+        - AIAdvisor.jsx  → /ai-advisor
+
+        Flag any new route file added beyond these four.
+        Flag any route that implements login, booking, payments, reviews,
+        or public-facing pages for digital nomads.
+
+    # ── Frontend App.jsx — route configuration ──────────────────────────────
+    - path: "frontend/src/App.jsx"
+      instructions: |
+        Only 4 routes should exist: /dashboard, /assets, /map, /ai-advisor.
+        / must redirect to /dashboard.
+        Flag any new route added beyond these four.
+
+    # ── Seed command — idempotency must be preserved ─────────────────────────
+    - path: "backend/apps/destinations/management/commands/seed_demo_data.py"
+      instructions: |
+        This command must remain idempotent.
+        It must use get_or_create() for Destination and update_or_create()
+        for Listing lookups. Flag any change to plain create() that would
+        cause duplicate records on repeated runs.
+        It must NOT seed ScoreSnapshot or AIRecommendation records.
+
+    # ── Environment and secrets ──────────────────────────────────────────────
+    - path: ".env*"
+      instructions: |
+        Flag immediately if a real secret, API key, or password appears in
+        any .env file that is NOT .env.example.
+        The .env file must never be committed. Only .env.example is allowed.
+
+    # ── Docker Compose ───────────────────────────────────────────────────────
+    - path: "docker-compose*.yml"
+      instructions: |
+        Required services: backend, frontend, db.
+        Backend must run on port 8000. Frontend must run on port 5173.
+        DB internal port must remain 5432.
+        Flag any new service added without approval (no Redis, Celery,
+        Kubernetes, or microservices).
+
+    # ── CI/CD workflows ──────────────────────────────────────────────────────
+    - path: ".github/workflows/**"
+      instructions: |
+        CI must run backend tests and frontend build check at minimum.
+        Flag any workflow that deploys directly to production without
+        a passing test gate.
+        Flag any workflow that skips migrations before running tests.
+
+chat:
+  auto_reply: true
