@@ -74,11 +74,15 @@ These skills are already available in this project's Claude Code session:
 
 These skills were installed from the open skills ecosystem for this project:
 
-| Skill | Install count | Use in this project | Install command |
-|---|---|---|---|
-| `chart-visualization` (antvis) | 3.8K | `feature/dashboard-overview` — Recharts score cards and category bar charts | Already installed globally |
+| Skill | Source | Install count | Security | Use in this project |
+|---|---|---|---|---|
+| `chart-visualization` | antvis | 3.8K | Snyk: Med Risk | `feature/dashboard-overview` — Recharts score cards and category bar charts |
+| `systematic-debugging` | obra/superpowers | 140.3K | Snyk: Low Risk | Any branch — structured fault isolation when scoring logic or API calls produce wrong results |
+| `test-driven-development` | obra/superpowers | 123.9K | Snyk: Low Risk | `feature/scoring-engine` — write failing test first, then implement the scoring function |
 
-**Security note:** The `chart-visualization` skill shows "Medium Risk" on Snyk. Review generated chart code before committing. It is safe for development use (Snyk risk is at package level, not usage level).
+**Security notes:**
+- `chart-visualization`: "Medium Risk" on Snyk is at package level, not usage level. Review generated chart code before committing.
+- `systematic-debugging` and `test-driven-development`: Low Risk, 0 Socket alerts, Safe on Gen. No concerns.
 
 ### External Skills to Watch (not yet installed)
 
@@ -113,9 +117,18 @@ npx skills add <owner/repo@skill> -g -y
 
 ```
 1. Open feature/scoring-engine branch
-2. Ask Claude: /python-testing — write tests for calculate_internet_work_score()
-3. Implement the function in services.py
-4. Run: docker compose exec backend python manage.py test
+2. Ask Claude: /test-driven-development — set up TDD workflow for scoring functions
+3. Ask Claude: /python-testing — write tests for calculate_internet_work_score()
+4. Implement the function in services.py
+5. Run: docker compose exec backend python manage.py test
+```
+
+### Backend dev — debugging a wrong score
+
+```
+1. Something produces a wrong readiness score
+2. Ask Claude: /systematic-debugging — isolate the fault in services.py
+3. Follow the structured steps: reproduce → isolate → hypothesis → fix → verify
 ```
 
 ### Frontend dev — dashboard charts
