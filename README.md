@@ -208,7 +208,7 @@ Build in this order. Do not skip ahead without approval.
 | # | Branch | Purpose |
 |---|---|---|
 | 1 | `feature/project-setup` | Scaffolding ✅ |
-| 2 | `feature/backend-models-seed` | Django models and Carles demo data |
+| 2 | `feature/backend-models-seed` | Django models and Carles demo data ✅ |
 | 3 | `feature/scoring-engine` | Deterministic scoring logic and tests |
 | 4 | `feature/dashboard-overview` | Dashboard screen with score cards |
 | 5 | `feature/assets-table` | Local assets table with filters |
@@ -271,6 +271,11 @@ Do not build these unless explicitly approved:
 
 ## Current Status
 
-`feature/project-setup` — complete.
+| Branch | Status |
+|---|---|
+| `feature/project-setup` | ✅ Merged to main |
+| `feature/backend-models-seed` | ✅ Merged to main |
+| `feature/scoring-engine` | Next |
 
-Next step: `feature/backend-models-seed`
+Claude Code skills installed and mapped to feature branches.
+See `docs/03-directory-architecture-and-claude-workflow.md` for the full skills guide.
