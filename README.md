@@ -81,7 +81,7 @@ docker compose up -d --build
 ```
 
 This starts three services:
-- `db` — PostgreSQL on port `5432`
+- `db` — PostgreSQL on port `5433` (host) / `5432` (internal Docker network)
 - `backend` — Django on port `8000`
 - `frontend` — React + Vite on port `5173`
 
