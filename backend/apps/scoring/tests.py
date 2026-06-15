@@ -18,19 +18,15 @@ from .services import (
 
 class ScoringEngineTests(TestCase):
 	def setUp(self):
-		# Create the Carles destination and load the full demo dataset.
-		# The seed command is idempotent and will create the 20 verified listings
-		# required for the demo story (overall score ~68).
-		from django.core.management import call_command
-
+		# Create a fresh destination for each test.  We deliberately **do not**
+		# load the full seed data here because the new tests use minimal
+		# isolated fixtures that exercise the scoring thresholds directly.
 		self.destination = Destination.objects.create(
 			name="Carles",
 			province="Iloilo",
 			municipality="Carles",
 			description="Demo destination",
 		)
-		# Run the management command to populate listings for this destination.
-		call_command("seed_demo_data")
 
 	def _create_listing(self, **kwargs):
 		"""Helper to create a verified listing with sensible defaults."""
@@ -42,46 +38,65 @@ class ScoringEngineTests(TestCase):
 		return Listing.objects.create(**defaults)
 
 	def test_internet_work_score_base_and_additions(self):
-		# 3 verified work spots → base 20
-		for i in range(3):
+		"""Internet & Work score covering all thresholds.
+
+		* 5 verified work spots → base 30
+		* ≥3 listings publish Wi‑Fi speed → +25
+		* ≥3 Zoom‑friendly listings → +20
+		* ≥3 listings have power outlets → +15
+		* At least one listing has mobile data → +10
+		Expected total = 100 (capped).
+		"""
+		for i in range(5):
 			self._create_listing(
 				name=f"Work Spot {i}",
 				category=Listing.Category.WORK_SPOT,
 				details={
 					"wifi_available": True,
-					"zoom_friendly": i % 2 == 0,
+					"zoom_friendly": True,
 					"power_outlets": True,
-					"wifi_speed_mbps": 20,
+					"wifi_speed_mbps": 20 if i < 3 else None,
 					"mobile_data_available": True,
 				},
 			)
 		score = calculate_internet_work_score(Listing.objects.all())
-		# base 20 + wifi_speed >=3 (25) + zoom_friendly >=3? only 2 true, so no +20
-		# power_outlets >=3 (15) + mobile_data (10) => total 20+25+15+10 = 70 capped at 100
-		# With the full seeded dataset the internet work score reaches the cap of 100.
 		self.assertEqual(score, 100)
 
 	def test_accommodation_score(self):
-		# 2 accommodations → base 10, with wifi and desk/kitchen/laundry
-		for i in range(2):
+		"""Accommodation score exercising base and all bonuses.
+
+		* 5 verified accommodations → base 35
+		* Monthly rates published → +25
+		* Listings have Wi‑Fi → +20
+		* At least one listing provides desk, kitchen or laundry → +20
+		Expected total = 100.
+		"""
+		for i in range(5):
 			self._create_listing(
 				name=f"Acc {i}",
 				category=Listing.Category.ACCOMMODATION,
 				details={
 					"monthly_rate_available": True,
 					"has_wifi": True,
-					"has_desk": True,
-					"has_kitchen": False,
-					"has_laundry": False,
+					"has_desk": i == 0,
+					"has_kitchen": i == 1,
+					"has_laundry": i == 2,
 				},
 			)
 		score = calculate_accommodation_score(Listing.objects.all())
-		# base 10 + monthly_rate (25) + wifi (20) + desk/kitchen/laundry (20) = 75 capped 100
-		# The seeded accommodation listings also hit the maximum.
 		self.assertEqual(score, 100)
 
 	def test_safety_services_score(self):
-		# Add clinic, police, pharmacy, atm, laundry, safety notes
+		"""Safety & Services score covering every point.
+
+		* Clinic → +25
+		* Police → +20
+		* Pharmacy → +15
+		* ATM → +15
+		* Laundry → +15
+		* Safety notes present → +10
+		Expected total = 100.
+		"""
 		services = [
 			("clinic", "clinic"),
 			("police", "police"),
@@ -96,11 +111,18 @@ class ScoringEngineTests(TestCase):
 				details={"service_type": stype, "has_safety_notes": True},
 			)
 		score = calculate_safety_services_score(Listing.objects.all())
-		# 25+20+15+15+15+10 = 100 capped
 		self.assertEqual(score, 100)
 
 	def test_transport_score(self):
-		# Provide route, port, local transport, schedule, travel time
+		"""Transport score exercising each rule.
+
+		* Main route from Iloilo → +30
+		* Port listed → +25
+		* Local transport option → +20
+		* Schedule information → +15
+		* Travel time shown → +10
+		Expected total = 100.
+		"""
 		self._create_listing(
 			name="route",
 			category=Listing.Category.TRANSPORT,
@@ -117,11 +139,18 @@ class ScoringEngineTests(TestCase):
 			details={"local_transport": True, "schedule_available": True, "travel_time_hours": 2.5},
 		)
 		score = calculate_transport_score(Listing.objects.all())
-		# 30+25+20+15+10 = 100 capped
 		self.assertEqual(score, 100)
 
 	def test_tourism_lifestyle_score(self):
-		# 5 attractions → base 30, island hopping, tour operator, food activity, community event
+		"""Tourism & Lifestyle score covering all bonuses.
+
+		* 5 verified attractions → base 30
+		* Island hopping available → +25
+		* Tour operator listed → +20
+		* Food activity type → +15
+		* Community event present → +10
+		Expected total = 100.
+		"""
 		for i in range(5):
 			self._create_listing(
 				name=f"attr{i}",
@@ -134,13 +163,21 @@ class ScoringEngineTests(TestCase):
 				},
 			)
 		score = calculate_tourism_lifestyle_score(Listing.objects.all())
-		# base 30 + 25 + 20 + 15 + 10 = 100 capped
 		self.assertEqual(score, 100)
 
 	def test_overall_score_and_label(self):
-		# Use the real scores derived from the seeded demo data to ensure the
-		# weighting logic works.  The exact numbers are derived from the helper
-		# functions, so we compute them dynamically.
+		"""Validate overall weighted calculation against a known scenario.
+
+		All five categories are forced to 100, so the weighted sum should be
+		100 and the label should be *Highly NomadReady Destination*.
+		"""
+		# Build minimal fixtures that push each category to its maximum (100).
+		self.test_internet_work_score_base_and_additions()
+		self.test_accommodation_score()
+		self.test_safety_services_score()
+		self.test_transport_score()
+		self.test_tourism_lifestyle_score()
+
 		listings = Listing.objects.filter(destination=self.destination)
 		category_scores = {
 			"internet_work_score": calculate_internet_work_score(listings),
@@ -150,9 +187,8 @@ class ScoringEngineTests(TestCase):
 			"tourism_lifestyle_score": calculate_tourism_lifestyle_score(listings),
 		}
 		overall = calculate_overall_score(category_scores)
-		# Verify that the overall score matches the label mapping.
-		label = get_score_label(overall["overall_score"])
-		self.assertEqual(label, get_score_label(overall["overall_score"]))
+		self.assertEqual(overall["overall_score"], 100)
+		self.assertEqual(get_score_label(overall["overall_score"]), "Highly NomadReady Destination")
 
 	def test_calculate_destination_score_creates_snapshot(self):
 		# Use the seeded demo data for Carles (20 verified listings).
@@ -164,14 +200,26 @@ class ScoringEngineTests(TestCase):
 		self.assertEqual(snapshot.score_label, expected_label)
 
 	def test_only_lgu_verified_listings_count(self):
-		# Add a draft listing that would otherwise boost the score
+		"""Verified listings count toward the score; drafts are ignored.
+
+		We create a single verified work spot that satisfies the base rule
+		(1‑2 verified places → base 10).  Adding a draft listing with the same
+		attributes must not change the computed score.
+		"""
+		# Verified listing – should give a base score of 10 (no bonuses).
+		self._create_listing(
+			name="Verified Work",
+			category=Listing.Category.WORK_SPOT,
+			details={"wifi_available": True},
+		)
+		score_verified = calculate_internet_work_score(Listing.objects.all())
+
+		# Draft listing – should be ignored.
 		self._create_listing(
 			name="Draft Work",
 			category=Listing.Category.WORK_SPOT,
 			verification_status=Listing.VerificationStatus.DRAFT,
 			details={"wifi_available": True},
 		)
-		score = calculate_internet_work_score(Listing.objects.all())
-		# With only the 20 verified work spots from seed data, score should stay the same as before (70)
-		# The presence of the full seed data means the score stays at the capped 100.
-		self.assertEqual(score, 100)
+		score_with_draft = calculate_internet_work_score(Listing.objects.all())
+		self.assertEqual(score_verified, score_with_draft)

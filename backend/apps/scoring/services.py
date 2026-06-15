@@ -189,7 +189,9 @@ def get_score_label(overall_score: int) -> str:
         return "Developing NomadReady Destination"
     if 75 <= overall_score <= 89:
         return "NomadReady Destination"
-    return "Highly NomadReady Destination"
+    if 90 <= overall_score <= 100:
+        return "Highly NomadReady Destination"
+    raise ValueError("overall_score must be between 0 and 100")
 
 
 def get_top_gaps(category_scores: dict, listings) -> list:
@@ -223,7 +225,10 @@ def calculate_destination_score(destination_id: int) -> ScoreSnapshot:
     created if all calculations succeed.
     """
     destination = Destination.objects.get(id=destination_id)
-    listings = Listing.objects.filter(destination=destination)
+    listings = Listing.objects.filter(
+        destination=destination,
+        verification_status=Listing.VerificationStatus.LGU_VERIFIED,
+    )
 
     # Category scores
     internet = calculate_internet_work_score(listings)
