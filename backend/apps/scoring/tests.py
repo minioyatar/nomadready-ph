@@ -1,4 +1,4 @@
-# Placeholder — scoring tests will be implemented in feature/scoring-engine
+# Placeholder - scoring tests will be implemented in feature/scoring-engine
 from django.test import TestCase
 from django.urls import reverse
 from apps.destinations.models import Destination
@@ -40,11 +40,11 @@ class ScoringEngineTests(TestCase):
 	def test_internet_work_score_base_and_additions(self):
 		"""Internet & Work score covering all thresholds.
 
-		* 5 verified work spots → base 30
-		* ≥3 listings publish Wi‑Fi speed → +25
-		* ≥3 Zoom‑friendly listings → +20
-		* ≥3 listings have power outlets → +15
-		* At least one listing has mobile data → +10
+		* 5 verified work spots -> base 30
+		* >=3 listings publish Wi-Fi speed -> +25
+		* >=3 Zoom-friendly listings -> +20
+		* >=3 listings have power outlets -> +15
+		* At least one listing has mobile data -> +10
 		Expected total = 100 (capped).
 		"""
 		for i in range(5):
@@ -65,10 +65,10 @@ class ScoringEngineTests(TestCase):
 	def test_accommodation_score(self):
 		"""Accommodation score exercising base and all bonuses.
 
-		* 5 verified accommodations → base 35
-		* Monthly rates published → +25
-		* Listings have Wi‑Fi → +20
-		* At least one listing provides desk, kitchen or laundry → +20
+		* 5 verified accommodations -> base 35
+		* Monthly rates published -> +25
+		* Listings have Wi-Fi -> +20
+		* At least one listing provides desk, kitchen or laundry -> +20
 		Expected total = 100.
 		"""
 		for i in range(5):
@@ -203,7 +203,7 @@ class ScoringEngineTests(TestCase):
 		"""Verified listings count toward the score; drafts are ignored.
 
 		We create a single verified work spot that satisfies the base rule
-		(1‑2 verified places → base 10).  Adding a draft listing with the same
+		(1-2 verified places -> base 10).  Adding a draft listing with the same
 		attributes must not change the computed score.
 		"""
 		# Verified listing – should give a base score of 10 (no bonuses).
