@@ -1,4 +1,3 @@
-# Placeholder - scoring tests will be implemented in feature/scoring-engine
 from django.test import TestCase
 from django.urls import reverse
 from apps.destinations.models import Destination
