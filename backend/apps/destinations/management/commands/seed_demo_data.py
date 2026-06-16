@@ -117,8 +117,8 @@ CARLES_LISTINGS = [
         "details": {
             "monthly_rate_available": True,
             "has_wifi": True,
-            "has_desk": True,
-            "has_kitchen": True,
+            "has_desk": False,
+            "has_kitchen": False,
             "has_laundry": False,
         },
     },
@@ -149,9 +149,9 @@ CARLES_LISTINGS = [
         "details": {
             "monthly_rate_available": True,
             "has_wifi": True,
-            "has_desk": True,
-            "has_kitchen": True,
-            "has_laundry": True,
+            "has_desk": False,
+            "has_kitchen": False,
+            "has_laundry": False,
         },
     },
     # ── SERVICES ──────────────────────────────────────────────────
@@ -166,7 +166,7 @@ CARLES_LISTINGS = [
         "details": {
             "service_type": "clinic",
             "contact_available": True,
-            "has_safety_notes": True,
+            "has_safety_notes": False,
         },
     },
     {
@@ -180,7 +180,7 @@ CARLES_LISTINGS = [
         "details": {
             "service_type": "police",
             "contact_available": True,
-            "has_safety_notes": True,
+            "has_safety_notes": False,
         },
     },
     {
@@ -204,7 +204,7 @@ CARLES_LISTINGS = [
         "address": "Carles Town Proper, Iloilo",
         "latitude": "11.5158",
         "longitude": "123.1158",
-        "verification_status": Listing.VerificationStatus.LGU_VERIFIED,
+        "verification_status": Listing.VerificationStatus.DRAFT,
         "details": {
             "service_type": "laundry",
             "contact_available": False,
@@ -240,7 +240,7 @@ CARLES_LISTINGS = [
             "local_transport": False,
             "schedule_available": True,
             "fare_info": True,
-            "travel_time_hours": 3.0,
+            "travel_time_hours": None,
         },
     },
     {
@@ -271,7 +271,7 @@ CARLES_LISTINGS = [
         "details": {
             "route_from_iloilo": False,
             "is_port": False,
-            "local_transport": True,
+            "local_transport": False,
             "schedule_available": False,
             "fare_info": True,
             "travel_time_hours": None,
@@ -288,10 +288,10 @@ CARLES_LISTINGS = [
         "details": {
             "route_from_iloilo": False,
             "is_port": False,
-            "local_transport": True,
+            "local_transport": False,
             "schedule_available": True,
             "fare_info": True,
-            "travel_time_hours": 1.5,
+            "travel_time_hours": None,
         },
     },
     # ── ATTRACTIONS ───────────────────────────────────────────────

@@ -222,3 +222,56 @@ class ScoringEngineTests(TestCase):
 		)
 		score_with_draft = calculate_internet_work_score(Listing.objects.all())
 		self.assertEqual(score_verified, score_with_draft)
+
+
+class ScoreAPITests(TestCase):
+	"""Tests for GET /api/scores/current/ and POST /api/scores/recalculate/."""
+
+	def setUp(self):
+		self.destination = Destination.objects.create(
+			name="Carles",
+			province="Iloilo",
+			municipality="Carles",
+			description="Pilot destination.",
+		)
+
+	def test_current_score_returns_404_when_no_snapshot(self):
+		response = self.client.get("/api/scores/current/")
+		self.assertEqual(response.status_code, 404)
+
+	def test_recalculate_creates_snapshot_and_returns_201(self):
+		response = self.client.post("/api/scores/recalculate/")
+		self.assertEqual(response.status_code, 201)
+		data = response.json()
+		self.assertIn("overall_score", data)
+		self.assertIn("score_label", data)
+		self.assertIn("top_gaps", data)
+
+	def test_recalculate_response_includes_all_category_scores(self):
+		response = self.client.post("/api/scores/recalculate/")
+		data = response.json()
+		for field in [
+			"internet_work_score",
+			"accommodation_score",
+			"safety_services_score",
+			"transport_score",
+			"tourism_lifestyle_score",
+			"strongest_category",
+			"weakest_category",
+			"destination_name",
+		]:
+			self.assertIn(field, data)
+
+	def test_current_score_returns_200_after_recalculate(self):
+		self.client.post("/api/scores/recalculate/")
+		response = self.client.get("/api/scores/current/")
+		self.assertEqual(response.status_code, 200)
+		data = response.json()
+		self.assertEqual(data["destination_name"], "Carles")
+		self.assertIn("overall_score", data)
+
+	def test_recalculate_persists_snapshot(self):
+		from apps.scoring.models import ScoreSnapshot
+		self.assertEqual(ScoreSnapshot.objects.count(), 0)
+		self.client.post("/api/scores/recalculate/")
+		self.assertEqual(ScoreSnapshot.objects.count(), 1)
