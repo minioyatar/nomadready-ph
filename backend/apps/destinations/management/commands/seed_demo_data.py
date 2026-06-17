@@ -101,7 +101,6 @@ CARLES_LISTINGS = [
             "wifi_available": True,
             "zoom_friendly": False,
             "power_outlets": True,
-            "wifi_speed_mbps": None,
             "mobile_data_available": True,
         },
     },
@@ -240,7 +239,6 @@ CARLES_LISTINGS = [
             "local_transport": False,
             "schedule_available": True,
             "fare_info": True,
-            "travel_time_hours": None,
         },
     },
     {
@@ -257,7 +255,6 @@ CARLES_LISTINGS = [
             "local_transport": False,
             "schedule_available": True,
             "fare_info": True,
-            "travel_time_hours": None,
         },
     },
     {
@@ -274,7 +271,6 @@ CARLES_LISTINGS = [
             "local_transport": False,
             "schedule_available": False,
             "fare_info": True,
-            "travel_time_hours": None,
         },
     },
     {
@@ -291,7 +287,6 @@ CARLES_LISTINGS = [
             "local_transport": False,
             "schedule_available": True,
             "fare_info": True,
-            "travel_time_hours": None,
         },
     },
     # ── ATTRACTIONS ───────────────────────────────────────────────
