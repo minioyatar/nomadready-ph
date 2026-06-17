@@ -209,7 +209,7 @@ Build in this order. Do not skip ahead without approval.
 |---|---|---|
 | 1 | `feature/project-setup` | Scaffolding ✅ |
 | 2 | `feature/backend-models-seed` | Django models and Carles demo data ✅ |
-| 3 | `feature/scoring-engine` | Deterministic scoring logic and tests |
+| 3 | `feature/scoring-engine` | Deterministic scoring logic and tests ✅ |
 | 4 | `feature/dashboard-overview` | Dashboard screen with score cards |
 | 5 | `feature/assets-table` | Local assets table with filters |
 | 6 | `feature/map-view` | Leaflet map with asset pins |

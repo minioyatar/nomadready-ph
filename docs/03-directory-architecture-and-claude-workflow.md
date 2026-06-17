@@ -37,13 +37,74 @@ Prompt Claude → Build Randomly → Debug Chaos
 |---|---|---|
 | 1 | `feature/project-setup` | ✅ Merged |
 | 2 | `feature/backend-models-seed` | ✅ Merged |
-| 3 | `feature/scoring-engine` | Next |
-| 4 | `feature/dashboard-overview` | Pending |
+| 3 | `feature/scoring-engine` | ✅ Merged |
+| 4 | `feature/dashboard-overview` | In Progress |
 | 5 | `feature/assets-table` | Pending |
 | 6 | `feature/map-view` | Pending |
 | 7 | `feature/ai-readiness-advisor` | Pending |
 | 8 | `feature/cicd-deployment` | Pending |
 | 9 | `feature/demo-polish` | Pending |
+
+---
+
+## Team Task Split
+
+Team lead assigns tasks by ID. Backend and frontend tracks run independently — neither track waits on the other to start.
+
+### Done
+
+| Task ID | Task | Branch | Owner |
+|---|---|---|---|
+| Task 1 | Project Scaffolding | `feature/project-setup` | Both |
+| Task 2 | Backend Models & Seed Data | `feature/backend-models-seed` | Backend |
+| Task 3 | Scoring Engine Logic | `feature/scoring-engine` | Backend |
+| Task 4 | Score API Endpoints | `feature/scoring-engine` | Backend |
+
+### Remaining — Backend Track
+
+| Task ID | Task | Branch | What gets built |
+|---|---|---|---|
+| Task B1 | AI Advisor Service | `feature/ai-readiness-advisor` | `ai_advisor/services.py` — `generate_readiness_advice()` calling OpenAI |
+| Task B2 | AI Advisor API Endpoint | `feature/ai-readiness-advisor` | `POST /api/ai-advisor/generate/` — views, serializers, urls, mock test |
+| Task B3 | CI/CD Backend | `feature/cicd-deployment` | `ci.yml`, `deploy.yml`, `docker-compose.prod.yml`, `infra/nginx.conf` |
+
+B1 and B2 are on the same branch. B3 is independent and can start anytime.
+
+### Remaining — Frontend Track
+
+| Task ID | Task | Branch | What gets built |
+|---|---|---|---|
+| Task F1 | Dashboard Screen | `feature/dashboard-overview` | Overall score card, 5 category cards, top gaps, AI preview, key metrics |
+| Task F2 | Assets Table Screen | `feature/assets-table` | Category filter tabs, listings table, verification status badges |
+| Task F3 | Map View Screen | `feature/map-view` | Leaflet map, OpenStreetMap tiles, asset pins, popups, legend |
+| Task F4 | AI Advisor Screen | `feature/ai-readiness-advisor` | Generate button, loading state, summary, strengths, weaknesses, recommendation cards — built against mock first, wired to real API after Task B2 merges |
+| Task F5 | CI/CD Frontend | `feature/cicd-deployment` | Frontend CI step in `ci.yml` |
+
+F1, F2, and F3 start now — all APIs they need are already live. F4 builds against a mock response shape so it never blocks on the backend.
+
+### Convergence
+
+| Task ID | Task | Branch | Owner | Starts after |
+|---|---|---|---|---|
+| Task P1 | Demo Polish & Integration | `feature/demo-polish` | Both | All tracks complete |
+
+### Parallel Work Plan
+
+```
+RIGHT NOW — no waiting:
+  Backend   →  Task B1 + B2  (AI advisor API)
+  Backend   →  Task B3       (CI/CD backend)
+  Frontend  →  Task F1       (Dashboard screen)
+  Frontend  →  Task F2       (Assets table screen)
+  Frontend  →  Task F3       (Map view screen)
+  Frontend  →  Task F4       (AI advisor screen — mock first)
+
+AFTER Task B2 merges:
+  Frontend  →  Task F4 wires real API (small update, not a rewrite)
+
+AFTER all tracks complete:
+  Both      →  Task P1       (Demo polish)
+```
 
 ---
 
