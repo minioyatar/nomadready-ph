@@ -1,5 +1,7 @@
-# Placeholder — routes will be wired in feature/scoring-engine
 from django.urls import path
-from . import views
+from .views import CurrentScoreView, RecalculateScoreView
 
-urlpatterns = []
+urlpatterns = [
+    path("scores/current/", CurrentScoreView.as_view(), name="current-score"),
+    path("scores/recalculate/", RecalculateScoreView.as_view(), name="recalculate-score"),
+]
