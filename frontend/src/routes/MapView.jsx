@@ -156,25 +156,20 @@ export default function MapView() {
       {/* Responsive + marker styling (scoped, no external CSS file needed) */}
       <style>{`
         .map-view-grid {
-          /* Landscape layout: map takes two‑thirds of the width, legend one‑third */
-          grid-template-columns: 2fr 1fr;
+          grid-template-columns: 1fr 240px;
         }
         .map-view-pane {
-          /* Use a 16:9 aspect ratio for a wide landscape view */
-          aspect-ratio: 16 / 9;
+          aspect-ratio: 16 / 10;
           width: 100%;
-          min-height: 360px;
-          max-height: 720px;
+          min-height: 420px;
+          max-height: 780px;
           min-width: 0;
-          display: flex;
-          flex-direction: column;
         }
         @media (max-width: 768px) {
           .map-view-grid {
             grid-template-columns: 1fr !important;
           }
           .map-view-pane {
-            /* Stack vertically on small screens, keep a comfortable height */
             aspect-ratio: 4 / 3.4;
             max-height: 520px !important;
             height: auto !important;
