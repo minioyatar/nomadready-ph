@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useEffect, useMemo } from 'react';
 import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
 
@@ -25,6 +26,7 @@ export default function MapLegend({ listings = [] }) {
     if (presentCategories.size === 0) return ALL_CATEGORIES;
     return ALL_CATEGORIES.filter(cat => presentCategories.has(cat.key));
   }, [presentCategories]);
+
   const itemRefs = useRef([]);
   const timers   = useRef([]);
 
