@@ -36,7 +36,7 @@
   /* Muted text tokens – increased contrast for WCAG AA */
   --text-label: #6B6359;   /* darker than original */
   --text-hint: #5F5950;    /* darker than original */
-  --text-lighter: #4E473F;/* darker than original */
+  --text-lighter: #4E473F; /* darker than original */
   --gray-light: #EFEAE1;
   --gray-mid: #8A857D;
   --bar-track: #ECE6DB;
@@ -206,22 +206,22 @@ textarea:focus-visible {
   pointer-events: none;
 }
 
-  .topbar-search input {
-    width: 100%;
-    height: 44px;
-    border-radius: 22px;
-    border: 1px solid var(--border-soft);
-    background: #fff;
-    padding: 0 18px 0 44px;
-    font-size: 15px;
-    color: var(--text-dark);
-    outline: none;
-    box-shadow: 0 1px 2px rgba(30,20,10,.04);
-  }
-  .topbar-search input:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--orange-mid);
-  }
+.topbar-search input {
+  width: 100%;
+  height: 44px;
+  border-radius: 22px;
+  border: 1px solid var(--border-soft);
+  background: #fff;
+  padding: 0 18px 0 44px;
+  font-size: 15px;
+  color: var(--text-dark);
+  outline: none;
+  box-shadow: 0 1px 2px rgba(30,20,10,.04);
+}
+.topbar-search input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--orange-mid);
+}
 
 .topbar-actions {
   display: flex;
