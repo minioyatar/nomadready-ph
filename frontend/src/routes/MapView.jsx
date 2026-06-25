@@ -10,6 +10,7 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
   return (
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <div className="p-6">
       <h1 className="text-2xl font-bold">Map View</h1>
       <p className="mt-2 text-gray-500">Leaflet map with asset pins — coming soon.</p>
@@ -118,6 +119,8 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
 >>>>>>> 0c6c1f3 (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
     </div>
 =======
+=======
+>>>>>>> 29bc69d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
     <div style={{
       width, height, borderRadius: radius,
       background: 'linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)',
@@ -125,7 +128,10 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
       animation: 'mapShimmer 1.4s ease-in-out infinite',
       ...style,
     }} />
+<<<<<<< HEAD
 >>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+>>>>>>> 29bc69d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
   );
 }
 
@@ -223,9 +229,14 @@ export default function MapView() {
     let mounted = true;
     setLoading(true);
     getListings()
+<<<<<<< HEAD
       .then((response) => {
         if (!mounted) return;
         const data = response && response.data ? response.data : response;
+=======
+      .then((data) => {
+        if (!mounted) return;
+>>>>>>> 29bc69d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
         setListings(Array.isArray(data) ? data : []);
         setLoading(false);
       })
