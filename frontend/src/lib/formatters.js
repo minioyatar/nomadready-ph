@@ -1,8 +1,6 @@
 // Shared formatting helpers
 
-export function formatScore(score) {
-  return Math.round(score);
-}
+export const formatScore = (score) => Math.round(score);
 
 export function getScoreColor(score) {
   if (score >= 90) return "text-green-600";

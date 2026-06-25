@@ -1,4 +1,10 @@
-// Placeholder — implemented in feature/dashboard-overview
-export default function LoadingState({ message = "Loading..." }) {
-  return <div className="p-6 text-gray-400 text-sm">{message}</div>;
+import React from 'react';
+
+export default function LoadingState({ message = 'Loading...' }) {
+  return (
+    <div style={{ padding: 20, textAlign: 'center', color: '#777' }}>
+      <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+      <div>{message}</div>
+    </div>
+  );
 }
