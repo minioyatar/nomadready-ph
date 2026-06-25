@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Placeholder — implemented in feature/map-view
 export default function AssetMap() {
   return null;
@@ -35,13 +36,58 @@ function buildPinIcon(color) {
     popupAnchor: [0, -32],
   });
 }
+=======
+import React, { useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// ─── Category → color map (kept in sync with MapLegend.jsx) ───────────────────
+
+const CATEGORY_COLORS = {
+  work_spots:     '#534AB7',
+  accommodations: '#D85A30',
+  services:       '#0F6E56',
+  transport:      '#BA7517',
+  attractions:    '#6A1B9A',
+};
+
+const DEFAULT_COLOR = '#888888';
+
+// ─── Build a Leaflet divIcon from inline SVG (no external PNG dependency) ─────
+
+function buildPinIcon(color) {
+  const svg = `
+    <svg width="28" height="38" viewBox="0 0 28 38" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M14 2C8.477 2 4 6.477 4 12c0 7.5 10 24 10 24S24 19.5 24 12c0-5.523-4.477-10-10-10z"
+        fill="${color}"
+        stroke="rgba(0,0,0,0.18)"
+        stroke-width="1"
+      />
+      <circle cx="14" cy="12" r="4.5" fill="#fff" opacity="0.92"/>
+    </svg>
+  `;
+
+  return L.divIcon({
+    html: svg,
+    className: 'asset-map-pin', // strips Leaflet's default white box/shadow styles
+    iconSize: [28, 38],
+    iconAnchor: [14, 36],   // tip of the pin touches the coordinate
+    popupAnchor: [0, -32],
+  });
+}
+>>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 
 export default function AssetMap({
   center = [11.5585, 122.5890],
   zoom = 13,
   listings = [],
   tileUrl,
+<<<<<<< HEAD
   interactive = true,
+=======
+>>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 }) {
   // Cache one icon instance per category instead of rebuilding per-marker render
   const iconsByCategory = useMemo(() => {
@@ -53,6 +99,7 @@ export default function AssetMap({
     return cache;
   }, []);
 
+<<<<<<< HEAD
   // Ensure latitude and longitude are present and parse to finite numbers.
   // Number(null) and Number('') both return 0 (a finite number), so an explicit
   // null/empty-string guard is required before the Number() conversion — otherwise
@@ -62,12 +109,16 @@ export default function AssetMap({
     if (l.latitude === '' || l.longitude === '') return false;
     return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
   });
+=======
+  const validListings = listings.filter((l) => l.latitude && l.longitude);
+>>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 
   return (
     <MapContainer
       center={center}
       zoom={zoom}
       style={{ height: '100%', width: '100%' }}
+<<<<<<< HEAD
       dragging={interactive}
       scrollWheelZoom={interactive}
       doubleClickZoom={interactive}
@@ -76,6 +127,8 @@ export default function AssetMap({
       keyboard={interactive}
       zoomControl={interactive}
       attributionControl={interactive}
+=======
+>>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
     >
       <TileLayer url={tileUrl} />
       {validListings.map((l) => {
@@ -97,5 +150,9 @@ export default function AssetMap({
       })}
     </MapContainer>
   );
+<<<<<<< HEAD
 }
 >>>>>>> 08d0eba (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+}
+>>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)

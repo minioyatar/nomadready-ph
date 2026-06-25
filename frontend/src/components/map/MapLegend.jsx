@@ -1,31 +1,27 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
 
-// All possible categories defined in the palette
-const ALL_CATEGORIES = CATEGORY_PALETTE;
-
-
 /**
  * MapLegend displays a color key for the categories present in the provided listings.
- * If no listings are supplied, it falls back to showing all categories.
+ * If no listings are supplied, it falls back to showing all categories defined
+ * in the shared `CATEGORY_PALETTE`.
  */
 export default function MapLegend({ listings = [] }) {
-  // Determine which categories actually have listings with coordinates
+  const itemRefs = useRef([]);
+  const timers = useRef([]);
+
   const presentCategories = useMemo(() => {
     const set = new Set();
-    listings.forEach((l) => {
-      if (l.category) set.add(l.category);
+    (listings || []).forEach((l) => {
+      if (l && l.category) set.add(l.category);
     });
     return set;
   }, [listings]);
 
-  // Filter the palette to only those categories that appear in the data
   const CATEGORIES = useMemo(() => {
-    if (presentCategories.size === 0) return ALL_CATEGORIES;
-    return ALL_CATEGORIES.filter((cat) => presentCategories.has(cat.key));
+    if (!presentCategories || presentCategories.size === 0) return CATEGORY_PALETTE;
+    return CATEGORY_PALETTE.filter((cat) => presentCategories.has(cat.key));
   }, [presentCategories]);
-  const itemRefs = useRef([]);
-  const timers = useRef([]);
 
   useEffect(() => {
     timers.current.forEach(clearTimeout);
@@ -79,13 +75,7 @@ export default function MapLegend({ listings = [] }) {
           <div
             key={cat.key}
             ref={(el) => (itemRefs.current[i] = el)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              opacity: 0,
-              transform: 'translateX(8px)',
-            }}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: 0, transform: 'translateX(8px)' }}
           >
             <svg width="14" height="19" viewBox="0 0 28 38" style={{ flexShrink: 0 }}>
               <path
