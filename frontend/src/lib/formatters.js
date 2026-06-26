@@ -1,6 +1,10 @@
 // Shared formatting helpers
 
-export const formatScore = (score) => Math.round(score);
+export function formatScore(score) {
+  const num = Number(score);
+  if (Number.isNaN(num)) return null; // callers can render a placeholder dash
+  return Math.round(num);
+}
 
 export function getScoreColor(score) {
   if (score >= 90) return "text-green-600";

@@ -1,5 +1,16 @@
 // Shared constants — do not import from route files, import from here
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || '';
+
+export const ENDPOINTS = {
+  CURRENT_SCORE: '/api/scores/current/',
+  RECALCULATE_SCORE: '/api/scores/recalculate/',
+  LISTINGS: '/api/listings/',
+  DESTINATIONS: '/api/destinations/',
+  AI_ADVISOR: '/api/ai-advisor/generate/',
+  GENERATE_AI_ADVICE: '/api/ai-advisor/generate/',
+};
+
 export const LISTING_CATEGORIES = [
   { value: "all", label: "All" },
   { value: "work_spot", label: "Work Spots" },
@@ -23,22 +34,17 @@ export const SCORE_LABELS = {
   HIGHLY_READY: "Highly NomadReady Destination",
 };
 
-// Use Vite environment variables in the browser (import.meta.env)
-// Default to the backend dev server when no VITE_API_BASE_URL is defined
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-export const ENDPOINTS = {
-  CURRENT_SCORE: '/api/scores/current/',
-  RECALCULATE_SCORE: '/api/scores/recalculate/',
-  LISTINGS: '/api/listings/',
+export const CARLES_CENTER = {
+  lat: 11.4000,
+  lng: 122.5583,
 };
 
-export const WEIGHTS = {
-  internet_work: 0.3,
-  accommodation: 0.2,
-  safety_services: 0.2,
+export const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+export const CATEGORY_WEIGHTS = {
+  internet_work: 0.30,
+  accommodation: 0.20,
+  safety_services: 0.20,
   transport: 0.15,
   tourism_lifestyle: 0.15,
 };
-
-export const CARLES_CENTER = { lat: 11.5585, lng: 122.5890 };
-export const MAP_TILE_URL = import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';

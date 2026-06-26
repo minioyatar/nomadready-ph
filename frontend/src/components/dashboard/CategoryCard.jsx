@@ -38,13 +38,13 @@ export default function CategoryCard({
           <circle cx={cx} cy={cy} r={r} fill="none" stroke="#ECE6DB" strokeWidth={stroke} />
           <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${filled} ${gap}`} transform={`rotate(-90 ${cx} ${cy})`} />
           <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle" style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: "15px", fill: "#2C2A28" }}>
-            {score}
+            {Math.round(pct)}
           </text>
         </svg>
 
         <div>
           <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: "30px", fontWeight: 700, lineHeight: 1, color: "#2C2A28" }}>
-            {score}
+            {Math.round(pct)}
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#BCB4A7", marginLeft: "2px" }}>/100</span>
           </div>
           <div style={{ marginTop: "6px", height: "6px", width: "80px", background: "#ECE6DB", borderRadius: "3px", overflow: "hidden" }}>

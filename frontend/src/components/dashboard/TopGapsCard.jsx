@@ -195,7 +195,15 @@ export default function TopGapsCard({ topGaps = [] }) {
                   className="tg-item"
                   ref={(el) => (itemRefs.current[i] = el)}
                   style={{ opacity: 0, transform: "translateX(-10px)" }}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setExpanded(isOpen ? null : i)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setExpanded(isOpen ? null : i);
+                    }
+                  }}
                   aria-label={`Gap: ${g}`}
                 >
                   <div className="tg-item-top">
