@@ -1,103 +1,46 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AssetFilters({ options, activeCategory, onCategoryChange, count }) {
-  const btnRefs  = useRef([]);
-  const countRef = useRef(null);
-  const timers   = useRef([]);
+  const [visible, setVisible] = useState([]);
+  const [countVisible, setCountVisible] = useState(false);
 
   useEffect(() => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    setVisible([]);
+    setCountVisible(false);
 
-    // Reset
-    btnRefs.current.forEach((el) => {
-      if (!el) return;
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(8px)';
-      el.style.transition = 'none';
-    });
-    if (countRef.current) {
-      countRef.current.style.opacity = '0';
-      countRef.current.style.transition = 'none';
-    }
+    const timers = options.map((_, i) =>
+      setTimeout(() => setVisible((v) => [...v, i]), i * 55)
+    );
+    const countTimer = setTimeout(
+      () => setCountVisible(true),
+      options.length * 55 + 80
+    );
 
-    // Stagger buttons in
-    btnRefs.current.forEach((el, i) => {
-      const t = setTimeout(() => {
-        if (!el) return;
-        el.style.transition = 'opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.3,0.64,1)';
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-      }, i * 55);
-      timers.current.push(t);
-    });
-
-    // Count fades in last
-    const t = setTimeout(() => {
-      if (!countRef.current) return;
-      countRef.current.style.transition = 'opacity 0.4s ease';
-      countRef.current.style.opacity = '1';
-    }, options.length * 55 + 80);
-    timers.current.push(t);
-
-    return () => timers.current.forEach(clearTimeout);
-  }, [activeCategory]); // re-run stagger on category change too
+    return () => { timers.forEach(clearTimeout); clearTimeout(countTimer); };
+  }, [activeCategory, options.length]);
 
   return (
-    <div style={{
-      marginBottom: '20px',
-      display: 'flex',
-      gap: '8px',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-    }}>
-      {options.map((opt, i) => (
-        <button
-          key={opt.value}
-          ref={(el) => (btnRefs.current[i] = el)}
-          onClick={() => onCategoryChange(opt.value)}
-          style={{
-            padding: '7px 14px',
-            borderRadius: '8px',
-            border: activeCategory === opt.value ? '2px solid #D85A30' : '1.5px solid #e0dbd3',
-            background: activeCategory === opt.value ? '#fff5f0' : '#fff',
-            color: activeCategory === opt.value ? '#D85A30' : '#666',
-            cursor: 'pointer',
-            fontSize: '13px',
-            fontWeight: activeCategory === opt.value ? '600' : '500',
-            transition: 'border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease',
-            opacity: 0,
-            transform: 'translateY(8px)',
-          }}
-          onMouseEnter={(e) => {
-            if (activeCategory !== opt.value) {
-              e.currentTarget.style.borderColor = '#D85A30';
-              e.currentTarget.style.background = '#fdf9f6';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeCategory !== opt.value) {
-              e.currentTarget.style.borderColor = '#e0dbd3';
-              e.currentTarget.style.background = '#fff';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }
-          }}
-        >
-          {opt.label}
-        </button>
-      ))}
+    <div className="mb-5 flex flex-wrap items-center gap-2">
+      {options.map((opt, i) => {
+        const isActive = activeCategory === opt.value;
+        const shown = visible.includes(i);
+        const baseClasses = "px-3.5 py-1.5 rounded-md text-sm font-medium cursor-pointer border transition-colors";
+        const activeClasses = "border-[#D85A30] bg-[#fff5f0] text-[#D85A30] font-semibold";
+        const inactiveClasses = "border-[1.5px] border-[#e0dbd3] bg-white text-[#666] font-medium hover:border-[#D85A30] hover:bg-[#fdf9f6]";
+        const visibilityClasses = shown ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2";
+        return (
+          <button
+            key={opt.value}
+            onClick={() => onCategoryChange(opt.value)}
+            aria-pressed={isActive}
+            className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses} ${visibilityClasses} duration-300`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
 
-      <span
-        ref={countRef}
-        style={{
-          marginLeft: 'auto',
-          fontSize: '12px',
-          color: '#aaa',
-          fontWeight: 500,
-          opacity: 0,
-        }}
-      >
+      <span className={`ml-auto text-xs text-gray-400 font-medium transition-opacity ${countVisible ? 'opacity-100' : 'opacity-0'}`}>
         {count} result{count !== 1 ? 's' : ''}
       </span>
     </div>

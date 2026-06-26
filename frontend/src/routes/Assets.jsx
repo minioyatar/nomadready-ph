@@ -13,77 +13,70 @@ const CATEGORIES = [
 ];
 
 export default function Assets() {
-  const [listings, setListings]           = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState(null);
+  const [listings, setListings]             = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const headerRef  = useRef(null);
-  const filtersRef = useRef(null);
-  const tableRef   = useRef(null);
-  const timers     = useRef([]);
+  // Block-level entrance: 0=header, 1=filters, 2=table
+  const [shown, setShown] = useState([false, false, false]);
+  const timers   = useRef([]);
+  const requestId = useRef(0);
 
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
 
-  useEffect(() => {
-    loadListings();
-  }, [activeCategory]);
+  useEffect(() => { loadListings(); }, [activeCategory]);
 
-  // Entrance animation whenever content is ready (not loading, no error, has listings)
+  // Re-run entrance animation whenever loading state changes
   useEffect(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-
-    const blocks = [headerRef, filtersRef, tableRef];
-    blocks.forEach((r) => {
-      if (!r.current) return;
-      r.current.style.opacity = '0';
-      r.current.style.transform = 'translateY(16px)';
-      r.current.style.transition = 'none';
+    setShown([false, false, false]);
+    [0, 1, 2].forEach((i) => {
+      later(() => setShown((s) => { const n = [...s]; n[i] = true; return n; }), 60 + i * 130);
     });
-
-    blocks.forEach((r, i) => {
-      later(() => {
-        if (!r.current) return;
-        r.current.style.transition = 'opacity 0.55s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
-        r.current.style.opacity = '1';
-        r.current.style.transform = 'translateY(0)';
-      }, 60 + i * 130);
-    });
-
     return () => timers.current.forEach(clearTimeout);
   }, [loading, error]);
 
   const loadListings = async () => {
+    const id = ++requestId.current;
     setLoading(true);
     setError(null);
     try {
       const params = activeCategory !== 'all' ? { category: activeCategory } : {};
-      const data = await getListings(params);
+      const response = await getListings(params);
+      const data = response && response.data ? response.data : response;
+      if (id !== requestId.current) return;
       setListings(data || []);
     } catch (err) {
+      if (id !== requestId.current) return;
       setError(err?.message || 'Failed to load assets');
       setListings([]);
     } finally {
+      // Loading state should be cleared for the latest request only.
+      // The requestId check is unnecessary here because earlier returns
+      // already guard against stale responses.
       setLoading(false);
     }
   };
 
+  const block = (i) =>
+    `transition-[opacity,transform] duration-500 ease-out ${
+      shown[i] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+    }`;
+
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="max-w-[1200px] mx-auto">
 
       {/* Header */}
-      <div ref={headerRef} style={{ marginBottom: '24px', opacity: 0, transform: 'translateY(16px)' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#1a1a1a', marginBottom: '4px' }}>
-          Local Assets
-        </h1>
-        <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>
+      <div className={`mb-6 ${block(0)}`}>
+        <p className="text-[13px] text-[#888] m-0">
           Browse verified work spots, accommodations, and services
         </p>
       </div>
 
       {/* Filters */}
-      <div ref={filtersRef} style={{ opacity: 0, transform: 'translateY(16px)' }}>
+      <div className={block(1)}>
         <AssetFilters
           options={CATEGORIES}
           activeCategory={activeCategory}
@@ -92,30 +85,22 @@ export default function Assets() {
         />
       </div>
 
-      {/* Content area */}
-      <div ref={tableRef} style={{ opacity: 0, transform: 'translateY(16px)' }}>
+      {/* Content */}
+      <div className={block(2)}>
 
-        {/* Loading skeleton */}
+        {/* Skeleton */}
         {loading && <AssetTableSkeleton />}
 
         {/* Error */}
         {!loading && error && (
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-            background: '#fbe9e7', borderRadius: '12px', color: '#D85A30',
-          }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>Failed to load assets</h3>
-            <p style={{ fontSize: '13px', marginBottom: '16px', color: '#C1553E' }}>{error}</p>
+          <div className="text-center py-16 px-5 bg-[#fbe9e7] rounded-xl text-[#D85A30]">
+            <div className="text-4xl mb-3">⚠️</div>
+            <h3 className="text-[15px] font-semibold mb-1">Failed to load assets</h3>
+            <p className="text-[13px] text-[#C1553E] mb-4">{error}</p>
             <button
               onClick={loadListings}
-              style={{
-                padding: '8px 16px', borderRadius: '8px', border: 'none',
-                background: '#D85A30', color: '#fff', cursor: 'pointer',
-                fontSize: '13px', fontWeight: '600',
-              }}
-              onMouseEnter={(e) => (e.target.style.background = '#C1553E')}
-              onMouseLeave={(e) => (e.target.style.background = '#D85A30')}
+              className="px-4 py-2 rounded-lg bg-[#D85A30] text-white text-[13px] font-semibold
+                         border-none cursor-pointer hover:bg-[#C1553E] transition-colors duration-150"
             >
               Try Again
             </button>
@@ -124,13 +109,10 @@ export default function Assets() {
 
         {/* Empty */}
         {!loading && !error && listings.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-            background: '#f9f7f4', borderRadius: '12px', color: '#666',
-          }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>No assets found</h3>
-            <p style={{ fontSize: '13px', color: '#999' }}>
+          <div className="text-center py-16 px-5 bg-[#f9f7f4] rounded-xl text-[#666]">
+            <div className="text-4xl mb-3">📋</div>
+            <h3 className="text-[15px] font-semibold mb-1">No assets found</h3>
+            <p className="text-[13px] text-[#999]">
               {activeCategory !== 'all'
                 ? `No ${activeCategory.replace(/_/g, ' ')} available yet.`
                 : 'No local assets available yet.'}
@@ -147,17 +129,15 @@ export default function Assets() {
   );
 }
 
-// ─── Table skeleton matching AssetTable layout ────────────────────────────────
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
+function Sk({ className = '', style = {} }) {
   return (
-    <div style={{
-      width, height, borderRadius: radius,
-      background: 'linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)',
-      backgroundSize: '200% 100%',
-      animation: 'assetShimmer 1.4s ease-in-out infinite',
-      ...style,
-    }} />
+    <div
+      className={`rounded-md bg-gradient-to-r from-[#f5f0e8] via-[#ece7de] to-[#f5f0e8]
+                  bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] ${className}`}
+      style={style}
+    />
   );
 }
 
@@ -165,36 +145,27 @@ function AssetTableSkeleton() {
   return (
     <>
       <style>{`
-        @keyframes assetShimmer {
+        @keyframes shimmer {
           0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
       `}</style>
-      <div style={{ borderRadius: '12px', border: '1px solid #ece8e2', overflow: 'hidden' }}>
+      <div className="rounded-xl border border-[#ece8e2] overflow-hidden">
         {/* thead */}
-        <div style={{ background: '#f9f7f4', borderBottom: '1px solid #ece8e2', padding: '12px 16px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 16 }}>
-          {['45%', '35%', '40%', '30%'].map((w, i) => (
-            <Sk key={i} width={w} height={11} />
+        <div className="bg-[#f9f7f4] border-b border-[#ece8e2] px-4 py-3
+                        grid grid-cols-[2fr_1fr_1fr_1fr] gap-4">
+          {['w-[45%]', 'w-[35%]', 'w-[40%]', 'w-[30%]'].map((w, i) => (
+            <Sk key={i} className={`h-[11px] ${w}`} />
           ))}
         </div>
         {/* rows */}
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            style={{
-              padding: '14px 16px',
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr 1fr 1fr',
-              gap: 16,
-              borderBottom: '1px solid #ece8e2',
-              alignItems: 'center',
-              animationDelay: `${i * 0.06}s`,
-            }}
-          >
-            <Sk width="70%" height={13} />
-            <Sk width={80} height={24} radius={6} />
-            <Sk width={90} height={24} radius={6} />
-            <Sk width="55%" height={13} />
+          <div key={i} className="px-4 py-[14px] grid grid-cols-[2fr_1fr_1fr_1fr]
+                                  gap-4 border-b border-[#ece8e2] items-center">
+            <Sk className="h-[13px] w-[70%]" />
+            <Sk className="h-6 w-20 rounded-md" />
+            <Sk className="h-6 w-[90px] rounded-md" />
+            <Sk className="h-[13px] w-[55%]" />
           </div>
         ))}
       </div>
