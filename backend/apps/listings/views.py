@@ -25,5 +25,6 @@ class ListingListView(generics.ListAPIView):
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
     # Use DjangoFilterBackend for simple exact filters
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["category", "verification_status"]
+    # Use immutable tuples for class‑level configuration to avoid mutable defaults.
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ("category", "verification_status")

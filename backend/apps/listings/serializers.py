@@ -31,7 +31,8 @@ class ListingSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Listing
 		# Explicit field list to guarantee ordering and avoid accidental exposure
-		fields = [
+		# Use immutable tuples to prevent accidental mutation at runtime and satisfy linting.
+		fields = (
 			"id",
 			"destination",
 			"name",
@@ -44,5 +45,5 @@ class ListingSerializer(serializers.ModelSerializer):
 			"verification_status",
 			"created_at",
 			"updated_at",
-		]
+		)
 		read_only_fields = fields

@@ -55,16 +55,20 @@ class ListingsAPITest(TestCase):
 
 	def test_category_filter(self):
 		data = self._get_response("?category=work_spot")
+		# Ensure the filter returns at least one result before iterating.
+		self.assertGreater(len(data), 0, "Category filter returned empty result set")
 		for item in data:
 			self.assertEqual(item["category"], "work_spot")
 
 	def test_verification_status_filter(self):
 		data = self._get_response("?verification_status=lgu_verified")
+		self.assertGreater(len(data), 0, "Verification status filter returned empty result set")
 		for item in data:
 			self.assertEqual(item["verification_status"], "lgu_verified")
 
 	def test_combined_filters(self):
 		data = self._get_response("?category=service&verification_status=lgu_verified")
+		self.assertGreater(len(data), 0, "Combined filters returned empty result set")
 		for item in data:
 			self.assertEqual(item["category"], "service")
 			self.assertEqual(item["verification_status"], "lgu_verified")
