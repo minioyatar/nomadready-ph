@@ -11,10 +11,44 @@ function SparkleIcon() {
   );
 }
 
-function scoreRing(score) {
-  if (score >= 75) return { ring: 'var(--orange)', ringSoft: 'var(--orange-light)' };
-  if (score >= 50) return { ring: 'var(--purple)', ringSoft: 'var(--purple-pale)' };
-  return { ring: 'var(--red)', ringSoft: 'var(--red-light)' };
+function scoreTone(score) {
+  if (score >= 75) return { ring: '#F0901F', soft: '#FCEBD6' };
+  if (score >= 50) return { ring: '#842B8E', soft: '#F0E2F2' };
+  return { ring: '#E2571A', soft: '#FBE3D4' };
+}
+
+// Real SVG ring: a background track + a foreground arc that fills
+// proportionally to score, instead of a flat conic-gradient disc.
+function ScoreRing({ score }) {
+  const { ring, soft } = scoreTone(score);
+  const size = 108;
+  const stroke = 10;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - Math.min(Math.max(score, 0), 100) / 100);
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke={soft} strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size / 2} cy={size / 2} r={radius}
+          stroke={ring} strokeWidth={stroke} fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1)' }}
+        />
+      </svg>
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span className="donut-number">{formatScore(score)}</span>
+        <span className="donut-denom">/ 100</span>
+      </div>
+    </div>
+  );
 }
 
 export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData }) {
@@ -23,36 +57,31 @@ export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData 
   const strongest = snapshot?.strongest_category ?? '—';
   const weakest = snapshot?.weakest_category ?? '—';
   const topGaps = snapshot?.top_gaps || [];
-  const { ring, ringSoft } = scoreRing(overall);
 
   return (
     <div className="mid-grid" style={{ marginTop: 14 }}>
       {/* Left: score + strongest/weakest + generate action */}
       <Card style={{ padding: '26px 28px' }}>
-        <div className="readiness-top" style={{ flexWrap: 'wrap' }}>
-          <div
-            className="donut-ring"
-            style={{ background: `conic-gradient(${ring} ${overall * 3.6}deg, ${ringSoft} 0deg)` }}
-          >
-            <div className="donut-inner">
-              <span className="donut-number">{formatScore(overall)}</span>
-              <span className="donut-denom">/ 100</span>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+          <ScoreRing score={overall} />
+
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <h2 style={{ fontSize: 19, marginBottom: 12 }}>{label || 'Readiness snapshot'}</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0F6E56', flexShrink: 0 }} />
+                <span style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Strongest</span>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F6E56' }}>{strongest}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red-mid)', flexShrink: 0 }} />
+                <span style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Weakest</span>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--red-mid)' }}>{weakest}</span>
+              </div>
             </div>
           </div>
 
-          <div className="readiness-info" style={{ minWidth: 200 }}>
-            <h2 style={{ fontSize: 19 }}>{label || 'Readiness snapshot'}</h2>
-            <p style={{ marginBottom: 10 }}>
-              <strong style={{ color: 'var(--text-dark)' }}>Strongest:</strong>{' '}
-              <span style={{ color: '#0F6E56', fontWeight: 600 }}>{strongest}</span>
-            </p>
-            <p style={{ marginBottom: 0 }}>
-              <strong style={{ color: 'var(--text-dark)' }}>Weakest:</strong>{' '}
-              <span style={{ color: 'var(--red-mid)', fontWeight: 600 }}>{weakest}</span>
-            </p>
-          </div>
-
-          <div style={{ flexShrink: 0 }}>
+          <div style={{ flexShrink: 0, alignSelf: 'center' }}>
             <Button
               onClick={onGenerate}
               disabled={generating}
@@ -66,7 +95,7 @@ export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData 
         </div>
 
         {aiData && (
-          <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid #F0EBE2' }}>
+          <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid #F0EBE2' }}>
             <div className="section-title" style={{ fontSize: 14, marginBottom: 8 }}>
               <SparkleIcon />
               AI Preview
@@ -87,7 +116,7 @@ export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData 
           {topGaps.length === 0 ? (
             <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>No major gaps detected.</p>
           ) : (
-            topGaps.slice(0, 5).map((g, i) => (
+            topGaps.slice(0, 5).map((g) => (
               <div className="gap-item" key={g}>
                 <div className="gap-icon" style={{ background: 'var(--red-light)', color: 'var(--red-mid)' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
