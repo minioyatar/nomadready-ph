@@ -112,8 +112,9 @@ export default function MapView() {
     let mounted = true;
     setLoading(true);
     getListings()
-      .then((data) => {
+      .then((response) => {
         if (!mounted) return;
+        const data = response && response.data ? response.data : response;
         setListings(Array.isArray(data) ? data : []);
         setLoading(false);
       })

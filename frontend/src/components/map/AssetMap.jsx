@@ -2,16 +2,7 @@ import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-
-// ─── Category → color map (kept in sync with MapLegend.jsx) ───────────────────
-
-const CATEGORY_COLORS = {
-  work_spots:     '#534AB7',
-  accommodations: '#D85A30',
-  services:       '#0F6E56',
-  transport:      '#BA7517',
-  attractions:    '#6A1B9A',
-};
+import { CATEGORY_COLORS } from '../../lib/categoryPalette';
 
 const DEFAULT_COLOR = '#888888';
 
@@ -44,6 +35,7 @@ export default function AssetMap({
   zoom = 13,
   listings = [],
   tileUrl,
+  interactive = true,
 }) {
   // Cache one icon instance per category instead of rebuilding per-marker render
   const iconsByCategory = useMemo(() => {
@@ -55,13 +47,26 @@ export default function AssetMap({
     return cache;
   }, []);
 
-  const validListings = listings.filter((l) => l.latitude && l.longitude);
+  // Ensure latitude and longitude are finite numbers (0 is valid)
+  const validListings = listings.filter((l) => {
+    const lat = Number(l.latitude);
+    const lng = Number(l.longitude);
+    return Number.isFinite(lat) && Number.isFinite(lng);
+  });
 
   return (
     <MapContainer
       center={center}
       zoom={zoom}
       style={{ height: '100%', width: '100%' }}
+      dragging={interactive}
+      scrollWheelZoom={interactive}
+      doubleClickZoom={interactive}
+      touchZoom={interactive}
+      boxZoom={interactive}
+      keyboard={interactive}
+      zoomControl={interactive}
+      attributionControl={interactive}
     >
       <TileLayer url={tileUrl} />
       {validListings.map((l) => {
