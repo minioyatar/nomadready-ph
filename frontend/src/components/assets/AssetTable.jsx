@@ -9,10 +9,8 @@ const CATEGORY_STYLES = {
 };
 
 function CategoryBadge({ category }) {
-  // Guard against null/undefined category values
-  const safeCategory = typeof category === 'string' ? category : '';
-  const s = CATEGORY_STYLES[safeCategory] || { bg: '#f5f5f5', color: '#666' };
-  const label = safeCategory ? safeCategory.replace(/_/g, ' ') : '—';
+  const s = CATEGORY_COLORS[category] || { bg: '#f5f5f5', color: '#666' };
+  const label = category ? category.replace(/_/g, ' ') : 'uncategorized';
   return (
     <span style={{
       display: 'inline-block',

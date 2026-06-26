@@ -139,10 +139,14 @@ export default function AssetMap({
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3972516 (feat: Enhance AssetFilters with staggered animations and improve AssetTable category display)
   // Ensure latitude and longitude are present and parse to finite numbers.
   // Number(null) and Number('') both return 0 (a finite number), so an explicit
   // null/empty-string guard is required before the Number() conversion — otherwise
   // listings with missing coordinates silently appear at 0°N 0°E (Gulf of Guinea).
+<<<<<<< HEAD
   const validListings = listings.filter((l) => {
     if (l.latitude == null || l.longitude == null) return false;
     if (l.latitude === '' || l.longitude === '') return false;
@@ -155,10 +159,12 @@ export default function AssetMap({
 =======
 >>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
   // Ensure latitude and longitude are finite numbers (0 is valid)
+=======
+>>>>>>> 3972516 (feat: Enhance AssetFilters with staggered animations and improve AssetTable category display)
   const validListings = listings.filter((l) => {
-    const lat = Number(l.latitude);
-    const lng = Number(l.longitude);
-    return Number.isFinite(lat) && Number.isFinite(lng);
+    if (l.latitude == null || l.longitude == null) return false;
+    if (l.latitude === '' || l.longitude === '') return false;
+    return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
   });
 <<<<<<< HEAD
 >>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
@@ -224,6 +230,7 @@ export default function AssetMap({
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 >>>>>>> 08d0eba (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 =======
@@ -238,3 +245,6 @@ export default function AssetMap({
 =======
 }
 >>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
+=======
+}
+>>>>>>> 3972516 (feat: Enhance AssetFilters with staggered animations and improve AssetTable category display)

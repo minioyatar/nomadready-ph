@@ -21,9 +21,12 @@ export default function Assets() {
   const requestId = useRef(0);
   const mounted = useRef(true);
 
-  // Helper to schedule a timeout and track it in the appropriate timer array.
-  const laterMount = (fn, ms) => { mountTimers.current.push(setTimeout(fn, ms)); };
-  const laterContent = (fn, ms) => { contentTimers.current.push(setTimeout(fn, ms)); };
+  // Monotonically-increasing counter. Each call to loadListings captures its
+  // own snapshot; if a newer call has already started by the time the await
+  // resolves, the snapshot no longer matches and the result is discarded.
+  const requestId = useRef(0);
+
+  const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
 
   useEffect(() => { loadListings(); }, [activeCategory]);
 
@@ -77,29 +80,33 @@ export default function Assets() {
   }, [loading, error]);
 
   const loadListings = async () => {
-    const id = ++requestId.current;
+    // Claim this request's identity before any await so the check below is
+    // always comparing against the most recent call, not a closure-captured value.
+    const thisId = ++requestId.current;
+
     setLoading(true);
     setError(null);
     try {
       // activeCategory now matches backend enum values directly (singular).
       // The special "all" case should omit the category filter.
       const params = activeCategory !== 'all' ? { category: activeCategory } : {};
-      const response = await getListings(params);
-      const data = response && response.data ? response.data : response;
-      if (id !== requestId.current) return;
-      if (!mounted.current) return;
-      setListings(data || []);
+      // Unwrap at the call site: getListings may return a raw Axios response
+      // ({ data: [...] }) or the array directly depending on the api layer.
+      // Normalising here keeps Assets.jsx correct either way.
+      const result = await getListings(params);
+      const payload = Array.isArray(result) ? result : (result?.data ?? []);
+
+      // Discard stale responses — a newer request has already taken ownership
+      if (thisId !== requestId.current) return;
+
+      setListings(payload);
     } catch (err) {
-      if (id !== requestId.current) return;
-      if (!mounted.current) return;
+      if (thisId !== requestId.current) return; // also discard stale errors
       setError(err?.message || 'Failed to load assets');
       setListings([]);
     } finally {
-      // Only clear loading if this is the latest request to avoid stale
-      // responses turning off the spinner prematurely.
-      if (id === requestId.current && mounted.current) {
-        setLoading(false);
-      }
+      // Only clear the loading flag for the request that currently owns state
+      if (thisId === requestId.current) setLoading(false);
     }
   };
 
