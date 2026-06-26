@@ -13,15 +13,20 @@ const CATEGORIES = [
 ];
 
 export default function Assets() {
-  const [listings, setListings]           = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState(null);
+  const [listings, setListings]             = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
   const headerRef  = useRef(null);
   const filtersRef = useRef(null);
   const tableRef   = useRef(null);
   const timers     = useRef([]);
+
+  // Monotonically-increasing counter. Each call to loadListings captures its
+  // own snapshot; if a newer call has already started by the time the await
+  // resolves, the snapshot no longer matches and the result is discarded.
+  const requestId = useRef(0);
 
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
 
@@ -55,17 +60,31 @@ export default function Assets() {
   }, [loading, error]);
 
   const loadListings = async () => {
+    // Claim this request's identity before any await so the check below is
+    // always comparing against the most recent call, not a closure-captured value.
+    const thisId = ++requestId.current;
+
     setLoading(true);
     setError(null);
     try {
       const params = activeCategory !== 'all' ? { category: activeCategory } : {};
-      const data = await getListings(params);
-      setListings(data || []);
+      // Unwrap at the call site: getListings may return a raw Axios response
+      // ({ data: [...] }) or the array directly depending on the api layer.
+      // Normalising here keeps Assets.jsx correct either way.
+      const result = await getListings(params);
+      const payload = Array.isArray(result) ? result : (result?.data ?? []);
+
+      // Discard stale responses — a newer request has already taken ownership
+      if (thisId !== requestId.current) return;
+
+      setListings(payload);
     } catch (err) {
+      if (thisId !== requestId.current) return; // also discard stale errors
       setError(err?.message || 'Failed to load assets');
       setListings([]);
     } finally {
-      setLoading(false);
+      // Only clear the loading flag for the request that currently owns state
+      if (thisId === requestId.current) setLoading(false);
     }
   };
 

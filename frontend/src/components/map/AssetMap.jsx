@@ -47,11 +47,14 @@ export default function AssetMap({
     return cache;
   }, []);
 
-  // Ensure latitude and longitude are finite numbers (0 is valid)
+  // Ensure latitude and longitude are present and parse to finite numbers.
+  // Number(null) and Number('') both return 0 (a finite number), so an explicit
+  // null/empty-string guard is required before the Number() conversion — otherwise
+  // listings with missing coordinates silently appear at 0°N 0°E (Gulf of Guinea).
   const validListings = listings.filter((l) => {
-    const lat = Number(l.latitude);
-    const lng = Number(l.longitude);
-    return Number.isFinite(lat) && Number.isFinite(lng);
+    if (l.latitude == null || l.longitude == null) return false;
+    if (l.latitude === '' || l.longitude === '') return false;
+    return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
   });
 
   return (
