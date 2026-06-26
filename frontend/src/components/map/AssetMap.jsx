@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+// Placeholder — implemented in feature/map-view
+export default function AssetMap() {
+  return null;
+}
+=======
 import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -47,7 +53,6 @@ export default function AssetMap({
     return cache;
   }, []);
 
-
   // Ensure latitude and longitude are present and parse to finite numbers.
   // Number(null) and Number('') both return 0 (a finite number), so an explicit
   // null/empty-string guard is required before the Number() conversion — otherwise
@@ -56,7 +61,6 @@ export default function AssetMap({
     if (l.latitude == null || l.longitude == null) return false;
     if (l.latitude === '' || l.longitude === '') return false;
     return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
-
   });
 
   return (
@@ -94,3 +98,4 @@ export default function AssetMap({
     </MapContainer>
   );
 }
+>>>>>>> 08d0eba (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
