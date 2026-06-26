@@ -1,12 +1,7 @@
 import React, { useRef, useEffect } from 'react';
+import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
 
-const CATEGORIES = [
-  { key: 'work_spots',     label: 'Work Spots',     color: '#534AB7' },
-  { key: 'accommodations', label: 'Accommodations',  color: '#D85A30' },
-  { key: 'services',       label: 'Services',        color: '#0F6E56' },
-  { key: 'transport',      label: 'Transport',       color: '#BA7517' },
-  { key: 'attractions',    label: 'Attractions',     color: '#6A1B9A' },
-];
+const CATEGORIES = CATEGORY_PALETTE;
 
 export default function MapLegend() {
   const itemRefs = useRef([]);
