@@ -66,6 +66,7 @@ export default function AIAdvisor() {
   const [loading, setLoading]   = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError]       = useState(null);
+  const [generationError, setGenerationError] = useState(null);
   const [aiData, setAiData]     = useState(null);
 
   const headerRef = useRef(null);
@@ -131,10 +132,13 @@ export default function AIAdvisor() {
 
   const handleGenerate = async () => {
     if (!snapshot) return;
+    // Reset any previous generation error before starting a new request
+    setGenerationError(null);
     setAiLoading(true);
     setAiData(null);
     try {
       const payload = {
+        // Use the snapshot's destination_name if present; otherwise fallback to a neutral placeholder.
         destination_name: snapshot.destination_name || 'Carles',
         overall_score: snapshot.overall_score,
         score_label: snapshot.score_label,
@@ -153,7 +157,7 @@ export default function AIAdvisor() {
       const res = await generateAIAdvice(payload);
       setAiData(res);
     } catch (err) {
-      setError(err?.message || 'AI generation failed');
+      setGenerationError(err?.message || 'AI generation failed');
     } finally {
       setAiLoading(false);
     }
@@ -186,9 +190,9 @@ export default function AIAdvisor() {
               />
             </div>
 
-            {aiData && (
+            {(aiData || generationError) && (
               <div ref={resultRef} style={{ marginTop: 20 }}>
-                {Array.isArray(aiData.recommendations) && aiData.recommendations.length > 0 && (
+              {Array.isArray(aiData?.recommendations) && aiData.recommendations.length > 0 && (
                   <div className="card" style={{ padding: 22, marginBottom: 20 }}>
                     <div className="section-header">
                       <div className="section-title">Recommendations</div>
@@ -198,14 +202,23 @@ export default function AIAdvisor() {
                       gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                       gap: 12,
                     }}>
-                      {aiData.recommendations.map((rec, i) => (
+                      {aiData.recommendations.slice(0, 3).map((rec, i) => (
                         <RecommendationCard key={i} rec={rec} />
                       ))}
                     </div>
                   </div>
                 )}
 
-                {aiData.summary && (
+                {generationError && (
+                  <div className="card" style={{ padding: 22, marginBottom: 20, background: '#fff5f0', borderColor: '#D85A30' }}>
+                    <div className="section-header">
+                      <div className="section-title" style={{ color: '#D85A30' }}>AI Generation Error</div>
+                    </div>
+                    <p style={{ color: '#D85A30' }}>{generationError}</p>
+                  </div>
+                )}
+
+                {aiData?.summary && (
                   <div className="card" style={{ padding: 22 }}>
                     <div className="section-header">
                       <div className="section-title">AI Summary</div>
