@@ -41,16 +41,7 @@ import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-
-// ─── Category → color map (kept in sync with MapLegend.jsx) ───────────────────
-
-const CATEGORY_COLORS = {
-  work_spots:     '#534AB7',
-  accommodations: '#D85A30',
-  services:       '#0F6E56',
-  transport:      '#BA7517',
-  attractions:    '#6A1B9A',
-};
+import { CATEGORY_COLORS } from '../../lib/categoryPalette';
 
 const DEFAULT_COLOR = '#888888';
 
@@ -85,9 +76,13 @@ export default function AssetMap({
   listings = [],
   tileUrl,
 <<<<<<< HEAD
+<<<<<<< HEAD
   interactive = true,
 =======
 >>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+  interactive = true,
+>>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
 }) {
   // Cache one icon instance per category instead of rebuilding per-marker render
   const iconsByCategory = useMemo(() => {
@@ -99,6 +94,7 @@ export default function AssetMap({
     return cache;
   }, []);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   // Ensure latitude and longitude are present and parse to finite numbers.
   // Number(null) and Number('') both return 0 (a finite number), so an explicit
@@ -112,6 +108,14 @@ export default function AssetMap({
 =======
   const validListings = listings.filter((l) => l.latitude && l.longitude);
 >>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+  // Ensure latitude and longitude are finite numbers (0 is valid)
+  const validListings = listings.filter((l) => {
+    const lat = Number(l.latitude);
+    const lng = Number(l.longitude);
+    return Number.isFinite(lat) && Number.isFinite(lng);
+  });
+>>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
 
   return (
     <MapContainer
@@ -119,6 +123,9 @@ export default function AssetMap({
       zoom={zoom}
       style={{ height: '100%', width: '100%' }}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
       dragging={interactive}
       scrollWheelZoom={interactive}
       doubleClickZoom={interactive}
@@ -127,8 +134,11 @@ export default function AssetMap({
       keyboard={interactive}
       zoomControl={interactive}
       attributionControl={interactive}
+<<<<<<< HEAD
 =======
 >>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+>>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
     >
       <TileLayer url={tileUrl} />
       {validListings.map((l) => {
@@ -151,8 +161,12 @@ export default function AssetMap({
     </MapContainer>
   );
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 >>>>>>> 08d0eba (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 =======
 }
 >>>>>>> e7f199d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+}
+>>>>>>> 3ea952e (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
