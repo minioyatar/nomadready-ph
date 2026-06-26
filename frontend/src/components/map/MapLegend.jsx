@@ -1,8 +1,10 @@
+
 import React, { useRef, useEffect, useMemo } from 'react';
 import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
 
 // All possible categories defined in the palette
 const ALL_CATEGORIES = CATEGORY_PALETTE;
+
 
 /**
  * MapLegend displays a color key for the categories present in the provided listings.
