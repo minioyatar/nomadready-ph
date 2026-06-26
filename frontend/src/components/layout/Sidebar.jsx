@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const NAV_ITEMS = [
   {
@@ -51,7 +51,6 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ userInitials = "CJ", onLogout }) {
-  const navigate = useNavigate();
   const location = useLocation();
   const [hovered, setHovered] = useState(null);
 
@@ -189,15 +188,16 @@ export default function Sidebar({ userInitials = "CJ", onLogout }) {
           width: "100%", padding: "0 10px", flex: 1,
         }}>
           {NAV_ITEMS.map((item, i) => (
-            <div
+            <NavLink
               key={item.key}
+              to={item.path}
               ref={(el) => (navRefs.current[i] = el)}
               className="sb-nav-item"
               style={{ ...getItemStyle(item.key), opacity: 0, transform: "translateX(-10px)" }}
-              onClick={() => navigate(item.path)}
               onMouseEnter={() => setHovered(item.key)}
               onMouseLeave={() => setHovered(null)}
               title={item.label}
+              aria-current={activeKey === item.key ? "page" : undefined}
             >
               {activeKey === item.key && <span className="sb-pip" />}
               {item.icon}
@@ -207,7 +207,7 @@ export default function Sidebar({ userInitials = "CJ", onLogout }) {
               }}>
                 {item.label}
               </span>
-            </div>
+            </NavLink>
           ))}
         </nav>
 

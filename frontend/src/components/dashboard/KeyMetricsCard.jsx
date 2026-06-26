@@ -66,7 +66,7 @@ export default function KeyMetricsCard({ metrics = [] }) {
   const valueRefs = useRef([]);
 
   useEffect(() => {
-    cardRefs.current.forEach((card, i) => {
+    cardRefs.current.forEach((card) => {
       if (!card) return;
       card.style.opacity = '0';
       card.style.transform = 'translateY(14px)';

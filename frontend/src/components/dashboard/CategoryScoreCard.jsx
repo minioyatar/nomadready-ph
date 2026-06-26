@@ -90,7 +90,12 @@ export default function CategoryScoreCard({ name, score, animationDelay = 0 }) {
 
     if (card) { card.style.opacity = "0"; card.style.transform = "translateY(12px)"; card.style.transition = "none"; }
     if (icon) { icon.style.opacity = "0"; icon.style.transform = "scale(0.6)"; icon.style.transition = "none"; }
-    if (num)  { num.textContent = "0"; }
+      if (num) {
+        // Reset only when we have a valid percentage; otherwise keep the dash placeholder.
+        if (pct !== null) {
+          num.textContent = "0";
+        }
+      }
     if (fill) { fill.style.width = "0%"; }
 
     const t = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
@@ -113,10 +118,12 @@ export default function CategoryScoreCard({ name, score, animationDelay = 0 }) {
 
     t(() => {
       if (pct !== null) animateCounter(num, pct, 850);
-      if (fill) {
-        fill.style.transition = "width 1s cubic-bezier(0.34,1.1,0.64,1)";
-        fill.style.width = `${pct}%`;
-      }
+        if (fill) {
+          fill.style.transition = "width 1s cubic-bezier(0.34,1.1,0.64,1)";
+          if (pct !== null) {
+            fill.style.width = `${pct}%`;
+          }
+        }
     }, animationDelay + 200);
 
     return () => timers.current.forEach(clearTimeout);
