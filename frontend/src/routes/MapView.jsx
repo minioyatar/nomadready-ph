@@ -230,6 +230,7 @@ export default function MapView() {
     setLoading(true);
     getListings()
 <<<<<<< HEAD
+<<<<<<< HEAD
       .then((response) => {
         if (!mounted) return;
         const data = response && response.data ? response.data : response;
@@ -237,6 +238,11 @@ export default function MapView() {
       .then((data) => {
         if (!mounted) return;
 >>>>>>> 29bc69d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
+=======
+      .then((response) => {
+        if (!mounted) return;
+        const data = response && response.data ? response.data : response;
+>>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
         setListings(Array.isArray(data) ? data : []);
         setLoading(false);
       })
