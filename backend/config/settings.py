@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "apps.listings",
     "apps.scoring",
     "apps.ai_advisor",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
