@@ -132,14 +132,22 @@ export default function AIAdvisor() {
 
   const handleGenerate = async () => {
     if (!snapshot) return;
+
+    // Guard: destination_name must come from the snapshot — substituting a hardcoded
+    // value here would generate advice labelled for the wrong place if the API ever
+    // returns a different destination or omits the field entirely.
+    if (!snapshot.destination_name) {
+      setGenerationError('Destination name is missing from the score snapshot. Please refresh and try again.');
+      return;
+    }
+
     // Reset any previous generation error before starting a new request
     setGenerationError(null);
     setAiLoading(true);
     setAiData(null);
     try {
       const payload = {
-        // Use the snapshot's destination_name if present; otherwise fallback to a neutral placeholder.
-        destination_name: snapshot.destination_name || 'Carles',
+        destination_name: snapshot.destination_name,
         overall_score: snapshot.overall_score,
         score_label: snapshot.score_label,
         category_scores: snapshot.category_scores || {
@@ -192,7 +200,7 @@ export default function AIAdvisor() {
 
             {(aiData || generationError) && (
               <div ref={resultRef} style={{ marginTop: 20 }}>
-              {Array.isArray(aiData?.recommendations) && aiData.recommendations.length > 0 && (
+                {Array.isArray(aiData?.recommendations) && aiData.recommendations.length > 0 && (
                   <div className="card" style={{ padding: 22, marginBottom: 20 }}>
                     <div className="section-header">
                       <div className="section-title">Recommendations</div>

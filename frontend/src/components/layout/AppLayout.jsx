@@ -1,18 +1,15 @@
-// Placeholder — full layout will be implemented in feature/dashboard-overview
+import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
 export default function AppLayout() {
-  return (
-    <div className="flex h-screen bg-gray-50">
+return (
+    <div style={{ display: "flex", minHeight: "100vh", background: "#F7F4EF" }}>
       <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <main style={{ flex: 1, minWidth: 0, padding: "26px 30px 44px", display: "flex", flexDirection: "column", gap: "22px" }}>
         <Topbar />
-        <main className="flex-1 overflow-y-auto">
-          <Outlet />
-        </main>
-      </div>
+               <Outlet />
+      </main>
     </div>
-  );
-}
+  );}
