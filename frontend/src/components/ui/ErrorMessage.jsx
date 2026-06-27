@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function ErrorMessage({ message }) {
   return (
-    <div style={{
+    <div role="alert" style={{
       background: '#FFF1F2',
       border: '1px solid #FBC8D4',
       borderRadius: 14,

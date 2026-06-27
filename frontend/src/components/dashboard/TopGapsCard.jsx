@@ -199,6 +199,7 @@ export default function TopGapsCard({ topGaps = [] }) {
                   tabIndex={0}
                   onClick={() => setExpanded(isOpen ? null : i)}
                   onKeyDown={(e) => {
+                    if (e.target !== e.currentTarget) return;
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       setExpanded(isOpen ? null : i);

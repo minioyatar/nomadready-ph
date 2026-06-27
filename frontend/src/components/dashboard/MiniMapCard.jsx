@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Component } from 'react';
+import { Link } from 'react-router-dom';
 import AssetMap from '../map/AssetMap';
 import { getListings } from '../../services/api';
 import { CARLES_CENTER, MAP_TILE_URL } from '../../lib/constants';
@@ -46,6 +47,46 @@ function MiniMapSkeleton() {
   );
 }
 
+// ─── MapFallback — shown when AssetMap returns null or throws ────────────────
+
+function MapFallback() {
+  return (
+    <div style={{
+      height: '100%', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 8,
+      background: '#f9f7f4', color: 'var(--text-hint)',
+    }}>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"
+        style={{ opacity: 0.45 }}>
+        <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
+        <path d="M9 3v15M15 6v15" />
+      </svg>
+      <span style={{ fontSize: 12 }}>Map preview unavailable</span>
+      <Link to="/map" style={{ fontSize: 12, color: 'var(--accent)' }}>
+        Open full map →
+      </Link>
+    </div>
+  );
+}
+
+// Class-based error boundary so a throwing AssetMap doesn't crash the card.
+class MapErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    return this.state.hasError ? <MapFallback /> : this.props.children;
+  }
+}
+
+// Wraps AssetMap and swaps in MapFallback if the component renders null.
+function MapWithFallback(props) {
+  const rendered = <AssetMap {...props} />;
+  return rendered == null ? <MapFallback /> : (
+    <MapErrorBoundary>{rendered}</MapErrorBoundary>
+  );
+}
+
 // ─── MiniMapCard ──────────────────────────────────────────────────────────────
 
 export default function MiniMapCard() {
@@ -81,7 +122,8 @@ export default function MiniMapCard() {
           </svg>
           Asset Map
         </div>
-        <a href="/map" className="section-link">View full map →</a>
+        {/* FIX 1: was <a href="/map"> — caused full-page reload on internal route */}
+        <Link to="/map" className="section-link">View full map →</Link>
       </div>
 
       {loading && <MiniMapSkeleton />}
@@ -96,11 +138,13 @@ export default function MiniMapCard() {
       )}
 
       {!loading && !error && (
+        // FIX 2: MapWithFallback guards against AssetMap returning null/throwing,
+        // replacing the blank framed box with a meaningful placeholder.
         <div ref={contentRef} style={{
           height: 260, borderRadius: 14, overflow: 'hidden',
           border: '1px solid var(--border)',
         }}>
-          <AssetMap
+          <MapWithFallback
             center={[CARLES_CENTER.lat, CARLES_CENTER.lng]}
             zoom={12}
             listings={listings}
