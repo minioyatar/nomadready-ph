@@ -1,5 +1,13 @@
-# Placeholder — routes will be wired in feature/backend-models-seed
-from django.urls import path
-from . import views
+"""URL configuration for the Listings app.
 
-urlpatterns = []
+Only the list endpoint is required for this feature.  The view is
+registered under the ``listings/`` prefix, which is included in the
+project's root ``config/urls.py``.
+"""
+
+from django.urls import path
+from .views import ListingListView
+
+urlpatterns = [
+	path("listings/", ListingListView.as_view(), name="listings-list"),
+]
