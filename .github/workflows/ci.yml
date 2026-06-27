@@ -1,8 +1,79 @@
-# CI Workflow — will be implemented in feature/cicd-deployment
-# name: CI
-# on: [push, pull_request]
-# jobs:
-#   backend-tests:
-#     ...
-#   frontend-build:
-#     ...
+name: CI — Lint + AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+
+  # ── 1. Python linting via Ruff ──────────────────────────────────────────────
+  backend-lint:
+    name: Python Lint (Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v1
+        with:
+          src: "./backend"
+
+  # ── 2. JavaScript linting via ESLint ────────────────────────────────────────
+  frontend-lint:
+    name: JavaScript Lint (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+        working-directory: frontend
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: frontend
+
+  # ── 3. Claude AI code review — runs after linters on every PR ───────────────
+  claude-review:
+    name: Claude AI Code Review
+    needs: [backend-lint, frontend-lint]
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: anthropic/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            Review this pull request for the NomadReady PH hackathon MVP project.
+
+            Project context:
+            - LGU tourism dashboard showing a Digital Nomad Readiness Score for Carles, Iloilo, Philippines
+            - Tech stack: Django + DRF backend, React + Vite + Tailwind CSS frontend, PostgreSQL
+            - Scoring is deterministic Python code only — OpenAI must NOT calculate the numeric score
+            - Only lgu_verified listings count toward the readiness score
+            - Draft listings must never increase the score
+            - Category scores are capped at 100. Overall score is rounded to nearest whole number.
+
+            Approved MVP screens: /dashboard, /assets, /map, /ai-advisor
+            Approved APIs: GET /api/scores/current/, POST /api/scores/recalculate/,
+                           GET /api/listings/, GET /api/listings/?category=...,
+                           POST /api/ai-advisor/generate/
+
+            Review this PR and post specific inline comments covering:
+            1. Does the code match its stated MVP task? Is it in scope?
+            2. Are there bugs, broken API calls, stale-fetch race conditions, or missing error states?
+            3. Does it follow the approved tech stack and directory structure?
+            4. Are there any out-of-scope changes (auth, booking, payments, reviews, multi-LGU)?
+            5. Frontend: does it use Tailwind utility classes, or bypass them with inline styles or injected <style> tags?
+            6. Backend: does filtering enforce lgu_verified? Does scoring logic stay in scoring/services.py?
+            7. Does it align with the demo story: local tourism data → score → gaps → map → AI action plan?
+
+            Be specific, constructive, and focused on the hackathon demo goal.
+            Flag must-fix issues clearly. Mark minor style issues as optional.

@@ -1,0 +1,215 @@
+name: Scheduled PR Review — Daily 3am PHT
+
+# Runs every day at 3am Philippine Time (PHT = UTC+8 → 19:00 UTC)
+# Also triggerable manually from the GitHub Actions tab.
+#
+# How it works:
+#   1. Gets all open PRs
+#   2. Asks Claude to return structured JSON: summary + inline line comments
+#   3. Posts a proper GitHub PR Review with inline comments (like CodeRabbit)
+#   4. Falls back to a plain review comment if any line number is invalid
+
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+jobs:
+  review-open-prs:
+    name: Claude Reviews All Open PRs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Review all open PRs with inline comments
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 << 'EOF'
+          import os, json, subprocess, urllib.request, urllib.error, re
+
+          repo     = os.environ['REPO']
+          api_key  = os.environ['ANTHROPIC_API_KEY']
+          gh_token = os.environ['GH_TOKEN']
+
+          # ── 1. Get all open PRs (with head commit SHA for the review API) ───
+          result = subprocess.run(
+              ['gh', 'pr', 'list', '--repo', repo, '--state', 'open',
+               '--json', 'number,title,author,headRefName,headRefOid'],
+              capture_output=True, text=True
+          )
+          prs = json.loads(result.stdout)
+
+          if not prs:
+              print("No open PRs to review. All clear.")
+              exit(0)
+
+          print(f"Found {len(prs)} open PR(s).\n")
+
+          for pr in prs:
+              pr_num     = pr['number']
+              pr_title   = pr['title']
+              pr_author  = pr['author']['login']
+              pr_branch  = pr['headRefName']
+              commit_sha = pr['headRefOid']
+
+              print(f"=== PR #{pr_num}: {pr_title} ({pr_author}) ===")
+
+              # ── 2. Get the PR diff ──────────────────────────────────────────
+              diff_result = subprocess.run(
+                  ['gh', 'pr', 'diff', str(pr_num), '--repo', repo],
+                  capture_output=True, text=True
+              )
+              diff = diff_result.stdout[:9000]
+
+              # ── 3. Ask Claude for structured JSON review ────────────────────
+              prompt = f"""Review PR #{pr_num} "{pr_title}" by {pr_author} (branch: {pr_branch}) for the NomadReady PH hackathon project.
+
+PROJECT RULES (non-negotiable):
+- LGU dashboard: Digital Nomad Readiness Score for Carles, Iloilo, Philippines
+- Stack: Django + DRF backend | React + Vite + Tailwind CSS frontend | PostgreSQL
+- Numeric scoring is deterministic Python ONLY — OpenAI must never calculate the score
+- Only lgu_verified listings count toward the score. Draft listings must not increase it.
+- Category scores capped at 100. Overall score rounded to nearest whole number.
+- Approved screens: /dashboard /assets /map /ai-advisor
+- Out-of-scope (flag immediately): auth, booking, payments, reviews, multi-LGU
+- Frontend must use Tailwind utility classes — not inline styles or injected <style> tags
+- AI Advisor screen: recommendations must be sliced to a maximum of 3
+- Backend: scoring logic stays in scoring/services.py only
+
+PR DIFF:
+{diff}
+
+Return ONLY a valid JSON object. No markdown fences, no explanation — just the JSON.
+
+{{
+  "summary": "2-3 sentence overall assessment of this PR for the team lead",
+  "verdict": "READY TO MERGE | NEEDS CHANGES | BLOCKED",
+  "event": "COMMENT | REQUEST_CHANGES",
+  "inline_comments": [
+    {{
+      "path": "exact/relative/path/from/repo/root/file.ext",
+      "line": <integer — line number in the RIGHT (new) side of the diff>,
+      "body": "Specific actionable comment. Prefix with: ❌ must-fix | ⚠️ warning | [optional] style note"
+    }}
+  ]
+}}
+
+Rules for filling in the JSON:
+- Set event to REQUEST_CHANGES when verdict is NEEDS CHANGES or BLOCKED; otherwise COMMENT
+- inline_comments: only comment on lines that appear in the diff (added lines with + or context lines)
+- Read line numbers from the @@ -old,count +new,start @@ diff headers — use the new/right-side start number
+- path must be exactly as shown after "b/" in the diff file header (e.g. "frontend/src/routes/Assets.jsx")
+- Maximum 8 inline comments — prioritize must-fix issues over style
+- Use [] for inline_comments when no specific line has an issue worth flagging"""
+
+              payload = json.dumps({
+                  "model": "claude-sonnet-4-6",
+                  "max_tokens": 2000,
+                  "messages": [{"role": "user", "content": prompt}]
+              }).encode()
+
+              req = urllib.request.Request(
+                  "https://api.anthropic.com/v1/messages",
+                  data=payload,
+                  headers={
+                      "x-api-key": api_key,
+                      "anthropic-version": "2023-06-01",
+                      "content-type": "application/json",
+                  }
+              )
+
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as resp:
+                      data = json.loads(resp.read())
+                      raw  = data['content'][0]['text'].strip()
+              except Exception as e:
+                  print(f"  Claude API error for PR #{pr_num}: {e}")
+                  continue
+
+              # ── 4. Parse Claude's JSON response ────────────────────────────
+              try:
+                  if '```' in raw:
+                      match = re.search(r'```(?:json)?\s*(.*?)\s*```', raw, re.DOTALL)
+                      raw = match.group(1) if match else raw
+                  review = json.loads(raw)
+              except json.JSONDecodeError:
+                  print(f"  JSON parse failed — falling back to plain comment")
+                  review = {
+                      "summary": raw,
+                      "verdict": "SEE COMMENTS",
+                      "event": "COMMENT",
+                      "inline_comments": [],
+                  }
+
+              # ── 5. Build the review body (summary card) ─────────────────────
+              icons   = {"READY TO MERGE": "✅", "NEEDS CHANGES": "⚠️", "BLOCKED": "🚫"}
+              icon    = icons.get(review.get("verdict", ""), "🤖")
+              verdict = review.get("verdict", "SEE COMMENTS")
+              summary = review.get("summary", "")
+
+              body = (
+                  f"## 🤖 Scheduled Daily Review — 3am PHT\n\n"
+                  f"{summary}\n\n"
+                  f"**Verdict: {icon} {verdict}**\n\n"
+                  "---\n"
+                  "*Automated review by Claude · Human approval required before merge*"
+              )
+
+              # ── 6. Build inline comment objects ────────────────────────────
+              inline = [
+                  {
+                      "path": c["path"],
+                      "line": int(c["line"]),
+                      "side": "RIGHT",
+                      "body": c["body"],
+                  }
+                  for c in review.get("inline_comments", [])
+                  if c.get("path") and c.get("line") and c.get("body")
+              ]
+
+              # ── 7. Post PR Review via GitHub REST API ───────────────────────
+              #   First attempt: with inline comments
+              #   If GitHub rejects a line number, fall back to no inline comments
+              def post_review(comments):
+                  payload = {
+                      "commit_id": commit_sha,
+                      "body": body,
+                      "event": review.get("event", "COMMENT"),
+                      "comments": comments,
+                  }
+                  api_req = urllib.request.Request(
+                      f"https://api.github.com/repos/{repo}/pulls/{pr_num}/reviews",
+                      data=json.dumps(payload).encode(),
+                      headers={
+                          "Authorization": f"token {gh_token}",
+                          "Content-Type": "application/json",
+                          "Accept": "application/vnd.github.v3+json",
+                      }
+                  )
+                  with urllib.request.urlopen(api_req, timeout=30) as r:
+                      return json.loads(r.read())
+
+              try:
+                  result_data = post_review(inline)
+                  print(f"  ✅ Review #{result_data['id']} posted — {len(inline)} inline comment(s)")
+              except urllib.error.HTTPError as e:
+                  err = e.read().decode()
+                  print(f"  Inline comment error ({e.code}): {err[:200]}")
+                  print("  Retrying without inline comments...")
+                  try:
+                      result_data = post_review([])
+                      print(f"  ✅ Plain review #{result_data['id']} posted (no inline comments)")
+                  except urllib.error.HTTPError as e2:
+                      print(f"  Review API failed: {e2.code} — {e2.read().decode()[:200]}")
+
+              print()
+
+          print("Done. All open PRs reviewed.")
+          EOF
