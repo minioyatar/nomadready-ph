@@ -1,0 +1,10 @@
+[lint]
+# F401: unused-import — suppressed in scaffold and test files.
+# These files have placeholder imports that will be used once their
+# feature branches are implemented (ai-readiness-advisor, etc.).
+# All other Python files are checked at full strictness.
+
+[lint.per-file-ignores]
+"**/tests.py"       = ["F401"]
+"**/urls.py"        = ["F401"]
+"**/serializers.py" = ["F401"]
