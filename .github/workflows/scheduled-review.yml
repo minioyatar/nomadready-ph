@@ -9,10 +9,11 @@ name: Scheduled PR Review — Daily 3am PHT
 #   3. Posts a proper GitHub PR Review with inline comments (like CodeRabbit)
 #   4. Falls back to a plain review comment if any line number is invalid
 
-on:
+"on":
   schedule:
     - cron: '0 19 * * *'
   workflow_dispatch:
+    inputs: {}
 
 jobs:
   review-open-prs:
