@@ -97,6 +97,10 @@ for pr in prs:
         with urllib.request.urlopen(req, timeout=60) as resp:
             data = json.loads(resp.read())
             raw = data["content"][0]["text"].strip()
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        print(f"  Claude API HTTP {e.code} for PR #{pr_num}: {body[:500]}")
+        continue
     except Exception as e:
         print(f"  Claude API error for PR #{pr_num}: {e}")
         continue
