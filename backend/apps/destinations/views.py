@@ -17,6 +17,8 @@ class DestinationDetailView(APIView):
     """Return a destination profile by name."""
 
     def get(self, request, name):
+        # Use the unique name to fetch the destination; the uniqueness
+        # constraint guarantees a single match.
         destination = get_object_or_404(Destination, name__iexact=name)
         serializer = DestinationSerializer(destination)
         return Response(serializer.data)

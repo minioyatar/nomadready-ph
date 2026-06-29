@@ -27,8 +27,13 @@ class DestinationAPITest(TestCase):
 		response = self._get_response(url)
 		self.assertEqual(response.status_code, 200)
 		data = json.loads(response.content)
+		# Retrieve the actual destination id from the database to avoid
+		# hard‑coding the primary key.
+		from apps.destinations.models import Destination
+
+		destination = Destination.objects.get(name__iexact="Carles")
 		expected = {
-			"id": 1,
+			"id": destination.id,
 			"name": "Carles",
 			"province": "Iloilo",
 			"municipality": "Carles",
