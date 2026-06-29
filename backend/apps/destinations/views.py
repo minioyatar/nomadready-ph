@@ -1,6 +1,22 @@
-# Placeholder — views will be implemented in feature/backend-models-seed
-from django.http import JsonResponse
+"""Views for the Destinations app.
+
+Only a single read‑only endpoint is required: ``GET /api/destinations/carles/``.
+The view simply looks up the destination named *Carles* (case‑insensitive)
+and returns the serialized data.  If the destination does not exist a
+``404`` is returned automatically by ``get_object_or_404``.
+"""
+
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Destination
+from .serializers import DestinationSerializer
 
 
-def placeholder(request):
-    return JsonResponse({"detail": "destinations app — not yet implemented"})
+class DestinationDetailView(APIView):
+    """Return a destination profile by name."""
+
+    def get(self, request, name):
+        destination = get_object_or_404(Destination, name__iexact=name)
+        serializer = DestinationSerializer(destination)
+        return Response(serializer.data)
