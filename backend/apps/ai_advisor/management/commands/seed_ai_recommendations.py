@@ -33,9 +33,8 @@ class Command(BaseCommand):
                     "score_snapshot": snapshot,
                     "affected_category": rec["affected_category"],
                     "priority": rec["priority"],
-                    "recommendation": rec["reason"],
+                    "recommendation": rec["suggested_next_step"],
                     "reason": rec["reason"],
-                    "generated_at": None,
                 },
             )
         self.stdout.write(self.style.SUCCESS("AI recommendations seeded."))

@@ -223,7 +223,7 @@ def generate_readiness_advice(destination_id: int, score_snapshot_id: int = None
         return _placeholder_advice(destination, snapshot)
 
     # Choose a model that works with local Ollama servers. Allow override via env.
-    model_name = getattr(settings, "OPENAI_MODEL", "llama2")
+    model_name = getattr(settings, "OPENAI_MODEL", "").strip() or "llama2"
 
     try:
         request_kwargs = dict(
