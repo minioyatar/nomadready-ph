@@ -182,7 +182,7 @@ def _coerce_advice(data: Dict[str, Any], destination: Destination) -> Dict[str, 
     }
 
 
-def generate_readiness_advice(destination_id: int) -> Dict[str, Any]:
+def generate_readiness_advice(destination_id: int, score_snapshot_id: int = None) -> Dict[str, Any]:
     """Generate AI readiness advice for a destination.
 
     The function fetches the most recent ``ScoreSnapshot`` for the
@@ -192,22 +192,29 @@ def generate_readiness_advice(destination_id: int) -> Dict[str, Any]:
     returned.
     """
     destination = Destination.objects.get(pk=destination_id)
-    try:
-        snapshot = ScoreSnapshot.objects.filter(destination=destination).latest("created_at")
-    except ScoreSnapshot.DoesNotExist:
-        # Provide minimal snapshot for placeholder
-        snapshot = type("Dummy", (), {
-            "overall_score": 0,
-            "score_label": "Not Yet NomadReady",
-            "internet_work_score": 0,
-            "accommodation_score": 0,
-            "safety_services_score": 0,
-            "transport_score": 0,
-            "tourism_lifestyle_score": 0,
-            "strongest_category": "",
-            "weakest_category": "",
-            "top_gaps": [],
-        })()
+    if score_snapshot_id is not None:
+        try:
+            snapshot = ScoreSnapshot.objects.get(pk=score_snapshot_id)
+        except ScoreSnapshot.DoesNotExist:
+            # Propagate error if specific snapshot missing
+            raise
+    else:
+        try:
+            snapshot = ScoreSnapshot.objects.filter(destination=destination).latest("created_at")
+        except ScoreSnapshot.DoesNotExist:
+            # Provide minimal snapshot for placeholder
+            snapshot = type("Dummy", (), {
+                "overall_score": 0,
+                "score_label": "Not Yet NomadReady",
+                "internet_work_score": 0,
+                "accommodation_score": 0,
+                "safety_services_score": 0,
+                "transport_score": 0,
+                "tourism_lifestyle_score": 0,
+                "strongest_category": "",
+                "weakest_category": "",
+                "top_gaps": [],
+            })()
 
     prompt = _build_prompt(destination, snapshot)
     client = _get_client()

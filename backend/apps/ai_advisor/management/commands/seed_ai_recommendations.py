@@ -16,9 +16,15 @@ class Command(BaseCommand):
     help = "Seed AI recommendations for demo destination"
 
     def handle(self, *args, **options):
-        destination = Destination.objects.get(name__iexact="Carles")
-        snapshot = ScoreSnapshot.objects.filter(destination=destination).latest("created_at")
-        advice = generate_readiness_advice(destination.id)
+        try:
+            destination = Destination.objects.get(name__iexact="Carles")
+        except Destination.DoesNotExist:
+            raise CommandError('Destination "Carles" does not exist. Ensure demo data is seeded correctly.')
+        try:
+            snapshot = ScoreSnapshot.objects.filter(destination=destination).latest("created_at")
+        except ScoreSnapshot.DoesNotExist:
+            raise CommandError('No ScoreSnapshot found for destination "Carles". Run scoring steps before seeding advice.')
+        advice = generate_readiness_advice(destination.id, snapshot.id)
         for rec in advice["recommendations"]:
             AIRecommendation.objects.update_or_create(
                 destination=destination,
