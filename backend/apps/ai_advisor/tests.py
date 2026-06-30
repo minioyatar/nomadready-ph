@@ -3,6 +3,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.core.management import call_command
+from apps.destinations.models import Destination
 import json
 
 
@@ -13,7 +14,7 @@ class AIAdvisorAPITest(TestCase):
 
     def test_generate(self):
         url = reverse("ai-advisor-generate")
-        response = self.client.post(url, {"destination_id": 1}, content_type="application/json")
+        response = self.client.post(url, {"destination_id": Destination.objects.get(name__iexact="Carles").id}, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertIn("summary", data)
