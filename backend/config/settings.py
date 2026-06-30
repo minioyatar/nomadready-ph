@@ -95,3 +95,5 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 ).split(",")
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_API_URL = os.environ.get("OPENAI_API_URL", "")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "")
