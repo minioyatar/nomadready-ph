@@ -3,8 +3,6 @@ import React, { useEffect, useRef } from 'react';
 const DEFAULT_METRICS = [
   { label: 'Verified work spots', value: 12,   suffix: 'cafes',  icon: 'wifi' },
   { label: 'Long-stay places',    value: 8,    suffix: 'spots',  icon: 'home' },
-  { label: 'Avg stay length',     value: 14,   suffix: 'days',   icon: 'calendar' },
-  { label: 'Overall readiness',   value: 54,   suffix: '/ 100',  icon: 'chart' },
 ];
 
 const ICONS = {

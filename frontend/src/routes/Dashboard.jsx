@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import ScoreCard from "../components/dashboard/ScoreCard";
+import ScoreCard, { ScoreCardSummary } from "../components/dashboard/ScoreCard";
 import TopGapsCard from "../components/dashboard/TopGapsCard";
 import KeyMetricsCard from "../components/dashboard/KeyMetricsCard";
-import MiniMapCard from "../components/dashboard/MiniMapCard";
 import Header from "../components/layout/Header";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import * as api from "../services/api";
@@ -108,7 +107,6 @@ function DashboardSkeleton() {
 
 // ─── AI Suggestions ───────────────────────────────────────────────────────────
 
-
 const TAG_COLORS = {
   "Internet":   { bg: "#eeedfe", color: "#534AB7" },
   "Accom.":     { bg: "#fef0ea", color: "#D85A30" },
@@ -141,7 +139,18 @@ function AISuggestionsPanel({ suggestions = [] }) {
   }, [suggestions]);
 
   return (
-    <div style={{ background: "#FDFBF8", border: "1px solid #F4EFE7", borderRadius: 12, padding: 20 }}>
+    <div
+      style={{
+        background: "#FDFBF8",
+        border: "1px solid #F4EFE7",
+        borderRadius: 12,
+        padding: 20,
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
@@ -155,58 +164,85 @@ function AISuggestionsPanel({ suggestions = [] }) {
           </div>
           <span style={{ fontWeight: 500, color: "#2D2B25", fontSize: 14 }}>AI Suggestions</span>
         </div>
-          <span style={{
-            background: "#FCEBD6", color: "#D97B14",
-            fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600,
-            animation: "badgePop 0.4s cubic-bezier(0.34,1.7,0.64,1) 0.4s both",
-          }}>
-            {suggestions.length} new
-          </span>
+        <span style={{
+          background: "#FCEBD6", color: "#D97B14",
+          fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600,
+          animation: "badgePop 0.4s cubic-bezier(0.34,1.7,0.64,1) 0.4s both",
+        }}>
+          {suggestions.length} new
+        </span>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {suggestions.map((s, i) => {
-          // Support both the original static shape (text/tag) and the AI response shape (title/priority).
-          const text = s.text ?? s.title ?? "";
-          const tag = s.tag ?? s.priority ?? "";
-          const accent = TAG_COLORS[tag] || { bg: "#f0ece6", color: "#888" };
-          return (
-            <div
-              key={i}
-              ref={(el) => (itemRefs.current[i] = el)}
-              style={{ opacity: 0, transform: "translateX(10px)" }}
-            >
+      {suggestions.length === 0 ? (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            gap: 8,
+            padding: "12px 8px",
+          }}
+        >
+          <div style={{
+            width: 36, height: 36, borderRadius: 10, background: "#F4EFE7",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8B0A2" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 3.6 2.5 5.1 5.6.8-4.05 3.95.96 5.6L12 16.4l-5 2.65.96-5.6L3.9 9.5l5.6-.8z"/>
+            </svg>
+          </div>
+          <p style={{ margin: 0, fontSize: 12, color: "#918A7E", lineHeight: 1.5 }}>
+            No suggestions right now.<br />Check back after your next score update.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, overflowY: "auto" }}>
+          {suggestions.map((s, i) => {
+            // Support both the original static shape (text/tag) and the AI response shape (title/priority).
+            const text = s.text ?? s.title ?? "";
+            const tag = s.tag ?? s.priority ?? "";
+            const accent = TAG_COLORS[tag] || { bg: "#f0ece6", color: "#888" };
+            return (
               <div
-                style={{
-                  background: "#fff",
-                  border: "1px solid #ece8e2",
-                  borderRadius: 10,
-                  padding: "10px 12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 6,
-                  transition: "border-color 0.18s ease",
-                  cursor: "default",
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = "#D85A30"}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = "#ece8e2"}
+                key={i}
+                ref={(el) => (itemRefs.current[i] = el)}
+                style={{ opacity: 0, transform: "translateX(10px)" }}
               >
-                <p style={{ margin: 0, fontSize: 12, color: "#555", lineHeight: 1.5 }}>{text}</p>
-                {tag && (
-                  <span style={{
-                    alignSelf: "flex-start",
-                    fontSize: 10, fontWeight: 600,
-                    padding: "2px 7px", borderRadius: 6,
-                    background: accent.bg, color: accent.color,
-                  }}>
-                    {tag}
-                  </span>
-                )}
+                <div
+                  style={{
+                    background: "#fff",
+                    border: "1px solid #ece8e2",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                    transition: "border-color 0.18s ease",
+                    cursor: "default",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = "#D85A30"}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = "#ece8e2"}
+                >
+                  <p style={{ margin: 0, fontSize: 12, color: "#555", lineHeight: 1.5 }}>{text}</p>
+                  {tag && (
+                    <span style={{
+                      alignSelf: "flex-start",
+                      fontSize: 10, fontWeight: 600,
+                      padding: "2px 7px", borderRadius: 6,
+                      background: accent.bg, color: accent.color,
+                    }}>
+                      {tag}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <style>{`
         @keyframes badgePop {
@@ -231,7 +267,6 @@ export default function Dashboard() {
   const headerRef = useRef(null);
   const gridRef   = useRef(null);
   const gapsRef   = useRef(null);
-  const mapRef    = useRef(null);
   const timers    = useRef([]);
 
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
@@ -279,14 +314,14 @@ export default function Dashboard() {
   useEffect(() => {
     if (loading || error) return;
 
-    [headerRef, gridRef, gapsRef, mapRef].forEach((r) => {
+    [headerRef, gridRef, gapsRef].forEach((r) => {
       if (!r.current) return;
       r.current.style.opacity = "0";
       r.current.style.transform = "translateY(16px)";
       r.current.style.transition = "none";
     });
 
-    [headerRef, gridRef, gapsRef, mapRef].forEach((r, i) => {
+    [headerRef, gridRef, gapsRef].forEach((r, i) => {
       later(() => {
         if (!r.current) return;
         r.current.style.transition = "opacity 0.55s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)";
@@ -321,8 +356,6 @@ export default function Dashboard() {
         }
         return snapshot?.metrics?.long_stay   ?? "—";
       })(), icon: "home" },
-    { label: "Avg stay length",     value: (() => snapshot?.metrics?.avg_stay ?? "—")(), suffix: "days", icon: "calendar" },
-    { label: "Overall readiness",   value: snapshot?.overall_score ?? "—", suffix: "/ 100", icon: "chart" },
   ];
 
   return (
@@ -334,15 +367,18 @@ export default function Dashboard() {
           grid-template-columns: 2fr 1fr;
           gap: 20px;
           margin-top: 20px;
+          align-items: stretch;
         }
-        /* Right column stacks vertically */
+        /* Right column stacks vertically and fills the row height */
         .db-right-col {
           display: flex;
           flex-direction: column;
           gap: 16px;
+          height: 100%;
         }
         @media (max-width: 768px) {
           .db-grid { grid-template-columns: 1fr; }
+          .db-right-col { height: auto; }
         }
       `}</style>
 
@@ -367,9 +403,13 @@ export default function Dashboard() {
                 {/* Left: ScoreCard — hide the built-in overall score summary */}
                 <ScoreCard snapshot={snapshot} hideOverallScore />
 
-                {/* Right: AI Suggestions */}
+                {/* Right: AI Suggestions + Overall Score */}
                 <div className="db-right-col">
                   <AISuggestionsPanel suggestions={aiSuggestions} />
+                  <ScoreCardSummary
+                    overallScore={snapshot?.overall_score ?? snapshot?.overall ?? "—"}
+                    scoreLabel={snapshot?.score_label ?? ""}
+                  />
                 </div>
               </div>
             </div>
@@ -377,11 +417,6 @@ export default function Dashboard() {
             {/* Row 3: Top Gaps */}
             <div ref={gapsRef} style={{ opacity: 0, transform: "translateY(16px)", marginTop: 20 }}>
               <TopGapsCard topGaps={snapshot?.top_gaps || []} />
-            </div>
-
-            {/* Row 4: Mini Asset Map */}
-            <div ref={mapRef} style={{ opacity: 0, transform: "translateY(16px)", marginTop: 20 }}>
-              <MiniMapCard />
             </div>
           </>
         )}

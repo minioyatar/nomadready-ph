@@ -2,7 +2,6 @@ import { ENDPOINTS, API_BASE_URL } from '../lib/constants';
 
 // Centralized API service — all backend calls must go through here
 // Returns demo fallbacks when backend endpoints are missing (safe stub for UI)
-const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 const MOCK_SCORE = {
   overall_score: 68,
@@ -57,7 +56,7 @@ const MOCK_AI = {
 
 async function request(path, options = {}) {
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options,
     });
@@ -85,21 +84,13 @@ async function request(path, options = {}) {
 }
 
 export async function getCurrentScore() {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CURRENT_SCORE}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch current score');
-  }
-  return response.json();
+  const data = await request(ENDPOINTS.CURRENT_SCORE, { method: 'GET' });
+  return data ?? MOCK_SCORE;
 }
 
 export async function recalculateScore() {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.RECALCULATE_SCORE}`, {
-    method: 'POST',
-  });
-  if (!response.ok) {
-    throw new Error('Failed to recalculate score');
-  }
-  return response.json();
+  const data = await request(ENDPOINTS.RECALCULATE_SCORE, { method: 'POST' });
+  return data ?? MOCK_SCORE;
 }
 
 export async function getListings(params = {}) {
@@ -127,7 +118,7 @@ export async function getDestination(slug = 'carles') {
 export async function generateAIAdvice(payload = {}) {
   // POST to AI generator; backend may not be implemented yet
   try {
-    const res = await fetch(`${API_BASE}/api/ai-advisor/generate/`, {
+    const res = await fetch(`${API_BASE_URL}${ENDPOINTS.GENERATE_AI_ADVICE}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
