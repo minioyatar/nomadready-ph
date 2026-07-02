@@ -1,5 +1,12 @@
-# Placeholder — routes will be wired in feature/backend-models-seed
-from django.urls import path
-from . import views
+"""URL configuration for the Destinations app."""
 
-urlpatterns = []
+from django.urls import path
+from .views import DestinationDetailView
+
+urlpatterns = [
+	path(
+		"destinations/<str:name>/",
+		DestinationDetailView.as_view(),
+		name="destination-detail",
+	),
+]
