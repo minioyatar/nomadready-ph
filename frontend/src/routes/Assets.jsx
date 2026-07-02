@@ -43,7 +43,17 @@ export default function Assets() {
     setLoading(true);
     setError(null);
     try {
-      const params = activeCategory !== 'all' ? { category: activeCategory } : {};
+      // Map UI category values (plural) to backend category values (singular)
+      const CATEGORY_PARAM_MAP = {
+        all: null,
+        work_spots: 'work_spot',
+        accommodations: 'accommodation',
+        services: 'service',
+        transport: 'transport',
+        attractions: 'attraction',
+      };
+      const mapped = CATEGORY_PARAM_MAP[activeCategory];
+      const params = mapped ? { category: mapped } : {};
       const response = await getListings(params);
       const data = response && response.data ? response.data : response;
       if (id !== requestId.current) return;
