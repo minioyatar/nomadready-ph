@@ -225,6 +225,8 @@ export default function Dashboard() {
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
   const [aiSuggestions, setAISuggestions] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
 
   const headerRef = useRef(null);
   const gridRef   = useRef(null);
@@ -243,9 +245,29 @@ export default function Dashboard() {
           setSnapshot(data || null);
           // After snapshot, also fetch AI suggestions (demo fallback works)
           api.generateAIAdvice({ destinationId: data?.destination?.id }).then((ai) => {
-            if (mounted) setAISuggestions(ai?.suggestions ?? []);
+            if (!mounted) return;
+            // If the AI response is a demo/mock, treat as no suggestions so the card stays empty
+            if (ai && ai._mock) {
+              setAISuggestions([]);
+            } else {
+              setAISuggestions(ai?.suggestions ?? []);
+            }
           }).catch(() => {
             if (mounted) setAISuggestions([]);
+          });
+          // Fetch listings to compute key metrics (backend may return actual listings)
+          setLoadingListings(true);
+          api.getListings().then((ls) => {
+            if (!mounted) return;
+            // Normalize to array
+            const arr = Array.isArray(ls) ? ls : [];
+            setListings(arr);
+            setLoadingListings(false);
+          }).catch(() => {
+            if (mounted) {
+              setListings([]);
+              setLoadingListings(false);
+            }
           });
           setLoading(false);
         }
@@ -277,10 +299,30 @@ export default function Dashboard() {
   }, [loading, error]);
 
   const metrics = [
-    { label: "Verified work spots", value: snapshot?.metrics?.work_spots ?? "—", icon: "wifi" },
-    { label: "Long-stay places",    value: snapshot?.metrics?.long_stay   ?? "—", icon: "home" },
-    { label: "Avg stay length",     value: snapshot?.metrics?.avg_stay    ?? "—", suffix: "days", icon: "calendar" },
-    { label: "Overall readiness",   value: snapshot?.overall_score        ?? "—", suffix: "/ 100", icon: "chart" },
+    { label: "Verified work spots", value: (() => {
+        if (loadingListings) return "—";
+        if (listings?.length) {
+          return listings.filter((l) => {
+            const cat = (l.category || "").toString().toLowerCase();
+            const verified = (l.verification_status || "").toString().toLowerCase() === 'lgu_verified' || l.lgu_verified === true;
+            return verified && (cat.includes('work') || cat.includes('cowork') || cat.includes('cafe'));
+          }).length;
+        }
+        return snapshot?.metrics?.work_spots ?? "—";
+      })(), icon: "wifi" },
+    { label: "Long-stay places",    value: (() => {
+        if (loadingListings) return "—";
+        if (listings?.length) {
+          return listings.filter((l) => {
+            const cat = (l.category || "").toString().toLowerCase();
+            const verified = (l.verification_status || "").toString().toLowerCase() === 'lgu_verified' || l.lgu_verified === true;
+            return verified && (cat.includes('accomm') || cat.includes('long') || cat.includes('homestay'));
+          }).length;
+        }
+        return snapshot?.metrics?.long_stay   ?? "—";
+      })(), icon: "home" },
+    { label: "Avg stay length",     value: (() => snapshot?.metrics?.avg_stay ?? "—")(), suffix: "days", icon: "calendar" },
+    { label: "Overall readiness",   value: snapshot?.overall_score ?? "—", suffix: "/ 100", icon: "chart" },
   ];
 
   return (

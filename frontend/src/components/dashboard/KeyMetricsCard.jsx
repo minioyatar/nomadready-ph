@@ -55,7 +55,7 @@ function animateCounter(el, target, ms) {
   requestAnimationFrame(tick);
 }
 
-export default function KeyMetricsCard({ metrics = [] }) {
+export default function KeyMetricsCard({ metrics = [], loading = false }) {
   const items = (metrics.length ? metrics : DEFAULT_METRICS).map((m, i) => ({
     icon: m.icon || Object.keys(ICONS)[i % 4],
     ...m,
@@ -102,7 +102,7 @@ export default function KeyMetricsCard({ metrics = [] }) {
 
         setTimeout(() => {
           const valEl = valueRefs.current[i];
-          if (valEl && typeof m.value === 'number') {
+          if (!loading && valEl && typeof m.value === 'number') {
             animateCounter(valEl, m.value, 800);
           }
         }, 200);
@@ -111,7 +111,10 @@ export default function KeyMetricsCard({ metrics = [] }) {
     });
 
     return () => timers.forEach(clearTimeout);
-  }, [items.length]);
+  // Re-run animations when number of items, loading state, or values change.
+  // Use a stable dependency by joining values into a string.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length, loading, items.map((m) => String(m.value)).join(',')]);
 
   return (
     <>
@@ -223,10 +226,17 @@ export default function KeyMetricsCard({ metrics = [] }) {
               <div className="km-label">{m.label}</div>
               <div className="km-value-row">
                 {isNumber ? (
-                  <>
-                    <span className="km-value" ref={(el) => (valueRefs.current[i] = el)}>0</span>
-                    {m.suffix && <span className="km-suffix">{m.suffix}</span>}
-                  </>
+                  loading ? (
+                    <>
+                      <span className="km-value-str">—</span>
+                      {m.suffix && <span className="km-suffix">{m.suffix}</span>}
+                    </>
+                  ) : (
+                    <>
+                      <span className="km-value" ref={(el) => (valueRefs.current[i] = el)}>0</span>
+                      {m.suffix && <span className="km-suffix">{m.suffix}</span>}
+                    </>
+                  )
                 ) : (
                   <span className="km-value-str" ref={(el) => (valueRefs.current[i] = el)}>{m.value}</span>
                 )}

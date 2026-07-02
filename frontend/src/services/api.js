@@ -47,6 +47,7 @@ const MOCK_DESTINATION = {
 };
 
 const MOCK_AI = {
+  _mock: true,
   suggestions: [
     { title: 'Certify 5 more cafés as work spots', description: "Nomads searched 'quiet café WiFi' 78 times this month with no result.", priority: 'High' },
     { title: 'Publish a brownout schedule', description: 'Power reliability is the #1 concern in nomad check-in surveys this month.', priority: 'High' },
