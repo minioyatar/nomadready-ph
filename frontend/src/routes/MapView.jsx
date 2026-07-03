@@ -27,14 +27,14 @@ function MapSkeleton() {
           100% { background-position: -200% 0; }
         }
       `}</style>
-      <div className="map-view-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 12 }}>
+      <div className="map-view-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) 300px', gap: 18 }}>
         {/* Map area skeleton */}
         <div
           className="map-view-pane"
           style={{
-            aspectRatio: '16 / 10',
+            aspectRatio: '16 / 9',
             minHeight: 420,
-            maxHeight: 780,
+            maxHeight: 760,
             borderRadius: 12,
             border: '1px solid #ece8e2', overflow: 'hidden',
             position: 'relative', background: '#f9f7f4',
@@ -156,29 +156,24 @@ export default function MapView() {
       {/* Responsive + marker styling (scoped, no external CSS file needed) */}
       <style>{`
         .map-view-grid {
-          grid-template-columns: 1fr 240px;
+          grid-template-columns: minmax(0, 2fr) 300px;
+          gap: 20px;
         }
-<<<<<<< HEAD
         .map-view-pane {
-          aspect-ratio: 16 / 10;
           width: 100%;
+          aspect-ratio: 16 / 9;
           min-height: 420px;
-          max-height: 780px;
+          max-height: 760px;
           min-width: 0;
         }
-=======
->>>>>>> 3d416cf9fdf6c3c6a1a3af27c4032df054ce98dc
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .map-view-grid {
             grid-template-columns: 1fr !important;
           }
           .map-view-pane {
-            aspect-ratio: 4 / 3.4;
-            max-height: 520px !important;
-<<<<<<< HEAD
+            aspect-ratio: 16 / 9;
+            max-height: 620px !important;
             height: auto !important;
-=======
->>>>>>> 3d416cf9fdf6c3c6a1a3af27c4032df054ce98dc
           }
         }
         /* Strip Leaflet's default white box + drop-shadow around our custom SVG pins */
