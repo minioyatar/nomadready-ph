@@ -1,7 +1,9 @@
 // Shared formatting helpers
 
 export function formatScore(score) {
-  return Math.round(score);
+  const num = Number(score);
+  if (Number.isNaN(num)) return null; // callers can render a placeholder dash
+  return Math.round(num);
 }
 
 export function getScoreColor(score) {
