@@ -49,6 +49,7 @@ export default function AssetMap({
 
 
 
+
   // Ensure latitude and longitude are present and parse to finite numbers.
   // Number(null) and Number('') both return 0 (a finite number), so an explicit
   // null/empty-string guard is required before the Number() conversion — otherwise
@@ -57,6 +58,7 @@ export default function AssetMap({
     if (l.latitude == null || l.longitude == null) return false;
     if (l.latitude === '' || l.longitude === '') return false;
     return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
+
 
 
 

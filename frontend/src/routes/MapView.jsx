@@ -158,6 +158,7 @@ export default function MapView() {
         .map-view-grid {
           grid-template-columns: 1fr 240px;
         }
+<<<<<<< HEAD
         .map-view-pane {
           aspect-ratio: 16 / 10;
           width: 100%;
@@ -165,6 +166,8 @@ export default function MapView() {
           max-height: 780px;
           min-width: 0;
         }
+=======
+>>>>>>> 3d416cf9fdf6c3c6a1a3af27c4032df054ce98dc
         @media (max-width: 768px) {
           .map-view-grid {
             grid-template-columns: 1fr !important;
@@ -172,7 +175,10 @@ export default function MapView() {
           .map-view-pane {
             aspect-ratio: 4 / 3.4;
             max-height: 520px !important;
+<<<<<<< HEAD
             height: auto !important;
+=======
+>>>>>>> 3d416cf9fdf6c3c6a1a3af27c4032df054ce98dc
           }
         }
         /* Strip Leaflet's default white box + drop-shadow around our custom SVG pins */
@@ -223,7 +229,9 @@ export default function MapView() {
                 borderRadius: 12,
                 overflow: 'hidden',
                 border: '1px solid #ece8e2',
+
                 minWidth: 0,
+
               }}
             >
               <AssetMap
@@ -233,7 +241,9 @@ export default function MapView() {
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
               <MapLegend listings={listings} />
+
               <div style={{
                 background: '#FDFBF8', border: '1px solid #F4EFE7',
                 borderRadius: 12, padding: 16,

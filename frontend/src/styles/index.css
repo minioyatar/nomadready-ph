@@ -1,6 +1,8 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -33,10 +35,12 @@
   --text-mid: #3A3733;
   --text-muted: #756F66;
   --text-faint: #857F76;
+
   /* Muted text tokens – increased contrast for WCAG AA */
   --text-label: #6B6359;   /* darker than original */
   --text-hint: #5F5950;    /* darker than original */
   --text-lighter: #4E473F; /* darker than original */
+
   --gray-light: #EFEAE1;
   --gray-mid: #8A857D;
   --bar-track: #ECE6DB;
@@ -97,6 +101,7 @@ table {
   margin-bottom: 30px;
 }
 
+
 /* Focus-visible styles for interactive elements */
 .sidebar-hamburger:focus-visible,
 .nav-item:focus-visible,
@@ -108,6 +113,7 @@ textarea:focus-visible {
   outline: 2px solid var(--orange);
   outline-offset: 2px;
 }
+
 
 .sidebar-hamburger span {
   height: 3px;
@@ -218,10 +224,12 @@ textarea:focus-visible {
   outline: none;
   box-shadow: 0 1px 2px rgba(30,20,10,.04);
 }
+
 .topbar-search input:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--orange-mid);
 }
+
 
 .topbar-actions {
   display: flex;
@@ -1043,4 +1051,6 @@ textarea:focus-visible {
 
 .wifi-speed {
   font-weight: 600;
+
 }
+

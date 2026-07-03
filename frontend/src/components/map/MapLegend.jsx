@@ -25,6 +25,7 @@ export default function MapLegend({ listings = [] }) {
     if (presentCategories.size === 0) return ALL_CATEGORIES;
     return ALL_CATEGORIES.filter(cat => presentCategories.has(cat.key));
   }, [presentCategories]);
+
   const itemRefs = useRef([]);
   const timers   = useRef([]);
 
