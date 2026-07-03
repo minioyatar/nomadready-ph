@@ -1,5 +1,8 @@
-# Placeholder — routes will be wired in feature/ai-readiness-advisor
-from django.urls import path
-from . import views
+"""URL configuration for the AI Advisor app."""
 
-urlpatterns = []
+from django.urls import path
+from .views import AIAdvisorGenerateView
+
+urlpatterns = [
+    path("ai-advisor/generate/", AIAdvisorGenerateView.as_view(), name="ai-advisor-generate"),
+]
