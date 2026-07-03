@@ -11,7 +11,6 @@ export const ENDPOINTS = {
   LISTINGS: '/api/listings/',
   DESTINATIONS: '/api/destinations/',
   AI_ADVISOR: '/api/ai-advisor/generate/',
-  GENERATE_AI_ADVICE: '/api/ai-advisor/generate/',
 };
 
 export const LISTING_CATEGORIES = [
