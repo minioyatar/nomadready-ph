@@ -8,7 +8,7 @@ const CATEGORIES = CATEGORY_PALETTE;
 >>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
 
 import React, { useRef, useEffect, useMemo } from 'react';
-import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
+import { CATEGORY_PALETTE } from '../../lib/constants';
 
 // All possible categories defined in the palette
 const ALL_CATEGORIES = CATEGORY_PALETTE;
@@ -37,24 +37,26 @@ export default function MapLegend({ listings = [] }) {
   const itemRefs = useRef([]);
   const timers   = useRef([]);
 
+  // Use Tailwind utility classes for the fade/slide animation.
+  // Elements start hidden (opacity-0, translate-x-2) and we add
+  // "opacity-100 translate-x-0 transition" classes when their timer fires.
   useEffect(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
+    // Ensure all items start hidden.
     itemRefs.current.forEach((el) => {
       if (!el) return;
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(8px)';
-      el.style.transition = 'none';
+      el.classList.remove('opacity-100', 'translate-x-0');
+      el.classList.add('opacity-0', 'translate-x-2');
     });
 
     CATEGORIES.forEach((_, i) => {
       const t = setTimeout(() => {
         const el = itemRefs.current[i];
         if (!el) return;
-        el.style.transition = 'opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.3,0.64,1)';
-        el.style.opacity = '1';
-        el.style.transform = 'translateX(0)';
+        el.classList.remove('opacity-0', 'translate-x-2');
+        el.classList.add('opacity-100', 'translate-x-0', 'transition-opacity', 'duration-300', 'ease-out', 'transition-transform', 'duration-300');
       }, 200 + i * 70);
       timers.current.push(t);
     });
@@ -63,19 +65,8 @@ export default function MapLegend({ listings = [] }) {
   }, []);
 
   return (
-    <div style={{
-      background: '#FDFBF8',
-      border: '1px solid #F4EFE7',
-      borderRadius: 12,
-      padding: 16,
-    }}>
-      <p style={{
-        margin: '0 0 12px',
-        fontSize: 11, fontWeight: 600,
-        color: '#999',
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-      }}>
+    <div className="bg-[#FDFBF8] border border-[#F4EFE7] rounded-[12px] p-4">
+      <p className="mb-3 text-xs font-semibold text-[#999] uppercase tracking-wider">
         Legend
       </p>
 
@@ -84,10 +75,7 @@ export default function MapLegend({ listings = [] }) {
           <div
             key={cat.key}
             ref={(el) => (itemRefs.current[i] = el)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              opacity: 0, transform: 'translateX(8px)',
-            }}
+            className="flex items-center gap-2 opacity-0 translate-x-2"
           >
             {/* Mini pin shape matching map marker */}
             <svg width="14" height="19" viewBox="0 0 28 38" style={{ flexShrink: 0 }}>
