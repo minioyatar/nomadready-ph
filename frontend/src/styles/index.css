@@ -61,6 +61,73 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Map view layout utilities */
+.map-view-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 300px;
+  gap: 1.25rem; /* 20px */
+}
+
+.map-view-pane {
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  max-height: 760px;
+  border-radius: 0.75rem; /* 12px */
+  border: 1px solid #ece8e2;
+  overflow: hidden;
+  position: relative;
+  background: #f9f7f4;
+}
+
+/* Helper classes for map skeleton layout */
+.tile-grid {
+  @apply absolute inset-0 grid grid-cols-4 grid-rows-5 gap-0.5 p-0.5;
+}
+
+.zoom-controls {
+  @apply absolute top-3 left-3 flex flex-col gap-0.5;
+}
+
+.pin-cluster {
+  @apply absolute flex gap-5;
+  top: 40%;
+  left: 45%;
+}
+
+@media (max-width: 1024px) {
+  .map-view-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .map-view-pane {
+    max-height: 620px !important;
+    height: auto !important;
+  }
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes mapShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.map-shimmer {
+  background: linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%);
+  background-size: 200% 100%;
+  animation: mapShimmer 1.4s ease-in-out infinite;
+}
+
+/* Custom shimmer animation used for skeleton loaders */
+@keyframes mapShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.map-shimmer {
+  background: linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%);
+  background-size: 200% 100%;
+  animation: mapShimmer 1.4s ease-in-out infinite;
+}
+
 input, button, select, textarea {
   font-family: inherit;
 }

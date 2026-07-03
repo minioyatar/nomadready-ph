@@ -2,15 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
 import AssetTable from '../components/assets/AssetTable';
+import { LISTING_CATEGORIES } from '../lib/constants';
 
-const CATEGORIES = [
-  { value: 'all',            label: 'All' },
-  { value: 'work_spots',     label: 'Work Spots' },
-  { value: 'accommodations', label: 'Accommodations' },
-  { value: 'services',       label: 'Services' },
-  { value: 'transport',      label: 'Transport' },
-  { value: 'attractions',    label: 'Attractions' },
-];
+// Use the canonical category list from constants which matches backend enum values.
+const CATEGORIES = LISTING_CATEGORIES;
 
 export default function Assets() {
   const [listings, setListings]             = useState([]);
@@ -89,20 +84,20 @@ export default function Assets() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="max-w-[1200px] mx-auto">
 
       {/* Header */}
-      <div ref={headerRef} style={{ marginBottom: '24px', opacity: 0, transform: 'translateY(16px)' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#1a1a1a', marginBottom: '4px' }}>
+      <div ref={headerRef} className="mb-6 opacity-0 translate-y-4">
+        <h1 className="text-[22px] font-semibold text-[#1a1a1a] mb-1">
           Local Assets
         </h1>
-        <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>
+        <p className="text-[#888] text-[13px] m-0">
           Browse verified work spots, accommodations, and services
         </p>
       </div>
 
       {/* Filters */}
-      <div ref={filtersRef} style={{ opacity: 0, transform: 'translateY(16px)' }}>
+      <div ref={filtersRef} className="opacity-0 translate-y-4">
         <AssetFilters
           options={CATEGORIES}
           activeCategory={activeCategory}
@@ -112,29 +107,20 @@ export default function Assets() {
       </div>
 
       {/* Content area */}
-      <div ref={tableRef} style={{ opacity: 0, transform: 'translateY(16px)' }}>
+      <div ref={tableRef} className="opacity-0 translate-y-4">
 
         {/* Loading skeleton */}
         {loading && <AssetTableSkeleton />}
 
         {/* Error */}
         {!loading && error && (
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-            background: '#fbe9e7', borderRadius: '12px', color: '#D85A30',
-          }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>Failed to load assets</h3>
-            <p style={{ fontSize: '13px', marginBottom: '16px', color: '#C1553E' }}>{error}</p>
+          <div className="text-center py-12 bg-[#fbe9e7] rounded-[12px] text-[#D85A30]">
+            <div className="text-4xl mb-3">⚠️</div>
+            <h3 className="text-[15px] font-semibold mb-1">Failed to load assets</h3>
+            <p className="text-[13px] mb-4 text-[#C1553E]">{error}</p>
             <button
               onClick={loadListings}
-              style={{
-                padding: '8px 16px', borderRadius: '8px', border: 'none',
-                background: '#D85A30', color: '#fff', cursor: 'pointer',
-                fontSize: '13px', fontWeight: '600',
-              }}
-              onMouseEnter={(e) => (e.target.style.background = '#C1553E')}
-              onMouseLeave={(e) => (e.target.style.background = '#D85A30')}
+              className="px-4 py-2 rounded bg-[#D85A30] text-white font-semibold text-[13px] hover:bg-[#C1553E]"
             >
               Try Again
             </button>
@@ -143,13 +129,10 @@ export default function Assets() {
 
         {/* Empty */}
         {!loading && !error && listings.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-            background: '#f9f7f4', borderRadius: '12px', color: '#666',
-          }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '6px' }}>No assets found</h3>
-            <p style={{ fontSize: '13px', color: '#999' }}>
+          <div className="text-center py-12 px-5 bg-[#f9f7f4] rounded-[12px] text-[#666]">
+            <div className="text-4xl mb-3">📋</div>
+            <h3 className="text-[15px] font-semibold mb-1">No assets found</h3>
+            <p className="text-[13px] text-[#999]">
               {activeCategory !== 'all'
                 ? `No ${activeCategory.replace(/_/g, ' ')} available yet.`
                 : 'No local assets available yet.'}

@@ -3,13 +3,16 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
+// App shell layout using Tailwind utility classes.
 export default function AppLayout() {
-return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#F7F4EF" }}>
-      <Sidebar />
-      <main style={{ flex: 1, minWidth: 0, padding: "26px 30px 44px", display: "flex", flexDirection: "column", gap: "22px" }}>
-        <Topbar />
-               <Outlet />
-      </main>
-    </div>
-  );}
+	return (
+		<div className="flex min-h-screen bg-[#F7F4EF]">
+			<Sidebar />
+			<main className="flex-1 min-w-0 p-[26px_30px_44px] flex flex-col gap-5">
+				<Topbar />
+				<Outlet />
+			</main>
+		</div>
+	);
+}
+

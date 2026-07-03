@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useCallback } from "react";
 
 const CIRC = 2 * Math.PI * 38;
 
+import { CATEGORY_PALETTE } from '../../lib/constants';
+
+const paletteMap = CATEGORY_PALETTE.reduce((acc, cur) => {
+  acc[cur.key] = cur.color;
+  return acc;
+}, {});
+
 const DATA_DEFAULTS = {
   overall: 54,
   destination_name: "Carles, Iloilo",
@@ -9,11 +16,11 @@ const DATA_DEFAULTS = {
   explanation:
     "A scenic coastal municipality with emerging tourism appeal, moderate connectivity, and basic services — promising for digital nomads willing to pioneer off-the-beaten-path living.",
   categories: [
-    { name: "Internet & Work Readiness",   score: 48, color: "#534AB7" },
-    { name: "Long-Stay Accommodation",     score: 42, color: "#D85A30" },
-    { name: "Safety & Essential Services", score: 63, color: "#BA7517" },
-    { name: "Transport & Access",          score: 51, color: "#D85A30" },
-    { name: "Tourism & Lifestyle Appeal",  score: 72, color: "#7F77DD" },
+    { name: "Internet & Work Readiness",   score: 48, color: paletteMap['work_spot'] },
+    { name: "Long-Stay Accommodation",     score: 42, color: paletteMap['accommodation'] },
+    { name: "Safety & Essential Services", score: 63, color: paletteMap['service'] },
+    { name: "Transport & Access",          score: 51, color: paletteMap['transport'] },
+    { name: "Tourism & Lifestyle Appeal",  score: 72, color: paletteMap['attraction'] },
   ],
 };
 
@@ -27,7 +34,8 @@ function resolveData(snapshot) {
     { name: "Internet & Work Readiness",   score: rawCats.internet_work     ?? s.internet_work_score     ?? DATA_DEFAULTS.categories[0].score, color: "#534AB7" },
     { name: "Long-Stay Accommodation",     score: rawCats.accommodation     ?? s.accommodation_score     ?? DATA_DEFAULTS.categories[1].score, color: "#D85A30" },
     { name: "Safety & Essential Services", score: rawCats.safety_services   ?? s.safety_services_score   ?? DATA_DEFAULTS.categories[2].score, color: "#BA7517" },
-    { name: "Transport & Access",          score: rawCats.transport         ?? s.transport_score         ?? DATA_DEFAULTS.categories[3].score, color: "#D85A30" },
+    // Use paletteMap for transport colour to avoid duplicate colour with accommodation.
+    { name: "Transport & Access",          score: rawCats.transport         ?? s.transport_score         ?? DATA_DEFAULTS.categories[3].score, color: paletteMap['transport'] },
     { name: "Tourism & Lifestyle Appeal",  score: rawCats.tourism_lifestyle ?? s.tourism_lifestyle_score ?? DATA_DEFAULTS.categories[4].score, color: "#7F77DD" },
   ].map((c) => ({ ...c, score: Math.max(0, Math.min(100, Math.round(Number(c.score) || 0))) }));
 
@@ -55,6 +63,7 @@ function animateCounter(el, target, ms) {
 // hideOverallScore: when true, suppresses the Overall Score card at the bottom
 // (Dashboard renders it separately in the right column via OverallScoreCard)
 export default function ScoreCard({ snapshot = null, hideOverallScore = false }) {
+  // Resolve data once on mount; animation should run only on initial load.
   const data = resolveData(snapshot);
 
   const arcRef      = useRef(null);
@@ -76,6 +85,7 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
 
+  // Animation logic now uses the resolved `data` from the initial render.
   const runAnimation = useCallback(() => {
     clearTimers();
 
@@ -174,9 +184,10 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
     later(() => {
       if (sparkDotRef.current) { sparkDotRef.current.style.transition = "opacity 0.3s ease"; sparkDotRef.current.style.opacity = "1"; }
     }, 2760);
-  }, [data]);
+  }, []); // run once on mount
 
-  useEffect(() => { runAnimation(); return clearTimers; }, [runAnimation]);
+  // Run animation on component mount only.
+  useEffect(() => { runAnimation(); return clearTimers; }, []);
 
   const handleReplay = () => {
     const btn = replayBtnRef.current;
