@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
 import AssetTable from '../components/assets/AssetTable';
-// Existing imports …
 import { LISTING_CATEGORIES } from '../lib/constants';
 
+// Use the canonical category list from constants which matches backend enum values.
+const CATEGORIES = LISTING_CATEGORIES;
 
 export default function Assets() {
   const [listings, setListings]             = useState([]);
@@ -119,14 +120,20 @@ export default function Assets() {
     <div className="max-w-[1200px] mx-auto">
 
       {/* Header */}
-      <div className={`mb-6 ${block(0)}`}>
-        <p className="text-[13px] text-[#888] m-0">
+<div ref={headerRef} className={`mb-6 ${block(0)} opacity-0 translate-y-4`}>
+  <h1 className="text-[22px] font-semibold text-[#1a1a1a] mb-1">
+    Local Assets
+  </h1>
+  <p className="text-[#888] text-[13px] m-0">
+    Browse verified work spots, accommodations, and services
+  </p>
+</div>
           Browse verified work spots, accommodations, and services
         </p>
       </div>
 
       {/* Filters */}
-      <div className={block(1)}>
+<div ref={filtersRef} className={`${block(1)} opacity-0 translate-y-4`}>
         <AssetFilters
           options={LISTING_CATEGORIES}
           activeCategory={activeCategory}
@@ -135,22 +142,24 @@ export default function Assets() {
         />
       </div>
 
-      {/* Content */}
-      <div className={block(2)}>
+<div ref={tableRef} className={`${block(2)} opacity-0 translate-y-4`}>
 
         {/* Skeleton */}
         {loading && <AssetTableSkeleton />}
 
         {/* Error */}
         {!loading && error && (
-          <div className="text-center py-16 px-5 bg-[#fbe9e7] rounded-xl text-[#D85A30]">
-            <div className="text-4xl mb-3">⚠️</div>
-            <h3 className="text-[15px] font-semibold mb-1">Failed to load assets</h3>
-            <p className="text-[13px] text-[#C1553E] mb-4">{error}</p>
-            <button
-              onClick={loadListings}
-              className="px-4 py-2 rounded-lg bg-[#D85A30] text-white text-[13px] font-semibold
-                         border-none cursor-pointer hover:bg-[#C1553E] transition-colors duration-150"
+<div className="text-center py-12 bg-[#fbe9e7] rounded-[12px] text-[#D85A30]">
+  <div className="text-4xl mb-3">⚠️</div>
+  <h3 className="text-[15px] font-semibold mb-1">Failed to load assets</h3>
+  <p className="text-[13px] mb-4 text-[#C1553E]">{error}</p>
+  <button
+    onClick={loadListings}
+    className="px-4 py-2 rounded bg-[#D85A30] text-white font-semibold text-[13px] hover:bg-[#C1553E]"
+  >
+    Try Again
+  </button>
+</div>
             >
               Try Again
             </button>
@@ -159,7 +168,7 @@ export default function Assets() {
 
         {/* Empty */}
         {!loading && !error && listings.length === 0 && (
-          <div className="text-center py-16 px-5 bg-[#f9f7f4] rounded-xl text-[#666]">
+<div className="text-center py-12 px-5 bg-[#f9f7f4] rounded-[12px] text-[#666]">
             <div className="text-4xl mb-3">📋</div>
             <h3 className="text-[15px] font-semibold mb-1">No assets found</h3>
             <p className="text-[13px] text-[#999]">

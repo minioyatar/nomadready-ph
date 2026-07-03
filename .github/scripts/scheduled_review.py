@@ -15,6 +15,9 @@ result = subprocess.run(
      "--json", "number,title,author,headRefName,headRefOid"],
     capture_output=True, text=True
 )
+if result.returncode != 0:
+    print(f"Error fetching PR list: exit {result.returncode}\n{result.stderr}")
+    raise SystemExit(1)
 prs = json.loads(result.stdout)
 
 if not prs:
@@ -117,6 +120,16 @@ for pr in prs:
             "verdict": "SEE COMMENTS",
             "event": "COMMENT",
             "inline_comments": [],
+        }
+
+    # Ensure required keys exist; otherwise fallback to safe defaults.
+    required = {"summary", "verdict", "event", "inline_comments"}
+    if not required.issubset(review.keys()):
+        review = {
+            "summary": review.get("summary", ""),
+            "verdict": review.get("verdict", "SEE COMMENTS"),
+            "event": review.get("event", "COMMENT"),
+            "inline_comments": review.get("inline_comments", []),
         }
 
     # 6. Build review body
