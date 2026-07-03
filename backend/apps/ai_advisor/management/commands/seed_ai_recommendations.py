@@ -5,7 +5,7 @@ Carles using the placeholder data from the service.  It is intended for
 development and demo purposes only.
 """
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from apps.destinations.models import Destination
 from apps.scoring.models import ScoreSnapshot
 from apps.ai_advisor.models import AIRecommendation
