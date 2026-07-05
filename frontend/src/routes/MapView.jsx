@@ -95,24 +95,24 @@ export default function MapView() {
     return () => { mounted = false; timers.current.forEach(clearTimeout); };
   }, []);
 
-  // Entrance animation on load complete
+  // Entrance animation on load complete – use Tailwind class toggling
   useEffect(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
+    // Reset to hidden state using Tailwind utilities
     [headerRef, contentRef].forEach((r) => {
       if (!r.current) return;
-      r.current.style.opacity = '0';
-      r.current.style.transform = 'translateY(16px)';
-      r.current.style.transition = 'none';
+      r.current.classList.remove('opacity-100', 'translate-y-0', 'transition-all', 'duration-500');
+      r.current.classList.add('opacity-0', 'translate-y-4');
     });
 
+    // Animate in after a short delay
     [headerRef, contentRef].forEach((r, i) => {
       later(() => {
         if (!r.current) return;
-        r.current.style.transition = 'opacity 0.55s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
-        r.current.style.opacity = '1';
-        r.current.style.transform = 'translateY(0)';
+        r.current.classList.remove('opacity-0', 'translate-y-4');
+        r.current.classList.add('opacity-100', 'translate-y-0', 'transition-all', 'duration-500');
       }, 60 + i * 140);
     });
 

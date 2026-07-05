@@ -39,9 +39,9 @@
   /* Muted text tokens – increased contrast for WCAG AA */
   --text-label: #6B6359;   /* darker than original */
   --text-hint: #5F5950;    /* darker than original */
-  --text-lighter: #4E473F; /* darker than original */
-
-  --gray-light: #EFEAE1;
+    --text-label: #6B6560;   /* darker than original */
+    --text-hint: #857F7A;    /* darker than original */
+    --text-lighter: #9A9490; /* darker than original */
   --gray-mid: #8A857D;
   --bar-track: #ECE6DB;
   --card-shadow: 0 1px 2px rgba(30,20,10,.04), 0 8px 22px rgba(30,20,10,.03);
@@ -105,18 +105,6 @@ body {
 }
 
 /* Shimmer animation for skeleton loaders */
-@keyframes mapShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.map-shimmer {
-  background: linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%);
-  background-size: 200% 100%;
-  animation: mapShimmer 1.4s ease-in-out infinite;
-}
-
-/* Custom shimmer animation used for skeleton loaders */
 @keyframes mapShimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -292,10 +280,13 @@ textarea:focus-visible {
   box-shadow: 0 1px 2px rgba(30,20,10,.04);
 }
 
+/* Add visible focus style for keyboard navigation */
 .topbar-search input:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--orange-mid);
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
 }
+
+
 
 
 .topbar-actions {
