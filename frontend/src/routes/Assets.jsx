@@ -37,17 +37,9 @@ export default function Assets() {
     setLoading(true);
     setError(null);
     try {
-      // Map UI category values (plural) to backend category values (singular)
-      const CATEGORY_PARAM_MAP = {
-        all: null,
-        work_spots: 'work_spot',
-        accommodations: 'accommodation',
-        services: 'service',
-        transport: 'transport',
-        attractions: 'attraction',
-      };
-      const mapped = CATEGORY_PARAM_MAP[activeCategory];
-      const params = mapped ? { category: mapped } : {};
+      // activeCategory now matches backend enum values directly (singular).
+      // The special "all" case should omit the category filter.
+      const params = activeCategory !== 'all' ? { category: activeCategory } : {};
       const response = await getListings(params);
       const data = response && response.data ? response.data : response;
       if (id !== requestId.current) return;
@@ -57,10 +49,11 @@ export default function Assets() {
       setError(err?.message || 'Failed to load assets');
       setListings([]);
     } finally {
-      // Loading state should be cleared for the latest request only.
-      // The requestId check is unnecessary here because earlier returns
-      // already guard against stale responses.
-      setLoading(false);
+      // Only clear loading if this is the latest request to avoid stale
+      // responses turning off the spinner prematurely.
+      if (id === requestId.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -148,12 +141,7 @@ function Sk({ className = '', style = {} }) {
 function AssetTableSkeleton() {
   return (
     <>
-      <style>{`
-        @keyframes shimmer {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-      `}</style>
+      {/* Shimmer keyframes are defined globally in index.css */}
       <div className="rounded-xl border border-[#ece8e2] overflow-hidden">
         {/* thead */}
         <div className="bg-[#f9f7f4] border-b border-[#ece8e2] px-4 py-3

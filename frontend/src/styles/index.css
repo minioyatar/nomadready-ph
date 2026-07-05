@@ -398,6 +398,12 @@ table {
   line-height: 1.5;
   color: var(--text-muted);
   max-width: 52ch;
+
+/* ─── Shared Animations ─── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
   margin-bottom: 12px;
 }
 
