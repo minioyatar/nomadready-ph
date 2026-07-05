@@ -958,6 +958,37 @@ After completing a feature, respond with:
 
 ---
 
+## PR Review Check Rules
+
+When checking whether a PR is ready to merge, always do the following:
+
+1. **Check the latest review chronologically — not just whether CHANGES_REQUESTED exists anywhere in the history.**
+   A PR may have an old CHANGES_REQUESTED from round 1 and a newer APPROVED after the dev addressed the feedback. The latest review state is what matters.
+
+2. **Check reviews in order per reviewer.** If CodeRabbit or any reviewer posted multiple rounds, the most recent round is the current verdict.
+
+3. **A PR is ready for team lead review only when all of the following are true:**
+   - Latest review state is APPROVED (or no blocking reviews remain)
+   - No merge conflicts with main
+   - CI checks pass (or no CI configured)
+
+4. **Do not report a PR as blocked solely because an older CHANGES_REQUESTED review exists if a subsequent APPROVED review was posted on a later commit.**
+
+5. **When in doubt, read the actual review timeline** using:
+   ```bash
+   gh pr view <number> --json reviews --jq '.reviews[] | "[\(.state)] \(.author.login) \(.submittedAt[:10])"'
+   ```
+
+6. **After every PR merge, update `docs/03-directory-architecture-and-claude-workflow.md`** — update the Feature Branch Build Order table and Team Task Split status to reflect the merge. Do this immediately after confirming the merge, without waiting to be asked.
+
+7. **Always check both open AND recently merged PRs.** Never query `--state open` alone. A PR merged by the team lead will no longer appear in open PRs but is still relevant to the current state of main. Always verify against `git log origin/main` to confirm what has actually landed.
+   ```bash
+   gh pr list --state all --limit 20
+   git log origin/main --oneline -10
+   ```
+
+---
+
 ## Scaffolding Task Instruction
 
 When asked to scaffold the project, do only the initial project structure.

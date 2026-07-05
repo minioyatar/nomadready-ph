@@ -1,6 +1,10 @@
 # 03 — Directory Architecture and Claude Code Workflow
 
 > This document describes the monorepo structure, how Claude Code should be used on this project, and which Claude Code skills to invoke for each feature branch.
+>
+> **Last updated:** 2026-07-05
+> **Updated by:** Team Lead (Claude)
+> **Reason:** Reflect actual merge status after PRs #4, #10 merged; align task list with full ChatGPT-validated MVP plan.
 
 ---
 
@@ -14,6 +18,7 @@ Key locations:
 backend/apps/scoring/services.py    ← all numeric score logic lives here
 backend/apps/ai_advisor/services.py ← all OpenAI logic lives here
 frontend/src/services/api.js        ← all frontend API calls go here
+frontend/src/lib/constants.js       ← all frontend constants (category keys, colors, endpoints)
 ```
 
 ---
@@ -31,27 +36,45 @@ Prompt Claude → Build Randomly → Debug Chaos
 
 ---
 
-## Feature Branch Build Order
+## Feature Branch Build Order — Current Status
 
-| # | Branch | Status |
-|---|---|---|
-| 1 | `feature/project-setup` | ✅ Merged |
-| 2 | `feature/backend-models-seed` | ✅ Merged |
-| 3 | `feature/scoring-engine` | ✅ Merged |
-| 4 | `feature/dashboard-overview` | In Progress |
-| 5 | `feature/assets-table` | Pending |
-| 6 | `feature/map-view` | Pending |
-| 7 | `feature/ai-readiness-advisor` | Pending |
-| 8 | `feature/cicd-deployment` | Pending |
-| 9 | `feature/demo-polish` | Pending |
+| # | Branch | Owner | Status | PR |
+|---|---|---|---|---|
+| 1 | `feature/project-setup` | Both | ✅ Merged | — |
+| 2 | `feature/backend-models-seed` | Backend | ✅ Merged | PR #2 |
+| 3 | `feature/scoring-engine` | Backend | ✅ Merged | PR #3 |
+| 4 | `feature/dashboard-overview` | Frontend | ✅ Merged | PR #4 |
+| 5 | `feature/ai-readiness-advisor-backend` | Backend | ✅ Merged | PR #10 |
+| 6 | `feature/assets-table-ui` | Frontend | 🔄 In Progress | PR #5 |
+| 7 | `feature/map-view` | Frontend | 🔄 In Progress | PR #6 |
+| 8 | `feature/ai-readiness-advisor-ui` | Frontend | 🔄 Blocked | PR #7 |
+| 9 | `feature/cicd-deployment` | Both | ❌ Not started | — |
+| 10 | `feature/demo-polish` | Both + Team Lead | ❌ Not started | — |
+
+---
+
+## Complete Task List — Start to Finish
+
+| Order | Task | Branch | Owner | What Gets Built | Done Means |
+|---|---|---|---|---|---|
+| 1 | Project scaffold | `feature/project-setup` | Both | Django backend, React frontend, Docker Compose, base repo | App starts locally, containers run |
+| 2 | Backend models + seed data | `feature/backend-models-seed` | Backend | Destination, Listing, ScoreSnapshot, AIRecommendation; Carles seed data | DB has Carles and 20 demo listings |
+| 3 | Scoring engine | `feature/scoring-engine` | Backend | Python scoring logic, weighted formula, score labels | Score returns target output; only lgu_verified count |
+| 4 | Score API endpoints | `feature/scoring-engine` | Backend | `GET /api/scores/current/`, `POST /api/scores/recalculate/` | Frontend can fetch and trigger score |
+| 5 | Dashboard Overview | `feature/dashboard-overview` | Frontend | Score card, 5 category cards, gaps card, metrics, AI preview | /dashboard renders from real API |
+| 6 | AI Advisor backend | `feature/ai-readiness-advisor-backend` | Backend | `generate_readiness_advice()`, OpenAI integration, `POST /api/ai-advisor/generate/` | Returns structured summary, strengths, weaknesses, top actions |
+| 7 | Assets Table | `feature/assets-table-ui` | Frontend | /assets page, category tabs, listings table, status badges | Filter tabs map correctly to backend enum, table updates |
+| 8 | Map View | `feature/map-view` | Frontend | /map page, Leaflet map, pins, legend, popup details | Map loads, pins clickable, contrast/focus fixed |
+| 9 | AI Advisor UI | `feature/ai-readiness-advisor-ui` | Frontend | /ai-advisor screen, generate button, loading, result panels, error state | Calls real API, shows summary/strengths/weaknesses/top 3 actions |
+| 10 | CI/CD deployment | `feature/cicd-deployment` | Both | GitHub Actions, docker-compose.prod.yml, nginx.conf, frontend CI step | CI passes on every PR; prod build runs |
+| 11 | Demo polish | `feature/demo-polish` | Both + Team Lead | Seed calibration, E2E smoke, accessibility, copy, demo script | Full demo flow works start to finish |
+| 12 | Demo prep | docs/demo branch | Team Lead | Demo script, screenshots, backup plan, PR freeze | Team can demo without hesitation |
 
 ---
 
 ## Team Task Split
 
-Team lead assigns tasks by ID. Backend and frontend tracks run independently — neither track waits on the other to start.
-
-### Done
+### ✅ Done
 
 | Task ID | Task | Branch | Owner |
 |---|---|---|---|
@@ -59,182 +82,176 @@ Team lead assigns tasks by ID. Backend and frontend tracks run independently —
 | Task 2 | Backend Models & Seed Data | `feature/backend-models-seed` | Backend |
 | Task 3 | Scoring Engine Logic | `feature/scoring-engine` | Backend |
 | Task 4 | Score API Endpoints | `feature/scoring-engine` | Backend |
+| Task F1 | Dashboard Screen | `feature/dashboard-overview` | Frontend |
+| Task B1 | AI Advisor Service | `feature/ai-readiness-advisor-backend` | Backend |
+| Task B2 | AI Advisor API Endpoint | `feature/ai-readiness-advisor-backend` | Backend |
 
-### Remaining — Backend Track
+### 🔄 In Progress — Frontend Track
 
-| Task ID | Task | Branch | What gets built |
-|---|---|---|---|
-| Task B1 | AI Advisor Service | `feature/ai-readiness-advisor` | `ai_advisor/services.py` — `generate_readiness_advice()` calling OpenAI |
-| Task B2 | AI Advisor API Endpoint | `feature/ai-readiness-advisor` | `POST /api/ai-advisor/generate/` — views, serializers, urls, mock test |
-| Task B3 | CI/CD Backend | `feature/cicd-deployment` | `ci.yml`, `deploy.yml`, `docker-compose.prod.yml`, `infra/nginx.conf` |
+| Task ID | Task | Branch | PR | Status | Blocker |
+|---|---|---|---|---|---|
+| Task F2 | Assets Table Screen | `feature/assets-table-ui` | #5 | Almost done | Category filter values still plural — must use `work_spot`, `accommodation`, `service`, `attraction` |
+| Task F3 | Map View Screen | `feature/map-view` | #6 | Almost done | 3 fixes: MapView animation → Tailwind class toggle, CSS contrast tokens, focus-visible style |
+| Task F4 | AI Advisor UI Screen | `feature/ai-readiness-advisor-ui` | #7 | Blocked | Merge conflicts; needs rebase on main after PR #5 and #6 merge, then wire real API |
 
-B1 and B2 are on the same branch. B3 is independent and can start anytime.
+### ❌ Not Started
 
-### Remaining — Frontend Track
-
-| Task ID | Task | Branch | What gets built |
-|---|---|---|---|
-| Task F1 | Dashboard Screen | `feature/dashboard-overview` | Overall score card, 5 category cards, top gaps, AI preview, key metrics |
-| Task F2 | Assets Table Screen | `feature/assets-table` | Category filter tabs, listings table, verification status badges |
-| Task F3 | Map View Screen | `feature/map-view` | Leaflet map, OpenStreetMap tiles, asset pins, popups, legend |
-| Task F4 | AI Advisor Screen | `feature/ai-readiness-advisor` | Generate button, loading state, summary, strengths, weaknesses, recommendation cards — built against mock first, wired to real API after Task B2 merges |
-| Task F5 | CI/CD Frontend | `feature/cicd-deployment` | Frontend CI step in `ci.yml` |
-
-F1, F2, and F3 start now — all APIs they need are already live. F4 builds against a mock response shape so it never blocks on the backend.
-
-### Convergence
-
-| Task ID | Task | Branch | Owner | Starts after |
+| Task ID | Task | Branch | Owner | Starts After |
 |---|---|---|---|---|
-| Task P1 | Demo Polish & Integration | `feature/demo-polish` | Both | All tracks complete |
+| Task B3 | CI/CD Backend | `feature/cicd-deployment` | Backend | PR #7 merged — **Team Lead handles, not backend dev** |
+| Task F5 | CI/CD Frontend | `feature/cicd-deployment` | Frontend | PR #7 merged |
+| Task B4 | AI Fallback Response | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B5 | AI Output Structure Hardening | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B6 | API Contract Check | `feature/demo-polish` | Both | PR #7 merged |
+| Task B7 | Carles Score Calibration | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B8 | Top Gaps Calibration | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B9 | Backend Smoke Testing | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B10 | Backend Security Check | `feature/demo-polish` | Backend | PR #7 merged |
+| Task B11 | Final Backend Demo Check | `feature/demo-polish` | Backend | All demo-polish tasks done |
+| Task P1 | Demo Polish & Integration | `feature/demo-polish` | Both + Team Lead | CI/CD merged |
 
-### Parallel Work Plan
+> Full backend task details with acceptance criteria: see `docs/08-backend-tasks.md`
+
+---
+
+## Remaining Work — In Correct Order
+
+### Immediate Sprint — Finish Open PRs
+
+| Order | Owner | Task | Branch/PR | Output |
+|---|---|---|---|---|
+| 1 | Frontend | Fix assets category filter values | PR #5 | `/assets` done |
+| 2 | Team Lead | Review and merge PR #5 | PR #5 | main updated |
+| 3 | Frontend | Fix map animation, contrast, focus | PR #6 | `/map` done |
+| 4 | Team Lead | Review and merge PR #6 | PR #6 | main updated |
+| 5 | Frontend | Rebase AI Advisor UI on latest main | PR #7 | Conflicts resolved |
+| 6 | Frontend + Backend | Wire AI UI to real API | PR #7 | `/ai-advisor` done |
+| 7 | Team Lead | Review and merge PR #7 | PR #7 | All 4 screens complete |
+
+### Final Sprint — CI/CD + Demo Polish
+
+| Order | Owner | Task | Branch | Output |
+|---|---|---|---|---|
+| 8 | Backend | Backend CI + deploy config | `feature/cicd-deployment` | CI/CD backend ready |
+| 9 | Frontend | Frontend CI build step | `feature/cicd-deployment` | Frontend build checked in CI |
+| 10 | Both | Production Docker + nginx | `feature/cicd-deployment` | Deploy config ready |
+| 11 | Team Lead | Merge CI/CD | `feature/cicd-deployment` | main is deploy-ready |
+| 12 | Backend | AI fallback response | `feature/demo-polish` | Demo works even if OpenAI is down |
+| 13 | Backend | AI output structure hardening | `feature/demo-polish` | API returns consistent shape every time |
+| 14 | Both | API contract check | `feature/demo-polish` | All frontend field names match backend responses |
+| 15 | Backend | Carles score calibration | `feature/demo-polish` | Score lands ~68/100, label correct |
+| 16 | Backend | Top gaps calibration | `feature/demo-polish` | Gaps tell the right demo story |
+| 17 | Frontend | UI and accessibility polish | `feature/demo-polish` | Demo screens clean, focus/contrast fixed |
+| 18 | Backend | Backend smoke testing | `feature/demo-polish` | All 10 endpoint checks pass |
+| 19 | Backend | Backend security check | `feature/demo-polish` | No secrets exposed, .env.example complete |
+| 20 | Team Lead | Demo script + backup screenshots | `feature/demo-polish` | Team knows exact click path |
+| 21 | Both | Final E2E smoke test | `feature/demo-polish` | Full demo flow works without error |
+| 22 | Backend | Final backend demo check | `feature/demo-polish` | Seed → score → AI flow completes clean |
+
+---
+
+## Gaps Needed Before Demo (Not Originally Planned)
+
+These are not nice-to-have. They protect the demo.
+
+| Gap | Why It Matters | Owner | Priority |
+|---|---|---|---|
+| Seed data calibration | Score must tell the intended Carles story | Backend + Team Lead | 🔴 High |
+| Full demo walkthrough script | Prevents messy live demo | Team Lead | 🔴 High |
+| E2E smoke test | Catches broken routes before demo | Both | 🔴 High |
+| Error and loading states on all screens | Prevents awkward blank screens | Frontend | 🔴 High |
+| AI fallback response | OpenAI may fail or rate-limit during demo | Backend | 🔴 High |
+| API contract check | Frontend and backend field names must match | Both | 🔴 High |
+| Demo screenshots backup | Needed if internet or API fails live | Team Lead | 🔴 High |
+| Security sanity check | API keys must not be exposed in frontend | Backend + Team Lead | 🔴 High |
+| Accessibility pass | Judges may notice poor contrast and focus | Frontend | 🟡 Medium |
+| Mobile/responsive check | Demo may happen on projector | Frontend | 🟡 Medium |
+| .env.example completeness | Dev environment must be repeatable | Backend | 🟡 Medium |
+
+---
+
+## Definition of Done — By Role
+
+### Backend Done Means
+- API endpoint returns expected data
+- Database query is scoped correctly
+- Scoring rules are deterministic
+- OpenAI does not calculate the numeric score
+- Tests or manual API checks pass
+- No API keys exposed
+- Seed data supports the demo story
+
+### Frontend Done Means
+- Route loads without crash
+- API data renders correctly
+- Loading, empty, and error states exist
+- UI works on laptop or demo screen
+- No obvious contrast or focus issues
+- No console errors
+- Screen matches the demo flow
+
+### Team Lead Done Means
+- PR reviewed and acceptance criteria checked
+- Scope has not expanded
+- Demo story still holds
+- main remains stable and deployable
+- Team knows what the next task is
+
+---
+
+## Parallel Work Plan
 
 ```
-RIGHT NOW — no waiting:
-  Backend   →  Task B1 + B2  (AI advisor API)
-  Backend   →  Task B3       (CI/CD backend)
-  Frontend  →  Task F1       (Dashboard screen)
-  Frontend  →  Task F2       (Assets table screen)
-  Frontend  →  Task F3       (Map view screen)
-  Frontend  →  Task F4       (AI advisor screen — mock first)
+RIGHT NOW — finish open PRs:
+  Frontend  →  Fix and merge PR #5  (Assets Table)
+  Frontend  →  Fix and merge PR #6  (Map View)
+  Frontend  →  Rebase + wire + merge PR #7  (AI Advisor UI)
 
-AFTER Task B2 merges:
-  Frontend  →  Task F4 wires real API (small update, not a rewrite)
+AFTER all 3 frontend PRs merge:
+  Backend   →  Task B3  (CI/CD backend)
+  Frontend  →  Task F5  (CI/CD frontend step)
+  Both      →  feature/cicd-deployment merged
 
-AFTER all tracks complete:
-  Both      →  Task P1       (Demo polish)
+AFTER CI/CD merges:
+  Both      →  Task P1  (Demo polish — all screens, calibration, E2E, script)
 ```
+
+---
+
+## Important Rules for All Devs
+
+1. **CI files belong in `feature/cicd-deployment` only.** Do not add `ci.yml`, `scheduled-review.yml`, or `scheduled_review.py` changes to feature/assets-table, feature/map-view, or feature/ai-readiness-advisor branches.
+2. **Do not merge `main` into your feature branch mid-development.** This pulls in unrelated files and causes CodeRabbit to review out-of-scope code. If you need to catch up with main, rebase instead.
+3. **Category filter values must use singular backend enum values:** `work_spot`, `accommodation`, `service`, `transport`, `attraction`. Do NOT use plural forms.
+4. **All frontend constants (category keys, colors, endpoints) must come from `frontend/src/lib/constants.js`.** Do not define duplicate local arrays in route files.
+5. **OpenAI must never calculate the numeric score.** The backend Python scoring engine computes all numbers. OpenAI only explains the result and suggests LGU actions.
 
 ---
 
 ## Claude Code Skills
 
-Claude Code skills extend what Claude can do for specific domains. This section maps the available skills to the feature branches where they are most useful.
-
-Skills are invoked with `/skill-name` in the Claude Code prompt.
-
-### Built-in Skills (no installation required)
-
-These skills are already available in this project's Claude Code session:
+### Built-in Skills
 
 | Skill | Invoke | Use in this project |
 |---|---|---|
-| `react-dev` | `/react-dev` | All frontend feature branches — React components, hooks, routing, Tailwind patterns |
-| `python-testing` | `/python-testing` | `feature/scoring-engine` — pytest, coverage, fixtures, scoring logic tests |
-| `frontend-testing` | `/frontend-testing` | `feature/dashboard-overview` onward — Jest, Vitest, React Testing Library |
-| `playwright-e2e-testing` | `/playwright-e2e-testing` | `feature/demo-polish` — end-to-end tests for the full demo flow |
-| `wcag-accessibility-audit` | `/wcag-accessibility-audit` | `feature/demo-polish` — LGU dashboard should meet WCAG 2.1 AA for government use |
-| `security-review` | `/security-review` | `feature/cicd-deployment` — review before going to production |
-| `dependency-vulnerability-triage` | `/dependency-vulnerability-triage` | `feature/cicd-deployment` — triage `npm audit` and `pip` vulnerabilities |
-| `simplify` | `/simplify` | Any branch — review changed code for reuse and quality after implementation |
-| `review` | `/review` | Every PR — review before merge |
-| `agent-ops-cicd-github` | `$agent-ops-cicd-github` | `feature/cicd-deployment` — GitHub Actions CI/CD setup |
+| `react-dev` | `/react-dev` | All frontend feature branches |
+| `python-testing` | `/python-testing` | Backend scoring and API tests |
+| `frontend-testing` | `/frontend-testing` | Dashboard and assets screens |
+| `playwright-e2e-testing` | `/playwright-e2e-testing` | `feature/demo-polish` E2E tests |
+| `wcag-accessibility-audit` | `/wcag-accessibility-audit` | `feature/demo-polish` accessibility check |
+| `security-review` | `/security-review` | `feature/cicd-deployment` before prod |
+| `dependency-vulnerability-triage` | `/dependency-vulnerability-triage` | `feature/cicd-deployment` npm audit |
+| `simplify` | `/simplify` | Any branch after implementation |
+| `review` | `/review` | Every PR before merge |
+| `agent-ops-cicd-github` | `$agent-ops-cicd-github` | `feature/cicd-deployment` |
 
 ### Installed External Skills
 
-These skills were installed from the open skills ecosystem for this project:
-
-| Skill | Source | Install count | Security | Use in this project |
-|---|---|---|---|---|
-| `chart-visualization` | antvis | 3.8K | Snyk: Med Risk | `feature/dashboard-overview` — Recharts score cards and category bar charts |
-| `systematic-debugging` | obra/superpowers | 140.3K | Snyk: Low Risk | Any branch — structured fault isolation when scoring logic or API calls produce wrong results |
-| `test-driven-development` | obra/superpowers | 123.9K | Snyk: Low Risk | `feature/scoring-engine` — write failing test first, then implement the scoring function |
-
-**Security notes:**
-- `chart-visualization`: "Medium Risk" on Snyk is at package level, not usage level. Review generated chart code before committing.
-- `systematic-debugging` and `test-driven-development`: Low Risk, 0 Socket alerts, Safe on Gen. No concerns.
-
-### External Skills to Watch (not yet installed)
-
-These were found during the skills audit but do not meet the 1K install threshold for automatic installation. Revisit before `feature/cicd-deployment` if needed:
-
-| Skill | Install count | Purpose |
-|---|---|---|
-| `martinholovsky/claude-skills-generator@cicd-expert` | 567 | CI/CD pipeline guidance |
-| `ansanabria/skills@recharts` | 669 | Recharts-specific patterns (alternative to chart-visualization) |
-| `affaan-m/ecc@accessibility` | 676 | Additional accessibility checks |
-
-Install any of these with:
-```bash
-npx skills add <owner/repo@skill> -g -y
-```
-
-### Skills Not Installed (wrong stack or out of scope)
-
-| Skill type | Reason skipped |
+| Skill | Use in this project |
 |---|---|
-| `fastapi` | Project uses Django, not FastAPI |
-| `tailwind-v4-shadcn` | Project uses Tailwind v3, not v4; shadcn is out of scope |
-| Django/Python skills from registry | All had <40 installs; built-in `python-testing` is better |
-| OpenAI API skills from registry | All had <100 installs; use `claude-api` built-in for API patterns |
-| Leaflet/map skills from registry | All had <130 installs; `react-dev` + Leaflet docs are sufficient |
-
----
-
-## How to Use Skills in Practice
-
-### Backend dev — scoring engine
-
-```
-1. Open feature/scoring-engine branch
-2. Ask Claude: /test-driven-development — set up TDD workflow for scoring functions
-3. Ask Claude: /python-testing — write tests for calculate_internet_work_score()
-4. Implement the function in services.py
-5. Run: docker compose exec backend python manage.py test
-```
-
-### Backend dev — debugging a wrong score
-
-```
-1. Something produces a wrong readiness score
-2. Ask Claude: /systematic-debugging — isolate the fault in services.py
-3. Follow the structured steps: reproduce → isolate → hypothesis → fix → verify
-```
-
-### Frontend dev — dashboard charts
-
-```
-1. Open feature/dashboard-overview branch
-2. Ask Claude: /react-dev — build a CategoryCard with a Recharts BarChart
-   (chart-visualization skill will be active for chart guidance)
-3. Check the output matches the scoring formula weights
-```
-
-### Team lead — PR review
-
-```
-1. When a feature branch PR is ready:
-2. Ask Claude: /review — review PR #N
-3. Also ask Claude: /simplify — check changed files for quality
-4. Merge only after review passes
-```
-
-### Before deployment
-
-```
-1. Ask Claude: /security-review — review the full branch
-2. Ask Claude: /dependency-vulnerability-triage — run npm audit and pip check
-3. Ask Claude: /wcag-accessibility-audit — check the dashboard screens
-4. Ask Claude: /playwright-e2e-testing — set up E2E tests for the demo flow
-```
-
----
-
-## MCP Plugins
-
-The following MCP (Model Context Protocol) plugin is available in this session:
-
-| Plugin | Purpose |
-|---|---|
-| `Google Drive` | Access planning documents stored in Google Drive if needed |
-
-To authenticate Google Drive if you need to pull docs:
-```
-Use: mcp__claude_ai_Google_Drive__authenticate
-```
-
-This is optional. All planning documents are already available locally in `docs/source-pdfs/`.
+| `chart-visualization` | `feature/dashboard-overview` — Recharts score cards and charts |
+| `systematic-debugging` | Any branch — structured fault isolation |
+| `test-driven-development` | `feature/scoring-engine` — write test first, then implement |
 
 ---
 
