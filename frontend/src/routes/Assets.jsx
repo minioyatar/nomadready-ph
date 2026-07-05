@@ -30,14 +30,43 @@ export default function Assets() {
     };
   }, []);
 
-  // Re-run entrance animation whenever loading state changes
+  // Animate header (block 0) and filters (block 1) once on mount.
+  useEffect(() => {
+    // Ensure any previous timers are cleared.
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    // Animate blocks 0 and 1 sequentially.
+    [0, 1].forEach((i) => {
+      later(() =>
+        setShown((s) => {
+          const n = [...s];
+          n[i] = true;
+          return n;
+        })
+      , 60 + i * 130);
+    });
+    // No cleanup needed beyond clearing timers on unmount.
+    return () => timers.current.forEach(clearTimeout);
+  }, []);
+
+  // Re-run entrance animation for the content block (table/skeleton/error) whenever loading or error changes.
   useEffect(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    setShown([false, false, false]);
-    [0, 1, 2].forEach((i) => {
-      later(() => setShown((s) => { const n = [...s]; n[i] = true; return n; }), 60 + i * 130);
+    // Reset only the content block (index 2) to hidden.
+    setShown((s) => {
+      const n = [...s];
+      n[2] = false;
+      return n;
     });
+    // Animate the content block after a short delay.
+    later(() =>
+      setShown((s) => {
+        const n = [...s];
+        n[2] = true;
+        return n;
+      })
+    , 60);
     return () => timers.current.forEach(clearTimeout);
   }, [loading, error]);
 
