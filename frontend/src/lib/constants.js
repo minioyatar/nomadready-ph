@@ -11,6 +11,10 @@ export const ENDPOINTS = {
   LISTINGS: '/api/listings/',
   DESTINATIONS: '/api/destinations/',
   AI_ADVISOR: '/api/ai-advisor/generate/',
+<<<<<<< HEAD
+=======
+  GENERATE_AI_ADVICE: '/api/ai-advisor/generate/',
+>>>>>>> origin/main
 };
 
 export const LISTING_CATEGORIES = [

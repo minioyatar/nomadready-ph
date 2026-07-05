@@ -221,6 +221,7 @@ export default function Sidebar({ userInitials = "CJ", onLogout }) {
           gap: "6px",
         }}>
           {/* Logout */}
+<<<<<<< HEAD
           <button
             ref={logoutRef}
             className="sb-logout"
@@ -262,6 +263,51 @@ export default function Sidebar({ userInitials = "CJ", onLogout }) {
               opacity: 0, transform: "translateX(-10px)",
             }}
           >
+=======
+          {onLogout && (
+            <button
+              ref={logoutRef}
+              className="sb-logout"
+              onClick={onLogout}
+              title="Logout"
+              style={{
+                width: "52px", height: "44px",
+                borderRadius: "10px",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: "4px",
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.4)",
+                background: "transparent",
+                border: "none",
+                fontFamily: "inherit",
+                transition: "background 0.15s, color 0.15s",
+                opacity: 0,
+                transform: "translateX(-10px)",
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8"/>
+                <path d="M16 16l4-4-4-4M20 12H9"/>
+              </svg>
+              <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>
+                Out
+              </span>
+            </button>
+          )}
+
+          {/* Avatar */}
+          <div
+            ref={avatarRef}
+            style={{
+              width: 30, height: 30, borderRadius: "50%",
+              background: "rgba(255,255,255,0.18)",
+              border: "1.5px solid rgba(255,255,255,0.4)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "11px", fontWeight: 700, color: "#fff",
+              opacity: 0, transform: "translateX(-10px)",
+            }}
+          >
+>>>>>>> origin/main
             {userInitials}
           </div>
         </div>

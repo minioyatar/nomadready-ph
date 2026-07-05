@@ -2,7 +2,11 @@ import React from 'react';
 
 export default function ErrorMessage({ message }) {
   return (
+<<<<<<< HEAD
     <div style={{
+=======
+    <div role="alert" style={{
+>>>>>>> origin/main
       background: '#FFF1F2',
       border: '1px solid #FBC8D4',
       borderRadius: 14,
@@ -15,4 +19,8 @@ export default function ErrorMessage({ message }) {
       <span>{message || 'An unexpected error occurred.'}</span>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main
