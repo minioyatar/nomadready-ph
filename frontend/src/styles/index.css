@@ -393,18 +393,18 @@ table {
   margin-bottom: 6px;
 }
 
-.readiness-info p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-muted);
-  max-width: 52ch;
+  .readiness-info p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    max-width: 52ch;
+    margin-bottom: 12px;
+  }
 
 /* ─── Shared Animations ─── */
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-  margin-bottom: 12px;
 }
 
 .stage-badge {

@@ -16,10 +16,18 @@ export default function Assets() {
   const [shown, setShown] = useState([false, false, false]);
   const timers   = useRef([]);
   const requestId = useRef(0);
+  const mounted = useRef(true);
 
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
 
   useEffect(() => { loadListings(); }, [activeCategory]);
+
+  // Cleanup effect to mark component as unmounted
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   // Re-run entrance animation whenever loading state changes
   useEffect(() => {
@@ -43,15 +51,17 @@ export default function Assets() {
       const response = await getListings(params);
       const data = response && response.data ? response.data : response;
       if (id !== requestId.current) return;
+      if (!mounted.current) return;
       setListings(data || []);
     } catch (err) {
       if (id !== requestId.current) return;
+      if (!mounted.current) return;
       setError(err?.message || 'Failed to load assets');
       setListings([]);
     } finally {
       // Only clear loading if this is the latest request to avoid stale
       // responses turning off the spinner prematurely.
-      if (id === requestId.current) {
+      if (id === requestId.current && mounted.current) {
         setLoading(false);
       }
     }
