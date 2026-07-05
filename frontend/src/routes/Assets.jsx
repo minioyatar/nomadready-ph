@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
 import AssetTable from '../components/assets/AssetTable';
+// Existing imports …
 import { LISTING_CATEGORIES } from '../lib/constants';
 
 
