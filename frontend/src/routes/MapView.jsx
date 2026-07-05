@@ -337,7 +337,8 @@ export default function MapView() {
                   Summary
                 </p>
                 <p className="mb-1 text-sm text-[#555]">
-                  <strong className="text-[#1a1a1a]">{listings.length}</strong> total listings
+                  {/* Count only listings that have valid coordinates, matching the pins shown on the map */}
+                  <strong className="text-[#1a1a1a]">{listings.filter(l => l.latitude != null && l.longitude != null && l.latitude !== '' && l.longitude !== '' && Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude))).length}</strong> total listings
                 </p>
                 <p className="text-xs text-[#aaa]">
                   Showing pins for assets with coordinates

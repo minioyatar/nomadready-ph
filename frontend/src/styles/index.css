@@ -34,8 +34,6 @@
   --text-muted: #756F66;
   --text-faint: #857F76;
   /* Muted text tokens – increased contrast for WCAG AA */
-  --text-label: #6B6359;   /* darker than original */
-  --text-hint: #5F5950;    /* darker than original */
   --text-label: #6B6560;   /* darker than original */
   --text-hint: #857F7A;    /* darker than original */
   --text-lighter: #9A9490; /* darker than original */
