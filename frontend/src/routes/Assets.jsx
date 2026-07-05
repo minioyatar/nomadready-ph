@@ -22,8 +22,9 @@ export default function Assets() {
 
   useEffect(() => { loadListings(); }, [activeCategory]);
 
-  // Cleanup effect to mark component as unmounted
+  // Track mounted status safely across React Strict Mode remounts.
   useEffect(() => {
+    mounted.current = true;
     return () => {
       mounted.current = false;
     };
