@@ -2,15 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
 import AssetTable from '../components/assets/AssetTable';
+import { LISTING_CATEGORIES } from '../lib/constants';
 
-const CATEGORIES = [
-  { value: 'all',            label: 'All' },
-  { value: 'work_spots',     label: 'Work Spots' },
-  { value: 'accommodations', label: 'Accommodations' },
-  { value: 'services',       label: 'Services' },
-  { value: 'transport',      label: 'Transport' },
-  { value: 'attractions',    label: 'Attractions' },
-];
 
 export default function Assets() {
   const [listings, setListings]             = useState([]);
@@ -88,7 +81,7 @@ export default function Assets() {
       {/* Filters */}
       <div className={block(1)}>
         <AssetFilters
-          options={CATEGORIES}
+          options={LISTING_CATEGORIES}
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
           count={listings.length}
