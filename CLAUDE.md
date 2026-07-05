@@ -270,6 +270,17 @@ Rules:
 7. Wait for human review before merge.
 8. Keep `main` deployable.
 
+**Exception — Team Lead direct commits to `main`:**
+
+The team lead may commit directly to `main` without a PR for the following low-risk changes only:
+
+- Documentation updates (`docs/`, `CLAUDE.md`, `README.md`)
+- Status updates to `docs/03` after a PR merge
+- Typo or formatting fixes in markdown files
+- No code changes, no model changes, no API changes
+
+All other changes — including any file under `backend/` or `frontend/` — must go through a feature branch and PR regardless of who makes them.
+
 ---
 
 ## Backend Architecture Rules
