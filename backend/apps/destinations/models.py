@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.functions import Lower
 
 
 class Destination(models.Model):
@@ -11,6 +12,9 @@ class Destination(models.Model):
 
     class Meta:
         ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(Lower("name"), name="destination_name_ci_unique"),
+        ]
 
     def __str__(self):
         return f"{self.name}, {self.province}"
