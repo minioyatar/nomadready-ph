@@ -80,11 +80,11 @@ class MapErrorBoundary extends Component {
 }
 
 // Wraps AssetMap and swaps in MapFallback if the component renders null.
-// Simplified fallback: always render AssetMap inside an error boundary.
-// If AssetMap itself returns null, the surrounding layout will handle it.
 function MapWithFallback(props) {
   const rendered = <AssetMap {...props} />;
-  return <MapErrorBoundary>{rendered}</MapErrorBoundary>;
+  return rendered == null ? <MapFallback /> : (
+    <MapErrorBoundary>{rendered}</MapErrorBoundary>
+  );
 }
 
 // ─── MiniMapCard ──────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 /* ---------------------------------------------------------------------------
  * Scoped styles for the stagger animation.
@@ -33,6 +33,9 @@ const STYLES = `
 export default function AssetFilters({ options, activeCategory, onCategoryChange, count }) {
   const [visible, setVisible] = useState([]);
   const [countVisible, setCountVisible] = useState(false);
+  const btnRefs = useRef([]);
+  const countRef = useRef(null);
+  const timers = useRef([]);
 
   useEffect(() => {
     // Cancel any in-flight timers from a previous run
