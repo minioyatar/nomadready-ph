@@ -9,10 +9,7 @@ that a missing destination results in a 404.
 from django.test import TestCase
 from django.core.management import call_command
 from django.urls import reverse
-<<<<<<< HEAD
-=======
 from django.db import IntegrityError
->>>>>>> origin/main
 import json
 
 
@@ -50,8 +47,6 @@ class DestinationAPITest(TestCase):
 		}
 		self.assertEqual(data, expected)
 
-<<<<<<< HEAD
-=======
 	def test_duplicate_name_case_insensitive(self):
 		from .models import Destination
 		with self.assertRaises(IntegrityError):
@@ -62,7 +57,6 @@ class DestinationAPITest(TestCase):
 				description="Duplicate lower-case name should be rejected.",
 			)
 
->>>>>>> origin/main
 	def test_missing_destination(self):
 		# Temporarily delete the destination to test 404
 		from .models import Destination
