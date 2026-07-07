@@ -9,7 +9,7 @@ const CATEGORY_STYLES = {
 };
 
 function CategoryBadge({ category }) {
-  const s = CATEGORY_COLORS[category] || { bg: '#f5f5f5', color: '#666' };
+  const s = CATEGORY_STYLES[category] || { bg: '#f5f5f5', color: '#666' };
   const label = category ? category.replace(/_/g, ' ') : 'uncategorized';
   return (
     <span style={{

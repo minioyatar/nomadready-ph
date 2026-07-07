@@ -23,19 +23,12 @@ function animateCounter(el, target, ms) {
   requestAnimationFrame(tick);
 }
 
-// Map category names to palette colors and icons. Colors are sourced from CATEGORY_PALETTE.
-import { CATEGORY_PALETTE } from '../../lib/constants';
-const paletteMap = CATEGORY_PALETTE.reduce((acc, cur) => {
-  acc[cur.key] = cur.color;
-  return acc;
-}, {});
-
 const CATEGORY_MAP = {
-  "Tourism & Lifestyle Appeal":   { color: paletteMap['attraction'], icon: "tourism" },
-  "Internet & Work Readiness":    { color: paletteMap['work_spot'], icon: "wifi" },
-  "Long-Stay Accommodation":      { color: paletteMap['accommodation'], icon: "home" },
-  "Safety & Essential Services":  { color: paletteMap['service'], icon: "shield" },
-  "Transport & Access":           { color: paletteMap['transport'], icon: "transport" },
+  "Tourism & Lifestyle Appeal":   { color: "#b79ff1", icon: "tourism" },
+  "Internet & Work Readiness":    { color: "#9e86d6", icon: "wifi" },
+  "Long-Stay Accommodation":      { color: "#e7a357", icon: "home" },
+  "Safety & Essential Services":  { color: "#e7a357", icon: "shield" },
+  "Transport & Access":           { color: "#e7a357", icon: "transport" },
 };
 
 const ICONS = {
