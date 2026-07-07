@@ -14,11 +14,16 @@ export default function Assets() {
 
   // Block-level entrance: 0=header, 1=filters, 2=table
   const [shown, setShown] = useState([false, false, false]);
-  const timers   = useRef([]);
+  // Separate timer stores: one for the initial mount animation (header & filters)
+  // and another for the content block (table / skeleton / error) animation.
+  const mountTimers   = useRef([]);
+  const contentTimers = useRef([]);
   const requestId = useRef(0);
   const mounted = useRef(true);
 
-  const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
+  // Helper to schedule a timeout and track it in the appropriate timer array.
+  const laterMount = (fn, ms) => { mountTimers.current.push(setTimeout(fn, ms)); };
+  const laterContent = (fn, ms) => { contentTimers.current.push(setTimeout(fn, ms)); };
 
   useEffect(() => { loadListings(); }, [activeCategory]);
 
@@ -32,12 +37,12 @@ export default function Assets() {
 
   // Animate header (block 0) and filters (block 1) once on mount.
   useEffect(() => {
-    // Ensure any previous timers are cleared.
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    // Clear any previous mount timers (in case of strict mode remounts).
+    mountTimers.current.forEach(clearTimeout);
+    mountTimers.current = [];
     // Animate blocks 0 and 1 sequentially.
     [0, 1].forEach((i) => {
-      later(() =>
+      laterMount(() =>
         setShown((s) => {
           const n = [...s];
           n[i] = true;
@@ -45,14 +50,15 @@ export default function Assets() {
         })
       , 60 + i * 130);
     });
-    // No cleanup needed beyond clearing timers on unmount.
-    return () => timers.current.forEach(clearTimeout);
+    // Cleanup mount timers on unmount.
+    return () => mountTimers.current.forEach(clearTimeout);
   }, []);
 
   // Re-run entrance animation for the content block (table/skeleton/error) whenever loading or error changes.
   useEffect(() => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    // Clear any previous content timers.
+    contentTimers.current.forEach(clearTimeout);
+    contentTimers.current = [];
     // Reset only the content block (index 2) to hidden.
     setShown((s) => {
       const n = [...s];
@@ -60,14 +66,14 @@ export default function Assets() {
       return n;
     });
     // Animate the content block after a short delay.
-    later(() =>
+    laterContent(() =>
       setShown((s) => {
         const n = [...s];
         n[2] = true;
         return n;
       })
     , 60);
-    return () => timers.current.forEach(clearTimeout);
+    return () => contentTimers.current.forEach(clearTimeout);
   }, [loading, error]);
 
   const loadListings = async () => {
