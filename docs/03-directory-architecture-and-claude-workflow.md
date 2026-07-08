@@ -2,9 +2,9 @@
 
 > This document describes the monorepo structure, how Claude Code should be used on this project, and which Claude Code skills to invoke for each feature branch.
 >
-> **Last updated:** 2026-07-05
+> **Last updated:** 2026-07-08
 > **Updated by:** Team Lead (Claude)
-> **Reason:** Reflect actual merge status after PRs #4, #10 merged; align task list with full ChatGPT-validated MVP plan.
+> **Reason:** PR #5 merged; PR #6 needs rebase after conflict; PR #7 needs one-line api.js fix.
 
 ---
 
@@ -45,9 +45,9 @@ Prompt Claude → Build Randomly → Debug Chaos
 | 3 | `feature/scoring-engine` | Backend | ✅ Merged | PR #3 |
 | 4 | `feature/dashboard-overview` | Frontend | ✅ Merged | PR #4 |
 | 5 | `feature/ai-readiness-advisor-backend` | Backend | ✅ Merged | PR #10 |
-| 6 | `feature/assets-table-ui` | Frontend | 🔄 In Progress | PR #5 |
-| 7 | `feature/map-view` | Frontend | 🔄 In Progress | PR #6 |
-| 8 | `feature/ai-readiness-advisor-ui` | Frontend | 🔄 Blocked | PR #7 |
+| 6 | `feature/assets-table-ui` | Frontend | ✅ Merged | PR #5 |
+| 7 | `feature/map-view` | Frontend | 🔄 Needs rebase | PR #6 |
+| 8 | `feature/ai-readiness-advisor-ui` | Frontend | 🔄 In Progress | PR #7 |
 | 9 | `feature/cicd-deployment` | Both | ❌ Not started | — |
 | 10 | `feature/demo-polish` | Both + Team Lead | ❌ Not started | — |
 
