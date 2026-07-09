@@ -211,5 +211,6 @@ function AssetTableSkeleton() {
         ))}
       </div>
     </>
-  );
+    );
+  }
 }
