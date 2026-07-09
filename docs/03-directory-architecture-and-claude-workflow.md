@@ -2,9 +2,9 @@
 
 > This document describes the monorepo structure, how Claude Code should be used on this project, and which Claude Code skills to invoke for each feature branch.
 >
-> **Last updated:** 2026-07-08
+> **Last updated:** 2026-07-09
 > **Updated by:** Team Lead (Claude)
-> **Reason:** PR #5 merged; PR #6 needs rebase after conflict; PR #7 needs one-line api.js fix.
+> **Reason:** PR #5 and PR #7 merged; PR #6 still blocked — Carl must rebase, 160+ conflict markers committed.
 
 ---
 
@@ -47,7 +47,7 @@ Prompt Claude → Build Randomly → Debug Chaos
 | 5 | `feature/ai-readiness-advisor-backend` | Backend | ✅ Merged | PR #10 |
 | 6 | `feature/assets-table-ui` | Frontend | ✅ Merged | PR #5 |
 | 7 | `feature/map-view` | Frontend | 🔄 Needs rebase | PR #6 |
-| 8 | `feature/ai-readiness-advisor-ui` | Frontend | 🔄 In Progress | PR #7 |
+| 8 | `feature/ai-readiness-advisor-ui` | Frontend | ✅ Merged | PR #7 |
 | 9 | `feature/cicd-deployment` | Both | ❌ Not started | — |
 | 10 | `feature/demo-polish` | Both + Team Lead | ❌ Not started | — |
 
