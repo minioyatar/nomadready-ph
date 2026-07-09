@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRef, useEffect } from 'react';
 
 const CATEGORY_STYLES = {
@@ -180,3 +181,9 @@ export default function AssetTable({ listings }) {
     </div>
   );
 }
+=======
+// Placeholder — implemented in feature/assets-table
+export default function AssetTable() {
+  return null;
+}
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f

@@ -1,7 +1,15 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 *, *::before, *::after {
@@ -33,11 +41,18 @@
   --text-mid: #3A3733;
   --text-muted: #756F66;
   --text-faint: #857F76;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
   /* Muted text tokens – increased contrast for WCAG AA */
   --text-label: #6B6560;   /* darker than original */
   --text-hint: #857F7A;    /* darker than original */
   --text-lighter: #9A9490; /* darker than original */
+<<<<<<< HEAD
   --gray-light: #EFEAE1;
+=======
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
   --gray-mid: #8A857D;
   --bar-track: #ECE6DB;
   --card-shadow: 0 1px 2px rgba(30,20,10,.04), 0 8px 22px rgba(30,20,10,.03);
@@ -152,6 +167,10 @@ table {
   margin-bottom: 30px;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 /* Focus-visible styles for interactive elements */
 .sidebar-hamburger:focus-visible,
 .nav-item:focus-visible,
@@ -163,6 +182,11 @@ textarea:focus-visible {
   outline: 2px solid var(--orange);
   outline-offset: 2px;
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 .sidebar-hamburger span {
   height: 3px;
   background: #fff;
@@ -260,7 +284,10 @@ textarea:focus-visible {
   pointer-events: none;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 .topbar-search input {
   width: 100%;
   height: 44px;
@@ -281,6 +308,10 @@ textarea:focus-visible {
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 
 .topbar-actions {
   display: flex;
@@ -1108,4 +1139,10 @@ textarea:focus-visible {
 
 .wifi-speed {
   font-weight: 600;
+<<<<<<< HEAD
 }
+=======
+
+}
+
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f

@@ -1,10 +1,10 @@
-// Placeholder — Destination Data / Local Assets will be implemented in feature/assets-table
-export default function Assets() {
 import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
 import AssetTable from '../components/assets/AssetTable';
+// Existing imports …
 import { LISTING_CATEGORIES } from '../lib/constants';
+
 
 export default function Assets() {
   const [listings, setListings]             = useState([]);
@@ -113,9 +113,6 @@ export default function Assets() {
 
       {/* Header */}
       <div className={`mb-6 ${block(0)}`}>
-        <h1 className="text-[22px] font-semibold text-[#1a1a1a] mb-1">
-          Local Assets
-        </h1>
         <p className="text-[13px] text-[#888] m-0">
           Browse verified work spots, accommodations, and services
         </p>
@@ -211,6 +208,5 @@ function AssetTableSkeleton() {
         ))}
       </div>
     </>
-    );
-  }
+  );
 }

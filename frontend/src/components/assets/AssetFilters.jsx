@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useState, useRef } from 'react';
 
 /* ---------------------------------------------------------------------------
@@ -138,4 +139,9 @@ export default function AssetFilters({ options, activeCategory, onCategoryChange
       </div>
     </>
   );
+=======
+// Placeholder — implemented in feature/assets-table
+export default function AssetFilters() {
+  return null;
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 }

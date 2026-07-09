@@ -9,6 +9,7 @@ import { CARLES_CENTER, MAP_TILE_URL } from '../lib/constants';
 function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
   // Width and height are applied via inline style; other visual aspects use the .map-shimmer class.
   return (
+<<<<<<< HEAD
 <div style={{ maxWidth: 1480, margin: '0 auto' }}>
 
   {/* Responsive + marker styling (scoped, no external CSS file needed) */}
@@ -128,11 +129,16 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
 =======
 >>>>>>> 29bc69d (feat: Implement AssetMap and MapLegend components with loading skeleton and error handling in MapView)
 =======
+=======
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
     <div
       className="map-shimmer"
       style={{ width, height, borderRadius: radius, ...style }}
     />
+<<<<<<< HEAD
 >>>>>>> 49a3286 (feat: Enhance map components with responsive layout, improved error handling, and consistent color palette integration)
+=======
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
   );
 }
 
@@ -201,11 +207,17 @@ export default function MapView() {
     let mounted = true;
     setLoading(true);
     getListings()
+<<<<<<< HEAD
 =======
       .then((response) => {
         if (!mounted) return;
         const data = response && response.data ? response.data : response;
 >>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
+=======
+      .then((response) => {
+        if (!mounted) return;
+        const data = response && response.data ? response.data : response;
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
         setListings(Array.isArray(data) ? data : []);
         setLoading(false);
       })
@@ -244,6 +256,7 @@ export default function MapView() {
   return (
     <div className="max-w-[1480px] mx-auto">
 
+<<<<<<< HEAD
 .then((response) => {
         if (!mounted) return;
         const data = response && response.data ? response.data : response;
@@ -288,6 +301,9 @@ export default function MapView() {
 =======
       {/* Responsive layout using Tailwind utilities – custom grid defined via inline style */}
 >>>>>>> 49a3286 (feat: Enhance map components with responsive layout, improved error handling, and consistent color palette integration)
+=======
+      {/* Responsive layout using Tailwind utilities – custom grid defined via inline style */}
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 
       {/* Header */}
       <div ref={headerRef} className="mb-5 opacity-0 translate-y-4">
@@ -316,6 +332,7 @@ export default function MapView() {
 
         {/* Map */}
         {!loading && !error && (
+<<<<<<< HEAD
 @media (max-width: 768px) {
   .map-view-grid {
     grid-template-columns: 1fr !important;
@@ -326,14 +343,27 @@ export default function MapView() {
     height: auto !important;
   }
 }
+=======
+          <div className="map-view-grid">
+            <div className="map-view-pane">
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
               <AssetMap
                 center={[CARLES_CENTER.lat, CARLES_CENTER.lng]}
                 listings={listings}
                 tileUrl={MAP_TILE_URL}
               />
             </div>
+<<<<<<< HEAD
 <div className="map-view-grid">
             <div className="map-view-pane">
+=======
+            <div className="flex flex-col gap-3">
+
+              <MapLegend listings={listings} />
+
+              <div className="bg-[#FDFBF8] border border-[#F4EFE7] rounded-[12px] p-4">
+                <p className="mb-1 text-xs font-semibold text-[#999] uppercase tracking-wider">
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
                   Summary
                 </p>
                 <p className="mb-1 text-sm text-[#555]">

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 import React, { useRef, useEffect } from 'react';
@@ -6,6 +7,8 @@ import { CATEGORY_PALETTE } from '../../lib/categoryPalette';
 
 const CATEGORIES = CATEGORY_PALETTE;
 >>>>>>> 0359ab0 (feat: Refactor AssetMap and MapLegend to use CATEGORY_PALETTE and improve listing validation in MapView)
+=======
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
 
 import React, { useRef, useEffect, useMemo } from 'react';
 import { CATEGORY_PALETTE } from '../../lib/constants';
@@ -93,5 +96,9 @@ export default function MapLegend({ listings = [] }) {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> 4a6a039a118a49ff259ff40c167222122c6a839f
