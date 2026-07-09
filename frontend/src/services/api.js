@@ -99,14 +99,14 @@ export async function getListings(params = {}) {
     Object.keys(params || {}).forEach((k) => url.searchParams.append(k, params[k]));
     const response = await fetch(url.toString());
     if (!response.ok) {
-      // if endpoint missing or returns error, fallback to mock listings
-      console.warn('getListings failed, status:', response.status, 'returning MOCK_LISTINGS');
-      return MOCK_LISTINGS;
+      // If the backend endpoint is unavailable, return an empty array so no mock markers appear.
+      console.warn('getListings failed, status:', response.status, "returning empty array (no mock data)");
+      return [];
     }
     return response.json();
   } catch (err) {
-    console.warn('getListings network error, returning MOCK_LISTINGS', err && err.message ? err.message : err);
-    return MOCK_LISTINGS;
+    console.warn('getListings network error, returning empty array', err && err.message ? err.message : err);
+    return [];
   }
 }
 
