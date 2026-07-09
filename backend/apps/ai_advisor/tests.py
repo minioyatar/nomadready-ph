@@ -21,5 +21,13 @@ class AIAdvisorAPITest(TestCase):
         self.assertIn("strengths", data)
         self.assertIn("weaknesses", data)
         self.assertIn("recommendations", data)
-        self.assertIsInstance(data["recommendations"], list)# Placeholder — AI advisor tests will be implemented in feature/ai-readiness-advisor
+        self.assertIsInstance(data["recommendations"], list)
+
+    def test_generate_accepts_destination_name(self):
+        url = reverse("ai-advisor-generate")
+        response = self.client.post(url, {"destination_name": "Carles"}, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn("summary", data)
+        self.assertIn("recommendations", data)
 from django.test import TestCase

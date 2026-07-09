@@ -118,10 +118,15 @@ export async function getDestination(slug = 'carles') {
 export async function generateAIAdvice(payload = {}) {
   // POST to AI generator; backend may not be implemented yet
   try {
+    const normalizedPayload = {
+      ...payload,
+      destination_id: payload.destination_id ?? payload.destinationId ?? payload.destination?.id ?? null,
+    };
+
     const res = await fetch(`${API_BASE_URL}${ENDPOINTS.AI_ADVISOR}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(normalizedPayload),
     });
 
     if (res.status === 404) return MOCK_AI;

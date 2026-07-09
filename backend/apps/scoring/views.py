@@ -20,10 +20,7 @@ class CurrentScoreView(APIView):
 
         snapshot = ScoreSnapshot.objects.filter(destination=destination).first()
         if not snapshot:
-            return Response(
-                {"error": "No score snapshot found. POST /api/scores/recalculate/ to generate one."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            snapshot = calculate_destination_score(destination.id)
 
         return Response(ScoreSnapshotSerializer(snapshot).data)
 
