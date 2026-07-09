@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 from apps.destinations.models import Destination
 from .models import ScoreSnapshot
@@ -18,9 +19,17 @@ class CurrentScoreView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        snapshot = ScoreSnapshot.objects.filter(destination=destination).first()
-        if not snapshot:
-            snapshot = calculate_destination_score(destination.id)
+        # This endpoint can lazily create a snapshot on first access.
+        # The transaction and row lock ensure only one request creates it.
+        with transaction.atomic():
+            destination_for_update = Destination.objects.select_for_update().get(pk=destination.pk)
+            snapshot = (
+                ScoreSnapshot.objects.filter(destination=destination_for_update)
+                .order_by("-created_at")
+                .first()
+            )
+            if not snapshot:
+                snapshot = calculate_destination_score(destination_for_update.id)
 
         return Response(ScoreSnapshotSerializer(snapshot).data)
 

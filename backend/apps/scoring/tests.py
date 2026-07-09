@@ -276,7 +276,6 @@ class ScoreAPITests(TestCase):
 		self.assertIn("overall_score", data)
 
 	def test_recalculate_persists_snapshot(self):
-		from apps.scoring.models import ScoreSnapshot
 		self.assertEqual(ScoreSnapshot.objects.count(), 0)
 		self.client.post("/api/scores/recalculate/")
 		self.assertEqual(ScoreSnapshot.objects.count(), 1)

@@ -6,6 +6,7 @@ from rest_framework import status
 from .serializers import AIAdvisorRequestSerializer, AIAdvisorResponseSerializer
 from .services import generate_readiness_advice
 from apps.destinations.models import Destination
+from django.core.exceptions import MultipleObjectsReturned
 from django.http import JsonResponse
 
 
@@ -23,7 +24,7 @@ class AIAdvisorGenerateView(APIView):
             try:
                 destination = Destination.objects.get(name__iexact=destination_name)
                 destination_id = destination.id
-            except Destination.DoesNotExist:
+            except (Destination.DoesNotExist, MultipleObjectsReturned):
                 return JsonResponse({"detail": "Destination not found."}, status=404)
 
         try:

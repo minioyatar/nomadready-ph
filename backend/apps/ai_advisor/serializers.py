@@ -16,7 +16,9 @@ class AIAdvisorRequestSerializer(serializers.Serializer):
         destination_name = attrs.get("destination_name")
 
         if destination_id is None and destination_id_alt is None and not destination_name:
-            raise serializers.ValidationError({"destination_id": "This field is required."})
+            raise serializers.ValidationError(
+                {"destination_id": "Provide destination_id, destinationId, or destination_name."}
+            )
 
         if destination_id is None:
             attrs["destination_id"] = destination_id_alt
