@@ -4,7 +4,7 @@
 >
 > **Last updated:** 2026-07-09
 > **Updated by:** Team Lead (Claude)
-> **Reason:** PR #5 and PR #7 merged; PR #6 still blocked — Carl must rebase, 160+ conflict markers committed.
+> **Reason:** PRs #5, #6, #7 all merged — all 4 frontend screens complete. Next: feature/cicd-deployment.
 
 ---
 
@@ -46,7 +46,7 @@ Prompt Claude → Build Randomly → Debug Chaos
 | 4 | `feature/dashboard-overview` | Frontend | ✅ Merged | PR #4 |
 | 5 | `feature/ai-readiness-advisor-backend` | Backend | ✅ Merged | PR #10 |
 | 6 | `feature/assets-table-ui` | Frontend | ✅ Merged | PR #5 |
-| 7 | `feature/map-view` | Frontend | 🔄 Needs rebase | PR #6 |
+| 7 | `feature/map-view` | Frontend | ✅ Merged | PR #6 |
 | 8 | `feature/ai-readiness-advisor-ui` | Frontend | ✅ Merged | PR #7 |
 | 9 | `feature/cicd-deployment` | Both | ❌ Not started | — |
 | 10 | `feature/demo-polish` | Both + Team Lead | ❌ Not started | — |
