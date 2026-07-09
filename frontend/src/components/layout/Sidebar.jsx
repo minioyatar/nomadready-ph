@@ -220,7 +220,7 @@ export default function Sidebar({ userInitials = "CJ", onLogout }) {
           alignItems: "center",
           gap: "6px",
         }}>
-          {/* Logout */}
+          {/* Logout (render only when an onLogout handler is provided) */}
           {onLogout && (
             <button
               ref={logoutRef}

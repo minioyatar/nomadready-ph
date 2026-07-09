@@ -118,7 +118,7 @@ export async function getDestination(slug = 'carles') {
 export async function generateAIAdvice(payload = {}) {
   // POST to AI generator; backend may not be implemented yet
   try {
-    const res = await fetch(`${API_BASE_URL}${ENDPOINTS.GENERATE_AI_ADVICE}`, {
+    const res = await fetch(`${API_BASE_URL}${ENDPOINTS.AI_ADVISOR}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
