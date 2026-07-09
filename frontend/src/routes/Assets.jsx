@@ -1,5 +1,4 @@
 // Placeholder — Destination Data / Local Assets will be implemented in feature/assets-table
-export default function Assets() {
 import { useState, useEffect, useRef } from 'react';
 import { getListings } from '../services/api';
 import AssetFilters from '../components/assets/AssetFilters';
