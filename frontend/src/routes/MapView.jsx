@@ -231,7 +231,14 @@ export default function MapView() {
                   Summary
                 </p>
                 <p style={{ margin: '0 0 4px', fontSize: 13, color: '#555' }}>
-                  <strong style={{ color: '#1a1a1a' }}>{listings.length}</strong> total listings
+                  <strong style={{ color: '#1a1a1a' }}>
+                    {listings.filter(l =>
+                      l.latitude != null && l.longitude != null &&
+                      l.latitude !== '' && l.longitude !== '' &&
+                      Number.isFinite(Number(l.latitude)) &&
+                      Number.isFinite(Number(l.longitude))
+                    ).length}
+                  </strong> total listings
                 </p>
                 <p style={{ margin: 0, fontSize: 12, color: '#aaa' }}>
                   Showing pins for assets with coordinates
