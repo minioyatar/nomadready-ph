@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import AdvisorPanel from '../components/ai/AdvisorPanel';
-import RecommendationCard from '../components/ai/RecommendationCard';
 import { getCurrentScore, generateAIAdvice } from '../services/api';
 import Header from '../components/layout/Header';
 import ErrorMessage from '../components/ui/ErrorMessage';
@@ -66,12 +65,10 @@ export default function AIAdvisor() {
   const [loading, setLoading]   = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError]       = useState(null);
-  const [generationError, setGenerationError] = useState(null);
   const [aiData, setAiData]     = useState(null);
 
   const headerRef = useRef(null);
   const panelRef  = useRef(null);
-  const resultRef = useRef(null);
   const timers    = useRef([]);
 
   const later = (fn, ms) => { timers.current.push(setTimeout(fn, ms)); };
@@ -117,18 +114,6 @@ export default function AIAdvisor() {
   }, [loading, error]);
 
   // Fade in AI results when they arrive
-  useEffect(() => {
-    if (!aiData || !resultRef.current) return;
-    resultRef.current.style.opacity = '0';
-    resultRef.current.style.transform = 'translateY(12px)';
-    resultRef.current.style.transition = 'none';
-    later(() => {
-      if (!resultRef.current) return;
-      resultRef.current.style.transition = 'opacity 0.45s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1)';
-      resultRef.current.style.opacity = '1';
-      resultRef.current.style.transform = 'translateY(0)';
-    }, 40);
-  }, [aiData]);
 
   const handleGenerate = async () => {
     if (!snapshot) return;
@@ -137,12 +122,10 @@ export default function AIAdvisor() {
     // value here would generate advice labelled for the wrong place if the API ever
     // returns a different destination or omits the field entirely.
     if (!snapshot.destination_name) {
-      setGenerationError('Destination name is missing from the score snapshot. Please refresh and try again.');
+      setError('Destination name is missing from the score snapshot. Please refresh and try again.');
       return;
     }
 
-    // Reset any previous generation error before starting a new request
-    setGenerationError(null);
     setAiLoading(true);
     setAiData(null);
     try {
@@ -165,7 +148,7 @@ export default function AIAdvisor() {
       const res = await generateAIAdvice(payload);
       setAiData(res);
     } catch (err) {
-      setGenerationError(err?.message || 'AI generation failed');
+      setError(err?.message || 'AI generation failed');
     } finally {
       setAiLoading(false);
     }
@@ -197,47 +180,6 @@ export default function AIAdvisor() {
                 aiData={aiData}
               />
             </div>
-
-            {(aiData || generationError) && (
-              <div ref={resultRef} style={{ marginTop: 20 }}>
-                {Array.isArray(aiData?.recommendations) && aiData.recommendations.length > 0 && (
-                  <div className="card" style={{ padding: 22, marginBottom: 20 }}>
-                    <div className="section-header">
-                      <div className="section-title">Recommendations</div>
-                    </div>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                      gap: 12,
-                    }}>
-                      {aiData.recommendations.slice(0, 3).map((rec, i) => (
-                        <RecommendationCard key={i} rec={rec} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {generationError && (
-                  <div className="card" style={{ padding: 22, marginBottom: 20, background: '#fff5f0', borderColor: '#D85A30' }}>
-                    <div className="section-header">
-                      <div className="section-title" style={{ color: '#D85A30' }}>AI Generation Error</div>
-                    </div>
-                    <p style={{ color: '#D85A30' }}>{generationError}</p>
-                  </div>
-                )}
-
-                {aiData?.summary && (
-                  <div className="card" style={{ padding: 22 }}>
-                    <div className="section-header">
-                      <div className="section-title">AI Summary</div>
-                    </div>
-                    <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
-                      {aiData.summary}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
           </>
         )}
       </div>

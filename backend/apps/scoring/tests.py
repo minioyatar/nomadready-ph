@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from apps.destinations.models import Destination
 from apps.listings.models import Listing
+from .models import ScoreSnapshot
 from .services import (
 	calculate_internet_work_score,
 	calculate_accommodation_score,
@@ -235,9 +236,13 @@ class ScoreAPITests(TestCase):
 			description="Pilot destination.",
 		)
 
-	def test_current_score_returns_404_when_no_snapshot(self):
+	def test_current_score_generates_snapshot_when_missing(self):
 		response = self.client.get("/api/scores/current/")
-		self.assertEqual(response.status_code, 404)
+		self.assertEqual(response.status_code, 200)
+		data = response.json()
+		self.assertEqual(data["destination_name"], "Carles")
+		self.assertIn("overall_score", data)
+		self.assertEqual(ScoreSnapshot.objects.count(), 1)
 
 	def test_recalculate_creates_snapshot_and_returns_201(self):
 		response = self.client.post("/api/scores/recalculate/")
@@ -271,7 +276,6 @@ class ScoreAPITests(TestCase):
 		self.assertIn("overall_score", data)
 
 	def test_recalculate_persists_snapshot(self):
-		from apps.scoring.models import ScoreSnapshot
 		self.assertEqual(ScoreSnapshot.objects.count(), 0)
 		self.client.post("/api/scores/recalculate/")
 		self.assertEqual(ScoreSnapshot.objects.count(), 1)

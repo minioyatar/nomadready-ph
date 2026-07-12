@@ -279,7 +279,7 @@ export default function Dashboard() {
         if (mounted) {
           setSnapshot(data || null);
           // After snapshot, also fetch AI suggestions (demo fallback works)
-          api.generateAIAdvice({ destinationId: data?.destination?.id }).then((ai) => {
+          api.generateAIAdvice({ destination_name: data?.destination_name }).then((ai) => {
             if (!mounted) return;
             // If the AI response is a demo/mock, treat as no suggestions so the card stays empty
             if (ai && ai._mock) {

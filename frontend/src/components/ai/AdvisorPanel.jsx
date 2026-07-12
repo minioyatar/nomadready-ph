@@ -130,17 +130,6 @@ export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData 
             ))
           )}
         </Card>
-
-        <Card style={{ padding: '22px 24px' }}>
-          <div className="section-header" style={{ marginBottom: 10 }}>
-            <div className="section-title" style={{ fontSize: 15 }}>Key Metrics</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <MetricRow label="Work spots" value={snapshot?.metrics?.work_spots} />
-            <MetricRow label="Long-stay options" value={snapshot?.metrics?.long_stay} />
-            <MetricRow label="Avg stay (days)" value={snapshot?.metrics?.avg_stay} />
-          </div>
-        </Card>
       </div>
     </div>
   );
