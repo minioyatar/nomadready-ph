@@ -2,9 +2,9 @@
 
 > This document describes the monorepo structure, how Claude Code should be used on this project, and which Claude Code skills to invoke for each feature branch.
 >
-> **Last updated:** 2026-07-09
+> **Last updated:** 2026-07-12
 > **Updated by:** Team Lead (Claude)
-> **Reason:** PRs #5, #6, #7 all merged — all 4 frontend screens complete. Next: feature/cicd-deployment.
+> **Reason:** PR #11 merged — AI advisor serializer improvements, lazy score snapshot. All screens stable. Next: feature/demo-polish.
 
 ---
 
