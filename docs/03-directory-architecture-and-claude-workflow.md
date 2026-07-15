@@ -2,9 +2,9 @@
 
 > This document describes the monorepo structure, how Claude Code should be used on this project, and which Claude Code skills to invoke for each feature branch.
 >
-> **Last updated:** 2026-07-12
+> **Last updated:** 2026-07-15
 > **Updated by:** Team Lead (Claude)
-> **Reason:** PR #11 merged — AI advisor serializer improvements, lazy score snapshot. All screens stable. Next: feature/demo-polish.
+> **Reason:** PR #12 merged — demo polish complete. Score story confirmed (68/100, Developing NomadReady). AI fallback hardened. Recommendation cards rendering. 25/25 tests pass. Next: feature/cicd-deployment (on hold) or demo prep.
 
 ---
 
@@ -48,8 +48,8 @@ Prompt Claude → Build Randomly → Debug Chaos
 | 6 | `feature/assets-table-ui` | Frontend | ✅ Merged | PR #5 |
 | 7 | `feature/map-view` | Frontend | ✅ Merged | PR #6 |
 | 8 | `feature/ai-readiness-advisor-ui` | Frontend | ✅ Merged | PR #7 |
-| 9 | `feature/cicd-deployment` | Both | ❌ Not started | — |
-| 10 | `feature/demo-polish` | Both + Team Lead | ❌ Not started | — |
+| 9 | `feature/cicd-deployment` | Both | ⏸ On hold | — |
+| 10 | `feature/demo-polish` | Both + Team Lead | ✅ Merged | PR #12 |
 
 ---
 
