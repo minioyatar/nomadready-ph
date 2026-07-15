@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NomadReady PH — Dashboard Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #EFF6FF;
+      color: #0F172A;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────── */
+    .sidebar {
+      width: 228px;
+      min-width: 228px;
+      background: #FFFFFF;
+      border-right: 1px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      padding: 22px 18px 16px;
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.28);
+      flex-shrink: 0;
+    }
+
+    .logo-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.4px;
+    }
+
+    .logo-tagline {
+      font-size: 10px;
+      color: #94A3B8;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding-left: 44px;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: #F1F5F9;
+      margin: 6px 0;
+    }
+
+    .sidebar-nav {
+      padding: 10px 12px;
+      flex: 1;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #CBD5E1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 8px;
+      margin-bottom: 6px;
+      margin-top: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #64748B;
+      margin-bottom: 2px;
+      position: relative;
+    }
+
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, #F0FDFA 0%, #E0F2FE 100%);
+      color: #0D9488;
+      font-weight: 700;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      background: #0D9488;
+      border-radius: 0 3px 3px 0;
+    }
+
+    /* Coastal wave illustration faded into sidebar */
+    .sidebar-waves {
+      position: absolute;
+      bottom: 72px;
+      left: 0;
+      right: 0;
+      height: 110px;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    .sidebar-profile {
+      padding: 12px 12px 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, #F0FDFA 0%, #E0F2FE 100%);
+      border: 1px solid #99F6E4;
+      border-radius: 12px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0D9488, #0891B2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .profile-info { flex: 1; min-width: 0; }
+    .profile-name { font-size: 12px; font-weight: 700; color: #0F172A; }
+    .profile-role { font-size: 11px; color: #64748B; margin-top: 1px; }
+
+    .profile-dot {
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+      border: 1.5px solid white;
+      flex-shrink: 0;
+    }
+
+    /* ─── MAIN ────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      background: #F8FAFC;
+    }
+
+    /* ─── TOPBAR ──────────────────────────────────────── */
+    .topbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 380px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 36px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 9px;
+      padding: 0 12px 0 34px;
+      font-size: 13px;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input::placeholder { color: #94A3B8; }
+
+    .topbar-spacer { flex: 1; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #64748B;
+    }
+
+    .icon-btn:hover { background: #F1F5F9; }
+
+    .avatar-btn {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0D9488, #0891B2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+    }
+
+    .date-btn {
+      height: 34px;
+      padding: 0 13px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .separator { width: 1px; height: 22px; background: #E2E8F0; margin: 0 2px; }
+
+    /* ─── CONTENT ─────────────────────────────────────── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 24px 24px;
+    }
+
+    /* Scrollbar */
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+
+    /* ─── PAGE HEADER ─────────────────────────────────── */
+    .page-header {
+      margin-bottom: 18px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .page-heading {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -0.8px;
+      line-height: 1;
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: #94A3B8;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .pill-btn-outline {
+      background: white;
+      border: 1px solid #E2E8F0;
+      color: #475569;
+    }
+
+    .pill-btn-teal {
+      background: linear-gradient(135deg, #0D9488, #0891B2);
+      border: none;
+      color: white;
+      box-shadow: 0 2px 6px rgba(13,148,136,0.25);
+    }
+
+    /* ─── STAT CARDS ──────────────────────────────────── */
+    .stat-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg { width: 20px; height: 20px; }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    /* ─── MAIN GRID ───────────────────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: start;
+    }
+
+    /* ─── CARD BASE ───────────────────────────────────── */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.2px;
+    }
+
+    .card-subtitle {
+      font-size: 11.5px;
+      color: #94A3B8;
+      font-weight: 500;
+    }
+
+    /* ─── READINESS CARD ──────────────────────────────── */
+    .readiness-card {
+      padding: 22px 24px;
+    }
+
+    .readiness-top {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-top: 18px;
+    }
+
+    .score-ring-area {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .score-info {
+      flex: 1;
+      padding-top: 6px;
+    }
+
+    .label-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 11px;
+    }
+
+    .label-pill-teal {
+      background: linear-gradient(135deg, #F0FDFA, #E0F2FE);
+      border: 1px solid #99F6E4;
+      color: #0D9488;
+    }
+
+    .score-description {
+      font-size: 13.5px;
+      color: #475569;
+      line-height: 1.68;
+      max-width: 520px;
+    }
+
+    /* Category progress bars */
+    .categories {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .cat-item {
+      display: grid;
+      grid-template-columns: 1fr 34px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+
+    .cat-item:last-child { margin-bottom: 0; }
+
+    .cat-label {
+      font-size: 12.5px;
+      color: #475569;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .progress-track {
+      height: 7px;
+      background: #F1F5F9;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    .cat-score {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0F172A;
+      text-align: right;
+    }
+
+    /* Card footer */
+    .card-footer {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .trend-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #CBD5E1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .trend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      color: #059669;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ─── RIGHT COLUMN ────────────────────────────────── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* AI Suggestions */
+    .ai-card {
+      padding: 18px 20px;
+    }
+
+    .ai-empty-state {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+
+    .ai-empty-icon {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #F0FDFA, #E0F2FE);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .ai-empty-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+
+    .ai-empty-sub {
+      font-size: 12px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+
+    /* Overall Score */
+    .score-card {
+      padding: 18px 20px;
+    }
+
+    .overall-val {
+      font-size: 36px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .overall-denom {
+      font-size: 16px;
+      font-weight: 500;
+      color: #94A3B8;
+      letter-spacing: 0;
+    }
+
+    .overall-sub {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-bottom: 12px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .badge-gray { background: #F1F5F9; color: #64748B; }
+    .badge-teal { background: #F0FDFA; color: #0D9488; border: 1px solid #CCFBF1; }
+    .badge-orange { background: #FFF7ED; color: #EA580C; border: 1px solid #FED7AA; }
+
+    /* ─── TOP GAPS ────────────────────────────────────── */
+    .gaps-card {
+      padding: 18px 22px;
+    }
+
+    .gap-item {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      background: #FAFBFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 11px;
+      padding: 13px 15px;
+      margin-top: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .gap-item:hover {
+      border-color: #99F6E4;
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.06);
+    }
+
+    .gap-icon-wrap {
+      width: 38px;
+      height: 38px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #F97316;
+    }
+
+    .gap-text { flex: 1; }
+    .gap-name { font-size: 13.5px; font-weight: 700; color: #0F172A; }
+    .gap-hint { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+
+    .gap-chevron { color: #CBD5E1; flex-shrink: 0; }
+
+  </style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ──────────────────────────────────────────── -->
+<aside class="sidebar">
+
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+          <circle cx="12" cy="12" r="9" stroke-width="1.8"/>
+        </svg>
+      </div>
+      <span class="logo-name">NomadReady PH</span>
+    </div>
+    <div class="logo-tagline">Work. Stay. Explore.</div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Menu</div>
+
+    <div class="nav-item active">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      Home
+    </div>
+
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+      </svg>
+      Assets
+    </div>
+
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+      </svg>
+      Map
+    </div>
+
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+      </svg>
+      AI
+    </div>
+  </nav>
+
+  <!-- Coastal wave illustration fading into sidebar bottom -->
+  <svg class="sidebar-waves" viewBox="0 0 228 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#CCFBF1" stop-opacity="0.6"/>
+      </linearGradient>
+    </defs>
+    <path d="M0 80 Q57 55 114 70 Q171 85 228 60 L228 110 L0 110 Z" fill="url(#waveGrad)"/>
+    <path d="M0 90 Q45 72 95 82 Q145 92 228 75 L228 110 L0 110 Z" fill="#E0F2FE" opacity="0.4"/>
+    <!-- Sun-reflecting water dots -->
+    <circle cx="40" cy="72" r="1.5" fill="#0D9488" opacity="0.18"/>
+    <circle cx="80" cy="65" r="1" fill="#0891B2" opacity="0.14"/>
+    <circle cx="140" cy="75" r="1.5" fill="#0D9488" opacity="0.18"/>
+    <circle cx="180" cy="66" r="1" fill="#0891B2" opacity="0.12"/>
+    <circle cx="210" cy="78" r="1.5" fill="#0D9488" opacity="0.15"/>
+  </svg>
+
+  <!-- Profile -->
+  <div class="sidebar-profile">
+    <div class="profile-card">
+      <div class="profile-avatar">CL</div>
+      <div class="profile-info">
+        <div class="profile-name">Carles LGU</div>
+        <div class="profile-role">LGU Admin</div>
+      </div>
+      <div class="profile-dot"></div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ─── MAIN ─────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input class="search-input" type="text" placeholder="Search city, partner or metric" readonly>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="topbar-right">
+      <div class="icon-btn" title="Notifications">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+      </div>
+      <div class="separator"></div>
+      <div class="date-btn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        This month
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div class="separator"></div>
+      <div class="avatar-btn" title="Account">CL</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <div class="page-heading">Dashboard</div>
+        <div class="page-sub">Overview</div>
+      </div>
+      <div class="header-right">
+        <div class="pill-btn pill-btn-outline">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          Export
+        </div>
+        <div class="pill-btn pill-btn-teal">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Recalculate
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #F0FDFA, #CCFBF1);">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#0D9488" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">Verified work spots</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE);">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#3B82F6" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">Long-stay places</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main grid: Readiness card + Right column -->
+    <div class="main-grid">
+
+      <!-- ── Carles Readiness Card ── -->
+      <div class="card readiness-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Carles readiness</div>
+            <div class="card-subtitle" style="margin-top:2px;">Carles, Iloilo — Philippines</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; color:#94A3B8; font-weight:500;">Last updated today</span>
+            <div style="width:6px; height:6px; background:#10B981; border-radius:50%;"></div>
+          </div>
+        </div>
+
+        <!-- Score ring + description -->
+        <div class="readiness-top">
+          <div class="score-ring-area">
+            <!-- SVG Score Ring -->
+            <!-- r=52, circumference = 2π×52 = 326.73 -->
+            <!-- 68% fill → dashoffset = 326.73 × 0.32 = 104.55 -->
+            <svg width="134" height="134" viewBox="0 0 134 134">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0D9488"/>
+                  <stop offset="100%" stop-color="#0891B2"/>
+                </linearGradient>
+                <filter id="ringGlow">
+                  <feGaussianBlur stdDeviation="2" result="blur"/>
+                  <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+              </defs>
+              <!-- Background track -->
+              <circle cx="67" cy="67" r="52" stroke="#F1F5F9" stroke-width="11" fill="none"/>
+              <!-- Filled arc -->
+              <circle cx="67" cy="67" r="52"
+                stroke="url(#ringGrad)" stroke-width="11" fill="none"
+                stroke-dasharray="326.73"
+                stroke-dashoffset="104.55"
+                stroke-linecap="round"
+                transform="rotate(-90 67 67)"/>
+              <!-- Score number -->
+              <text x="67" y="61" text-anchor="middle"
+                font-family="Inter, sans-serif" font-size="28" font-weight="900"
+                fill="#0F172A" letter-spacing="-1">68</text>
+              <text x="67" y="80" text-anchor="middle"
+                font-family="Inter, sans-serif" font-size="13" font-weight="500"
+                fill="#94A3B8">/ 100</text>
+            </svg>
+          </div>
+
+          <div class="score-info">
+            <div class="label-pill label-pill-teal">
+              <span style="font-size:7px;">●</span>
+              Developing NomadReady Destination
+            </div>
+            <p class="score-description">
+              A scenic coastal municipality with emerging tourism appeal, moderate connectivity, and basic services — promising for digital nomads willing to pioneer off-the-beaten-path living.
+            </p>
+          </div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="categories">
+
+          <!-- Internet & Work — 45 (orange: weak) -->
+          <div class="cat-item">
+            <div>
+              <div class="cat-label">Internet & Work Readiness</div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:45%; background: linear-gradient(90deg, #F97316, #FB923C);"></div>
+              </div>
+            </div>
+            <div class="cat-score" style="color:#F97316;">45</div>
+          </div>
+
+          <!-- Long-Stay — 70 (teal: good) -->
+          <div class="cat-item">
+            <div>
+              <div class="cat-label">Long-Stay Accommodation</div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:70%; background: linear-gradient(90deg, #0D9488, #14B8A6);"></div>
+              </div>
+            </div>
+            <div class="cat-score">70</div>
+          </div>
+
+          <!-- Safety — 75 (teal: good) -->
+          <div class="cat-item">
+            <div>
+              <div class="cat-label">Safety & Essential Services</div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:75%; background: linear-gradient(90deg, #0D9488, #14B8A6);"></div>
+              </div>
+            </div>
+            <div class="cat-score">75</div>
+          </div>
+
+          <!-- Transport — 70 (teal: good) -->
+          <div class="cat-item">
+            <div>
+              <div class="cat-label">Transport & Access</div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:70%; background: linear-gradient(90deg, #0D9488, #14B8A6);"></div>
+              </div>
+            </div>
+            <div class="cat-score">70</div>
+          </div>
+
+          <!-- Tourism — 100 (green: excellent) -->
+          <div class="cat-item">
+            <div>
+              <div class="cat-label">Tourism & Lifestyle Appeal</div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:100%; background: linear-gradient(90deg, #059669, #10B981);"></div>
+              </div>
+            </div>
+            <div class="cat-score" style="color:#059669;">100</div>
+          </div>
+
+        </div>
+
+        <!-- Footer: 6-month trend -->
+        <div class="card-footer">
+          <span class="trend-section-label">6-Month Trend</span>
+          <span class="trend-chip">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+            </svg>
+            +3 pts projected
+          </span>
+          <span style="margin-left:auto; font-size:11.5px; color:#CBD5E1; font-weight:500;">
+            Based on current improvements
+          </span>
+        </div>
+      </div>
+
+      <!-- ── Right column ── -->
+      <div class="right-col">
+
+        <!-- AI Suggestions -->
+        <div class="card ai-card">
+          <div class="card-header">
+            <span class="card-title">AI Suggestions</span>
+            <span class="badge badge-gray">
+              <span style="width:6px; height:6px; background:#CBD5E1; border-radius:50%; display:inline-block;"></span>
+              0 new
+            </span>
+          </div>
+          <div class="ai-empty-state">
+            <div class="ai-empty-icon">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#0D9488" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <div class="ai-empty-title">No suggestions right now.</div>
+            <div class="ai-empty-sub">Check back after your next<br>score update.</div>
+          </div>
+          <div style="padding:0 4px 4px; text-align:center;">
+            <div style="display:inline-flex; align-items:center; gap:6px; background:#F8FAFC; border:1px dashed #E2E8F0; border-radius:8px; padding:8px 16px; font-size:12px; color:#94A3B8; cursor:pointer;">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              Generate AI recommendations
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Score -->
+        <div class="card score-card">
+          <div class="card-header">
+            <span class="card-title">Overall Score</span>
+            <span class="badge badge-teal">Live</span>
+          </div>
+          <div class="overall-val">
+            68<span class="overall-denom" style="font-size:22px; letter-spacing:-1px;">.00</span>
+            <span class="overall-denom"> / 100</span>
+          </div>
+          <div class="overall-sub">Digital Nomad Readiness Score</div>
+          <div class="label-pill label-pill-teal" style="font-size:10px;">
+            <span style="font-size:7px;">●</span>
+            Developing NomadReady Destination
+          </div>
+
+          <!-- Mini category indicators -->
+          <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px 10px;">
+              <div style="font-size:10px; color:#94A3B8; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">Strongest</div>
+              <div style="font-size:12px; font-weight:700; color:#059669;">Tourism</div>
+            </div>
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px 10px;">
+              <div style="font-size:10px; color:#94A3B8; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">Weakest</div>
+              <div style="font-size:12px; font-weight:700; color:#F97316;">Internet</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Top gaps — full width -->
+    <div class="card gaps-card">
+      <div class="card-header">
+        <div>
+          <span class="card-title">Top gaps</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-orange">1 area</span>
+          <div style="font-size:12px; color:#94A3B8; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">
+            View all
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="gap-item">
+        <div class="gap-icon-wrap">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="gap-text">
+          <div class="gap-name">Internet & Work Readiness low (45)</div>
+          <div class="gap-hint">Tap to view remediation steps</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="height:5px; width:80px; background:#FEE2E2; border-radius:99px; overflow:hidden;">
+            <div style="height:100%; width:45%; background:linear-gradient(90deg,#F97316,#FB923C); border-radius:99px;"></div>
+          </div>
+          <span style="font-size:12px; font-weight:700; color:#F97316;">45</span>
+        </div>
+        <div class="gap-chevron">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+</body>
+</html>
