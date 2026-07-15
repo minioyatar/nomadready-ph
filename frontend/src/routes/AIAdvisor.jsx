@@ -204,8 +204,8 @@ export default function AIAdvisor() {
                       Strengths
                     </div>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {(aiData.strengths || []).map((s, i) => (
-                        <li key={i} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{s}</li>
+                      {(aiData.strengths || []).map((s) => (
+                        <li key={s} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{s}</li>
                       ))}
                     </ul>
                   </div>
@@ -214,8 +214,8 @@ export default function AIAdvisor() {
                       Areas to Improve
                     </div>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {(aiData.weaknesses || []).map((w, i) => (
-                        <li key={i} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{w}</li>
+                      {(aiData.weaknesses || []).map((w) => (
+                        <li key={w} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{w}</li>
                       ))}
                     </ul>
                   </div>
@@ -226,14 +226,14 @@ export default function AIAdvisor() {
                   Top Recommended Actions
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-                  {(aiData.recommendations || []).map((rec, i) => {
+                  {(aiData.recommendations || []).map((rec) => {
                     const priorityStyle = rec.priority === 'high'
                       ? { bg: '#FBE3D4', color: '#E2571A' }
                       : rec.priority === 'medium'
                       ? { bg: '#F0E2F2', color: '#842B8E' }
                       : { bg: '#F5F0E8', color: '#7B6F64' };
                     return (
-                      <div key={i} className="card" style={{ padding: 18 }}>
+                      <div key={rec.title} className="card" style={{ padding: 18 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                           <span style={{
                             fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
