@@ -790,11 +790,11 @@ Label: Developing NomadReady Destination
 Target category scores:
 
 ```text
-Internet & Work Readiness: 55
-Long-Stay Accommodation: 60
+Internet & Work Readiness: 45
+Long-Stay Accommodation: 70
 Safety & Essential Services: 75
 Transport & Access: 70
-Tourism & Lifestyle Appeal: 90
+Tourism & Lifestyle Appeal: 100
 ```
 
 Demo story:

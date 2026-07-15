@@ -180,6 +180,89 @@ export default function AIAdvisor() {
                 aiData={aiData}
               />
             </div>
+
+            {/* Recommendation cards — shown after AI data loads */}
+            {aiLoading && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12, marginTop: 20 }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="card" style={{ padding: 18 }}>
+                    <Skeleton width={34} height={34} radius={10} style={{ marginBottom: 12 }} />
+                    <Skeleton width="80%" height={13} style={{ marginBottom: 8 }} />
+                    <Skeleton width="95%" height={10} style={{ marginBottom: 5 }} />
+                    <Skeleton width="70%" height={10} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {aiData && !aiLoading && (
+              <div style={{ marginTop: 20 }}>
+                {/* Strengths and Weaknesses */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12, marginBottom: 20 }}>
+                  <div className="card" style={{ padding: '20px 22px' }}>
+                    <div className="section-title" style={{ fontSize: 14, marginBottom: 10, color: '#0F6E56' }}>
+                      Strengths
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {(aiData.strengths || []).map((s) => (
+                        <li key={s} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="card" style={{ padding: '20px 22px' }}>
+                    <div className="section-title" style={{ fontSize: 14, marginBottom: 10, color: 'var(--red-mid)' }}>
+                      Areas to Improve
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {(aiData.weaknesses || []).map((w) => (
+                        <li key={w} style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-muted)', marginBottom: 4 }}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Top 3 Recommended Actions */}
+                <div className="section-title" style={{ fontSize: 15, marginBottom: 12 }}>
+                  Top Recommended Actions
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+                  {(aiData.recommendations || []).map((rec) => {
+                    const priorityStyle = rec.priority === 'high'
+                      ? { bg: '#FBE3D4', color: '#E2571A' }
+                      : rec.priority === 'medium'
+                      ? { bg: '#F0E2F2', color: '#842B8E' }
+                      : { bg: '#F5F0E8', color: '#7B6F64' };
+                    return (
+                      <div key={rec.title} className="card" style={{ padding: 18 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                          <span style={{
+                            fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
+                            padding: '2px 8px', borderRadius: 6,
+                            background: priorityStyle.bg, color: priorityStyle.color,
+                          }}>
+                            {rec.priority}
+                          </span>
+                          <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+                            {rec.affected_category}
+                          </span>
+                        </div>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 6px 0', lineHeight: 1.4 }}>
+                          {rec.title}
+                        </h4>
+                        <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 8px 0', lineHeight: 1.5 }}>
+                          {rec.reason}
+                        </p>
+                        {rec.suggested_next_step && (
+                          <p style={{ fontSize: 12, color: 'var(--text-faint)', margin: 0, fontStyle: 'italic', lineHeight: 1.4 }}>
+                            Next step: {rec.suggested_next_step}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

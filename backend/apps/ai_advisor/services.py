@@ -84,17 +84,57 @@ def _build_prompt(destination: Destination, snapshot: ScoreSnapshot) -> str:
     return prompt
 
 
-def _placeholder_advice(destination: Destination, snapshot) -> Dict[str, Any]:
-    """Create a deterministic placeholder advice payload.
+_DEMO_RECOMMENDATIONS: list[Dict[str, Any]] = [
+    {
+        "title": "Map and verify work-ready spaces with reliable Wi-Fi",
+        "affected_category": "Internet & Work Readiness",
+        "priority": "high",
+        "reason": (
+            "Digital nomads require stable internet to work remotely. "
+            "Carles has limited verified work-friendly spaces with published Wi-Fi speeds."
+        ),
+        "suggested_next_step": (
+            "Survey all cafes, guesthouses, and public spaces for Wi-Fi availability. "
+            "Verify connection speeds and publish results on the LGU website."
+        ),
+    },
+    {
+        "title": "Create long-stay nomad accommodation packages",
+        "affected_category": "Long-Stay Accommodation",
+        "priority": "medium",
+        "reason": (
+            "Accommodation options exist but are not yet packaged for long-stay guests. "
+            "Monthly rates, desk access, and kitchen facilities are key nomad requirements."
+        ),
+        "suggested_next_step": (
+            "Partner with local guesthouses to offer a Carles Nomad Stay package "
+            "with monthly pricing, Wi-Fi guarantee, and basic workspace amenities."
+        ),
+    },
+    {
+        "title": "Leverage Gigantes Islands to attract digital nomads",
+        "affected_category": "Tourism & Lifestyle Appeal",
+        "priority": "low",
+        "reason": (
+            "Tourism & Lifestyle is already the strongest category. "
+            "Carles can convert island tourism interest into long-stay nomad visits "
+            "through targeted promotion."
+        ),
+        "suggested_next_step": (
+            "Create a Work and Island-Hop in Carles campaign through DOT Iloilo "
+            "and LGU social media channels targeting remote-work communities."
+        ),
+    },
+]
 
-    The placeholder mirrors the structure expected by the frontend and tests
-    but derives its content from the actual ``ScoreSnapshot`` so that the
-    information is relevant to the destination being queried.
+
+def _placeholder_advice(destination: Destination, snapshot) -> Dict[str, Any]:
+    """Return a deterministic placeholder that mirrors the required response shape.
+
+    Used when OpenAI is unavailable. Always returns exactly 3 recommendations.
     """
-    # Determine strengths and weaknesses based on simple thresholds.
     strengths: list[str] = []
     weaknesses: list[str] = []
-    # Mapping of category attribute names to human‑readable titles.
     category_map = {
         "internet_work_score": "Internet & Work Readiness",
         "accommodation_score": "Long-Stay Accommodation",
@@ -105,30 +145,51 @@ def _placeholder_advice(destination: Destination, snapshot) -> Dict[str, Any]:
     for attr, title in category_map.items():
         score = getattr(snapshot, attr, 0)
         if score >= 70:
-            strengths.append(f"{title} (score {score})")
-        elif score <= 40:
-            weaknesses.append(f"{title} (score {score})")
+            strengths.append(f"{title} (score: {score})")
+        elif score < 60:
+            weaknesses.append(f"{title} (score: {score}) — needs improvement")
 
-    # Build simple recommendations from the top gaps list.
+    # Build recommendations from top_gaps first, using clean category names.
+    covered: set[str] = set()
     recommendations: list[Dict[str, Any]] = []
     for gap in getattr(snapshot, "top_gaps", []):
+        clean_name = gap.split(" low (")[0].strip()
+        covered.add(clean_name)
         recommendations.append({
-            "title": f"Improve {gap}",
-            "affected_category": gap,
+            "title": f"Strengthen {clean_name}",
+            "affected_category": clean_name,
             "priority": "high",
-            "reason": f"Addressing the gap in {gap} will raise the overall readiness score.",
-            "suggested_next_step": f"Create an action plan to enhance {gap.lower()}.",
+            "reason": (
+                f"{clean_name} is the lowest-scoring category — a critical gap "
+                "for attracting and retaining digital nomads."
+            ),
+            "suggested_next_step": (
+                f"Conduct an LGU audit of existing {clean_name.lower()} infrastructure "
+                "and identify quick wins that can be implemented within one quarter."
+            ),
         })
 
+    # Pad to exactly 3 using demo-ready presets not already covered.
+    for preset in _DEMO_RECOMMENDATIONS:
+        if len(recommendations) >= 3:
+            break
+        if preset["affected_category"] not in covered:
+            recommendations.append(preset)
+            covered.add(preset["affected_category"])
+
     summary = (
-        f"{destination.name} has an overall score of {snapshot.overall_score} "
-        f"({snapshot.score_label})."
+        f"{destination.name} has an overall readiness score of {snapshot.overall_score} "
+        f"({snapshot.score_label}). "
+        f"The destination excels in {snapshot.strongest_category or 'Tourism & Lifestyle Appeal'} "
+        f"but requires targeted investment in "
+        f"{snapshot.weakest_category or 'Internet & Work Readiness'} "
+        "to attract and retain digital nomads long-term."
     )
     return {
         "summary": summary,
         "strengths": strengths or ["No strong categories identified."],
         "weaknesses": weaknesses or ["No weak categories identified."],
-        "recommendations": recommendations,
+        "recommendations": recommendations[:3],
     }
 
 

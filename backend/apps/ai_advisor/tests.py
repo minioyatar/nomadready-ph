@@ -49,4 +49,23 @@ class AIAdvisorAPITest(TestCase):
         data = json.loads(response.content)
         self.assertIn("summary", data)
         self.assertIn("recommendations", data)
+
+    def test_recommendations_always_has_3_items(self):
+        """Fallback placeholder must always return exactly 3 recommendations."""
+        url = reverse("ai-advisor-generate")
+        destination_id = Destination.objects.get(name__iexact="Carles").id
+        for _ in range(3):
+            response = self.client.post(
+                url, {"destination_id": destination_id}, content_type="application/json"
+            )
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.content)
+            recs = data.get("recommendations", [])
+            self.assertEqual(len(recs), 3, "Expected exactly 3 recommendations")
+            for rec in recs:
+                self.assertIn(rec.get("priority"), ("high", "medium", "low"))
+                self.assertIn("title", rec)
+                self.assertIn("affected_category", rec)
+                self.assertIn("reason", rec)
+                self.assertIn("suggested_next_step", rec)
 from django.test import TestCase
