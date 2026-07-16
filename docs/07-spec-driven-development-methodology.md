@@ -13,14 +13,20 @@ Build only what is specified. Approve before building.
 ## Workflow
 
 ```
-Spec → Task → Branch → Claude Implementation → Human Review → Test → Merge → Deploy
+Spec → graphify query → Task → Branch → Claude Implementation → Human Review (graphify path) → Test → Merge → Deploy
 ```
 
 ---
 
 ## Claude Code Protocol
 
-Before coding any feature, Claude responds with:
+Before coding any feature, Claude **must first** run:
+```bash
+graphify query "<feature area>"
+graphify explain "<key model or function>"
+```
+Then responds with:
+0. What the graph revealed about this area
 1. What I understand
 2. Files I expect to modify
 3. Implementation steps
@@ -57,10 +63,11 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 
 | You are working on | Invoke before starting |
 |---|---|
+| **Starting any feature** | `graphify query "<area>"` then `graphify explain "<key concept>"` — mandatory, before reading files |
+| **Any PR review** | `graphify path "<changed>" "<affected>"` then `/review` |
 | Any Python test | `/python-testing` |
 | Any React component | `/react-dev` |
 | Any chart or data viz | Use installed `chart-visualization` skill (active automatically) |
-| Any PR review | `/review` |
 | Any code cleanup after a feature | `/simplify` |
 | E2E test setup | `/playwright-e2e-testing` |
 | Frontend unit tests | `/frontend-testing` |
@@ -68,6 +75,7 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 | Security review | `/security-review` |
 | npm/pip vulnerability check | `/dependency-vulnerability-triage` |
 | CI/CD pipeline | `/agent-ops-cicd-github` |
+| Codebase exploration / debugging | `graphify query` or `/graphify` to rebuild the graph |
 
 ### Skills audit for this project
 

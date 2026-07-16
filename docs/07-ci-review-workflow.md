@@ -99,6 +99,7 @@ Claude reviews the PR diff and posts specific inline comments about:
 5. Frontend: Tailwind classes vs. inline styles or injected `<style>` tags
 6. Backend: whether filtering enforces `lgu_verified`, whether scoring logic stays in `scoring/services.py`
 7. Demo story alignment: local data → score → gaps → map → AI action plan
+8. **Blast radius** — `graphify path "<changed node>" "<possibly affected node>"` to surface non-obvious cross-file ripple effects before commenting
 
 Claude is given full project context in a `direct_prompt` built into the workflow so it reviews against our specific rules, not generic best practices.
 
@@ -186,22 +187,27 @@ This ensures GitHub Actions uses the exact same dependency versions that were te
 
 ```
 1. Open feature branch
-2. Build the feature
-3. Open a PR against main
-4. Wait for CI to run (2–3 minutes)
-5. Read Claude's inline comments on the PR
-6. Fix any must-fix issues flagged by Claude or the linters
-7. Push fixes — CI reruns automatically
-8. Tag @minioyatar for human review
+2. Orient with the graph before touching any files:
+      graphify query "<feature area>"
+      graphify explain "<key model or function>"
+3. Build the feature
+4. Open a PR against main
+5. Wait for CI to run (2–3 minutes)
+6. Read Claude's inline comments on the PR
+7. Fix any must-fix issues flagged by Claude or the linters
+8. Push fixes — CI reruns automatically
+9. Tag @minioyatar for human review
 ```
 
 ### Team Lead (human review)
 
 ```
-1. Check that all three CI jobs passed (green)
-2. Read Claude's review comments — they cover the same checklist as the audit
-3. Run the PR locally if it touches backend scoring or API integration
-4. Approve and merge, or request changes
+1. Check blast radius of what changed:
+      graphify path "<changed thing>" "<thing that might break>"
+2. Check that all three CI jobs passed (green)
+3. Read Claude's review comments — they cover the same checklist as the audit
+4. Run the PR locally if it touches backend scoring or API integration
+5. Approve and merge, or request changes
 ```
 
 ---
