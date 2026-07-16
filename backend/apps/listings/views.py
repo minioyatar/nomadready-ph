@@ -1,30 +1,45 @@
-"""Views for the Listings API.
-
-Only a read‑only list endpoint is required.  The view uses DRF's
-``ListAPIView`` and applies simple ``filter_backends`` to support the two
-query‑string filters defined in the spec:
-
-* ``category`` – exact match against ``Listing.category``
-* ``verification_status`` – exact match against ``Listing.verification_status``
-
-Both filters are optional; when omitted the full queryset is returned.
-"""
+"""Views for the Listings API."""
 
 from rest_framework import generics
+from rest_framework.exceptions import NotFound
 from django_filters.rest_framework import DjangoFilterBackend
+
+from apps.destinations.models import Destination
 from .models import Listing
 from .serializers import ListingSerializer
 
+_DEFAULT_SLUG = "carles"
+
 
 class ListingListView(generics.ListAPIView):
-    """GET /api/listings/ – returns all listings with optional filters.
+    """GET /api/listings/ — listings scoped to a single destination.
 
-    The view is deliberately read‑only; POST/PATCH/DELETE are out of scope.
+    Query parameters:
+      destination       slug (default: "carles")
+      category          exact match
+      verification_status  exact match
+
+    category and verification_status are applied as AND filters on top of
+    the destination scope.  An invalid destination slug returns 404.  A
+    valid destination with no listings returns 200 with an empty list.
     """
 
-    queryset = Listing.objects.all()
     serializer_class = ListingSerializer
-    # Use DjangoFilterBackend for simple exact filters
-    # Use immutable tuples for class-level configuration to avoid mutable defaults.
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("category", "verification_status")
+
+    def get_queryset(self):
+        slug = (
+            self.request.query_params.get("destination", _DEFAULT_SLUG)
+            or _DEFAULT_SLUG
+        )
+        try:
+            destination = Destination.objects.get(slug=slug)
+        except Destination.DoesNotExist:
+            raise NotFound(detail=f"Destination '{slug}' not found.")
+
+        return (
+            Listing.objects.filter(destination=destination)
+            .select_related("destination")
+            .order_by("category", "name")
+        )

@@ -3,12 +3,14 @@ from .models import ScoreSnapshot
 
 
 class ScoreSnapshotSerializer(serializers.ModelSerializer):
+    destination_id = serializers.IntegerField(source="destination.id", read_only=True)
     destination_name = serializers.CharField(source="destination.name", read_only=True)
 
     class Meta:
         model = ScoreSnapshot
         fields = [
             "id",
+            "destination_id",
             "destination_name",
             "overall_score",
             "score_label",
