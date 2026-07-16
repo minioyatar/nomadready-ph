@@ -942,9 +942,17 @@ docker compose up -d --build
 
 ## Claude Code Task Protocol
 
+**Step 0 — Graph orientation (mandatory before anything else):**
+```bash
+graphify query "<feature or area you are about to work on>"
+graphify explain "<key model or function involved>"
+```
+Do not read source files or grep until graphify has oriented you.
+
 Before coding any feature, respond with:
 
 ```text
+0. graphify query run — what the graph revealed about this area
 1. What I understand
 2. Files I expect to modify
 3. Implementation steps
@@ -1086,12 +1094,62 @@ Pilot destination:
 
 **Carles, Iloilo — from island tourism destination to digital nomad-ready destination.**
 
-## graphify
+## graphify — Knowledge Graph (Mandatory)
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+This project has a live knowledge graph at `graphify-out/` (655 nodes, 796 edges across code + docs).
+A **post-commit hook** keeps it current automatically — no manual rebuild needed after commits.
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+### When graphify MUST run (no exceptions)
+
+#### 1. Before starting any feature
+Before reading files or writing any code, orient with the graph:
+```bash
+graphify query "<feature area>"          # understand what already exists
+graphify explain "<key concept>"         # see all callers and edges for a concept
+```
+Example for a scoring feature:
+```bash
+graphify query "how does scoring work"
+graphify explain "calculate_destination_score"
+```
+
+#### 2. During PR review
+Before reviewing a diff, check blast radius:
+```bash
+graphify path "<changed thing>" "<thing that might break>"
+graphify query "<area the PR touches>"
+```
+Example for a Listing model change:
+```bash
+graphify path "Listing" "ScoreSnapshot"
+graphify path "Listing" "ListingSerializer"
+```
+
+#### 3. For any codebase question
+`graphify query` before `grep`. Always.
+```bash
+graphify query "where is lgu_verified enforced"
+graphify path "Destination" "generate_readiness_advice"
+```
+
+### What NOT to do
+- Do not grep raw files without running `graphify query` first
+- Do not read 5 files to understand context — query the graph, then read only what the graph points to
+- Do not run `graphify .` manually — the post-commit hook handles rebuilds automatically
+
+### Automation summary
+| Trigger | What happens | Manual step? |
+|---|---|---|
+| `git commit` | Graph rebuilt (AST, no API cost) | None |
+| `git checkout` | Graph rebuilt for new branch | None |
+| Before feature start | Run `graphify query` | Required — do it |
+| During PR review | Run `graphify path` | Required — do it |
+| Broad architecture review | Read `graphify-out/GRAPH_REPORT.md` | Optional |
+
+### Commands reference
+```bash
+graphify query "<question>"        # scoped subgraph for a question
+graphify explain "<concept>"       # concept + all edges
+graphify path "<A>" "<B>"          # shortest path between two things
+graphify update .                  # manual rebuild if needed (no API cost)
+```

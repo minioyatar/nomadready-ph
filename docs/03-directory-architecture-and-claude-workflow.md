@@ -26,13 +26,25 @@ frontend/src/lib/constants.js       ← all frontend constants (category keys, c
 ## Claude Code Workflow
 
 ```
-Spec → Task → Branch → Claude Implementation → Human Review → Test → Merge → Deploy
+Spec → graphify query → Task → Branch → Claude Implementation → Human Review (graphify path) → Test → Merge → Deploy
 ```
 
 Do not use:
 ```
 Prompt Claude → Build Randomly → Debug Chaos
 ```
+
+### Workflow with graphify at each step
+
+| Step | Action | graphify command |
+|---|---|---|
+| **Before starting a feature** | Orient on the area before reading any files | `graphify query "<feature area>"` |
+| **Understand a concept** | See all callers, edges, and community | `graphify explain "<function or model>"` |
+| **During implementation** | Trace how two things connect | `graphify path "<A>" "<B>"` |
+| **During PR review** | Check blast radius of changed code | `graphify path "<changed>" "<possibly affected>"` |
+| **After every commit** | Graph auto-rebuilds via post-commit hook | *(automatic — no action needed)* |
+| **After branch switch** | Graph auto-rebuilds via post-checkout hook | *(automatic — no action needed)* |
+| **Broad architecture review** | Read the report | `cat graphify-out/GRAPH_REPORT.md` |
 
 ---
 
@@ -256,47 +268,40 @@ AFTER CI/CD merges:
 
 #### Graphify — Knowledge Graph Skill
 
-Graphify turns the project into a traversable knowledge graph (code + docs + SQL schema) using tree-sitter AST. It has **no API cost for code** — only docs/PDFs call a backend.
+Graphify turns the project into a traversable knowledge graph (code + docs) using tree-sitter AST. No API cost for code — fully local. Current graph: **655 nodes, 796 edges, 77 communities**.
 
-**One-time setup (each dev runs this locally):**
+**Automation already installed:**
+
+| Hook | Trigger | Effect |
+|---|---|---|
+| `post-commit` | Every `git commit` | Silently rebuilds graph (AST, ~1s, no API) |
+| `post-checkout` | Every `git checkout` | Rebuilds graph for the new branch |
+| `PreToolUse:Bash` | Before any Bash search command | Reminds Claude to query graph first |
+| `PreToolUse:Read` | Before reading source files | Reminds Claude to query graph first |
+
+**One-time setup per developer:**
 
 ```bash
-# 1. Install the CLI
 uv tool install graphifyy
-
-# 2. Register the skill with Claude Code (project-scoped)
-graphify install --project
+graphify install --project   # registers skill + hooks
+graphify . --code-only       # build initial graph (no API key needed)
 ```
 
-**Build the graph (run once, then after major refactors):**
+**Mandatory workflow steps (enforced by hooks):**
 
 ```bash
-/graphify .
+# Before starting any feature:
+graphify query "how does <area> work"
+graphify explain "<key model or function>"
+
+# During PR review — check blast radius:
+graphify path "<changed thing>" "<thing that might break>"
+
+# Build graph output files to browser (optional, useful for onboarding):
+open graphify-out/graph.html
 ```
 
-This writes three files to `graphify-out/`:
-
-| File | Use |
-|---|---|
-| `graph.html` | Open in browser — clickable force-directed graph |
-| `GRAPH_REPORT.md` | Architecture overview, god nodes, surprising connections |
-| `graph.json` | Full graph — queried by all CLI commands |
-
-**Query the graph instead of grep:**
-
-```bash
-graphify query "how does scoring work"        # scoped subgraph for a question
-graphify path "Listing" "ScoreSnapshot"       # how two concepts connect
-graphify explain "calculate_destination_score" # focused concept + all edges
-```
-
-**Keep the graph fresh:**
-
-```bash
-graphify update .    # AST-only, no API call, fast
-```
-
-**Note:** `graphify-out/` is gitignored (large generated files). Each developer builds it locally once.
+**Note:** `graphify-out/` is gitignored. Each developer builds it locally once; the post-commit hook keeps it fresh from that point on.
 
 ---
 
