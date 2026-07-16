@@ -8,19 +8,31 @@ from .models import ScoreSnapshot
 from .serializers import ScoreSnapshotSerializer
 from .services import calculate_destination_score
 
+_DEFAULT_SLUG = "carles"
+
+
+def _resolve_destination(slug):
+    """Return (Destination, error_Response_or_None).
+
+    Looks up the destination by slug.  Returns a 404 Response when the slug
+    is not found so callers can return it immediately.
+    """
+    try:
+        return Destination.objects.get(slug=slug), None
+    except Destination.DoesNotExist:
+        return None, Response(
+            {"error": f"Destination '{slug}' not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
 
 class CurrentScoreView(APIView):
     def get(self, request):
-        try:
-            destination = Destination.objects.get(name="Carles")
-        except Destination.DoesNotExist:
-            return Response(
-                {"error": "Carles destination not found. Run seed_demo_data first."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        slug = request.query_params.get("destination", _DEFAULT_SLUG) or _DEFAULT_SLUG
+        destination, err = _resolve_destination(slug)
+        if err:
+            return err
 
-        # This endpoint can lazily create a snapshot on first access.
-        # The transaction and row lock ensure only one request creates it.
         with transaction.atomic():
             destination_for_update = Destination.objects.select_for_update().get(pk=destination.pk)
             snapshot = (
@@ -36,13 +48,10 @@ class CurrentScoreView(APIView):
 
 class RecalculateScoreView(APIView):
     def post(self, request):
-        try:
-            destination = Destination.objects.get(name="Carles")
-        except Destination.DoesNotExist:
-            return Response(
-                {"error": "Carles destination not found. Run seed_demo_data first."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        slug = (request.data.get("destination") or _DEFAULT_SLUG).strip() or _DEFAULT_SLUG
+        destination, err = _resolve_destination(slug)
+        if err:
+            return err
 
         snapshot = calculate_destination_score(destination.id)
         return Response(ScoreSnapshotSerializer(snapshot).data, status=status.HTTP_201_CREATED)
