@@ -3,17 +3,17 @@ import React, { useEffect, useRef, useCallback } from "react";
 const CIRC = 2 * Math.PI * 38;
 
 const DATA_DEFAULTS = {
-  overall: 54,
+  overall: 68,
   destination_name: "Carles, Iloilo",
-  score_label: "Developing destination",
+  score_label: "Developing NomadReady Destination",
   explanation:
     "A scenic coastal municipality with emerging tourism appeal, moderate connectivity, and basic services — promising for digital nomads willing to pioneer off-the-beaten-path living.",
   categories: [
-    { name: "Internet & Work Readiness",   score: 48, color: "#F97316" },
-    { name: "Long-Stay Accommodation",     score: 42, color: "#0D9488" },
-    { name: "Safety & Essential Services", score: 63, color: "#0D9488" },
-    { name: "Transport & Access",          score: 51, color: "#0891B2" },
-    { name: "Tourism & Lifestyle Appeal",  score: 72, color: "#059669" },
+    { name: "Internet & Work Readiness",   score: 45,  color: "#F97316" },
+    { name: "Long-Stay Accommodation",     score: 70,  color: "#0D9488" },
+    { name: "Safety & Essential Services", score: 75,  color: "#0D9488" },
+    { name: "Transport & Access",          score: 70,  color: "#0891B2" },
+    { name: "Tourism & Lifestyle Appeal",  score: 100, color: "#059669" },
   ],
 };
 

@@ -65,20 +65,22 @@ export default function AssetMap({
 
 
 
-  // Ensure latitude and longitude are present and parse to finite numbers.
-  // Number(null) and Number('') both return 0 (a finite number), so an explicit
-  // null/empty-string guard is required before the Number() conversion — otherwise
-  // listings with missing coordinates silently appear at 0°N 0°E (Gulf of Guinea).
-  const validListings = listings.filter((l) => {
-    if (l.latitude == null || l.longitude == null) return false;
-    if (l.latitude === '' || l.longitude === '') return false;
-    return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
+  // Memoized so FitBounds is not re-triggered by unrelated parent re-renders.
+  // Number(null) and Number('') both return 0 (finite), so explicit null/empty
+  // guards are required before Number() to avoid pins at 0°N 0°E (Gulf of Guinea).
+  const validListings = useMemo(() =>
+    listings.filter((l) => {
+      if (l.latitude == null || l.longitude == null) return false;
+      if (l.latitude === '' || l.longitude === '') return false;
+      return Number.isFinite(Number(l.latitude)) && Number.isFinite(Number(l.longitude));
+    }),
+    [listings]
+  );
 
-
-
-  });
-
-  const positions = validListings.map((l) => [Number(l.latitude), Number(l.longitude)]);
+  const positions = useMemo(() =>
+    validListings.map((l) => [Number(l.latitude), Number(l.longitude)]),
+    [validListings]
+  );
 
   return (
     <MapContainer

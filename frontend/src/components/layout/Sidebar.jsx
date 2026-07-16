@@ -179,7 +179,8 @@ export default function Sidebar({ onLogout }) {
                 alt="NomadReady PH"
                 onError={() => setLogoFailed(true)}
                 style={{
-                  width: 210,
+                  width: "100%",
+                  maxWidth: 210,
                   height: "auto",
                   objectFit: "contain",
                   objectPosition: "left center",

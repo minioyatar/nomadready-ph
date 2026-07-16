@@ -192,12 +192,12 @@ export default function MapView() {
         {!loading && error && (
           <div style={{
             textAlign: 'center', padding: '60px 20px',
-            background: '#F0FDFA', borderRadius: 14, color: '#0F766E',
-            border: '1px solid #99F6E4',
+            background: '#FFF7ED', borderRadius: 14, color: '#EA580C',
+            border: '1px solid #FED7AA',
           }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
             <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Failed to load map data</h3>
-            <p style={{ fontSize: 13, color: '#0D9488' }}>{error}</p>
+            <p style={{ fontSize: 13, color: '#C2410C' }}>{error}</p>
           </div>
         )}
 

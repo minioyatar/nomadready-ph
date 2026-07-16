@@ -226,7 +226,7 @@ export default function AIAdvisor() {
                   Top Recommended Actions
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-                  {(aiData.recommendations || []).map((rec) => {
+                  {(aiData.recommendations || []).slice(0, 3).map((rec) => {
                     const priorityStyle = rec.priority === 'high'
                       ? { bg: '#FFF7ED', color: '#EA580C' }
                       : rec.priority === 'medium'
