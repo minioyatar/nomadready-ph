@@ -398,3 +398,45 @@ class MultiDestinationScoreAPITests(TestCase):
         self.assertEqual(snap.transport_score, 70)
         self.assertEqual(snap.tourism_lifestyle_score, 100)
         self.assertEqual(snap.score_label, "Developing NomadReady Destination")
+
+    # ── Malay/Boracay deterministic baseline ──────────────────────────────────
+
+    def test_malay_baseline_scores(self):
+        """Malay/Boracay actual deterministic scores after refined seed data.
+
+        Overall: 79 (NomadReady Destination)
+        internet_work: 30  — 3 verified work spots, only 2 with published
+                              speed/zoom/power documentation; mobile data only bonus
+        accommodation: 100 — 5 verified, monthly rates published, full amenities
+        safety_services: 100
+        transport: 100
+        tourism_lifestyle: 100
+        top_gaps: Internet & Work Readiness is the only gap category (<50)
+        """
+        malay = Destination.objects.get(slug="malay-boracay")
+        snap = calculate_destination_score(malay.id)
+
+        self.assertEqual(snap.overall_score, 79)
+        self.assertEqual(snap.internet_work_score, 30)
+        self.assertEqual(snap.accommodation_score, 100)
+        self.assertEqual(snap.safety_services_score, 100)
+        self.assertEqual(snap.transport_score, 100)
+        self.assertEqual(snap.tourism_lifestyle_score, 100)
+        self.assertEqual(snap.score_label, "NomadReady Destination")
+        self.assertGreater(len(snap.top_gaps), 0, "Malay/Boracay top_gaps must not be empty")
+
+    def test_malay_above_carles(self):
+        """Malay/Boracay overall score must remain higher than Carles."""
+        carles = Destination.objects.get(slug="carles")
+        malay = Destination.objects.get(slug="malay-boracay")
+        carles_snap = calculate_destination_score(carles.id)
+        malay_snap = calculate_destination_score(malay.id)
+        self.assertGreater(malay_snap.overall_score, carles_snap.overall_score,
+            "Malay/Boracay must score higher than Carles")
+
+    def test_malay_below_100(self):
+        """Malay/Boracay must not be a perfect score — meaningful gaps exist."""
+        malay = Destination.objects.get(slug="malay-boracay")
+        snap = calculate_destination_score(malay.id)
+        self.assertLess(int(snap.overall_score), 100,
+            "Malay/Boracay overall score must be below 100")

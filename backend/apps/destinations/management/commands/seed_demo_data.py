@@ -417,8 +417,14 @@ CARLES_LISTINGS = [
 
 MALAY_LISTINGS = [
     # ── WORK SPOTS ────────────────────────────────────────────────
-    # 5 verified work spots: 3+ with published Wi-Fi speed, 3+ Zoom-friendly,
-    # 3+ with power outlets, all with mobile data → achieves max internet score
+    # 3 lgu_verified + 2 draft work spots.
+    # Verified: Boracay Cowork Hub, D'Mall Work Corner (fully documented),
+    #           White Beach Laptop Lounge (beach-facing — WiFi available but
+    #           no published speed, no formal Zoom/power documentation).
+    # Draft:    Station 1 Business Centre (formal LGU submission pending review),
+    #           Caticlan Gateway Café (mainland café, no formal LGU submission).
+    # Scoring result: base 20 (3-4 verified) + mobile +10 = 30.
+    # Thresholds missed: wifi_speed <3 published, zoom <3, power_outlets <3.
     {
         "name": "Boracay Cowork Hub",
         "category": Listing.Category.WORK_SPOT,
@@ -461,9 +467,12 @@ MALAY_LISTINGS = [
         "verification_status": Listing.VerificationStatus.LGU_VERIFIED,
         "details": {
             "wifi_available": True,
-            "zoom_friendly": True,
-            "power_outlets": True,
-            "wifi_speed_mbps": 20,
+            "zoom_friendly": False,
+            "power_outlets": False,
+            # wifi_speed_mbps key intentionally absent — no published speed.
+            # Omitting the key (not null) is required for the scoring engine's
+            # details__wifi_speed_mbps__isnull=False filter to exclude this spot,
+            # since PostgreSQL jsonb treats stored null as non-SQL-NULL.
             "mobile_data_available": True,
         },
     },
@@ -474,7 +483,7 @@ MALAY_LISTINGS = [
         "address": "Station 1, Boracay Island, Malay, Aklan",
         "latitude": "11.9730",
         "longitude": "121.9190",
-        "verification_status": Listing.VerificationStatus.LGU_VERIFIED,
+        "verification_status": Listing.VerificationStatus.DRAFT,
         "details": {
             "wifi_available": True,
             "zoom_friendly": True,
@@ -490,7 +499,7 @@ MALAY_LISTINGS = [
         "address": "Caticlan, Malay, Aklan",
         "latitude": "11.9277",
         "longitude": "121.9347",
-        "verification_status": Listing.VerificationStatus.LGU_VERIFIED,
+        "verification_status": Listing.VerificationStatus.DRAFT,
         "details": {
             "wifi_available": True,
             "zoom_friendly": False,
