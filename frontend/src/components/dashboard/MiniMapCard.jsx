@@ -10,7 +10,7 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
   return (
     <div style={{
       width, height, borderRadius: radius,
-      background: 'linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)',
+      background: 'linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%)',
       backgroundSize: '200% 100%',
       animation: 'miniMapShimmer 1.4s ease-in-out infinite',
       ...style,

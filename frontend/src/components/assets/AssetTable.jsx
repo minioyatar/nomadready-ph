@@ -1,11 +1,11 @@
 import { useRef, useEffect } from 'react';
 
 const CATEGORY_STYLES = {
-  work_spots:     { bg: '#eeedfe', color: '#534AB7' },
-  accommodations: { bg: '#fef0ea', color: '#D85A30' },
-  services:       { bg: '#e1f5ee', color: '#0F6E56' },
-  transport:      { bg: '#fdf3e3', color: '#BA7517' },
-  attractions:    { bg: '#f3e5f5', color: '#6A1B9A' },
+  work_spot:     { bg: '#CCFBF1', color: '#0F766E' },
+  accommodation: { bg: '#E0F2FE', color: '#0369A1' },
+  service:       { bg: '#D1FAE5', color: '#065F46' },
+  transport:     { bg: '#EDE9FE', color: '#5B21B6' },
+  attraction:    { bg: '#FEF3C7', color: '#92400E' },
 };
 
 function CategoryBadge({ category }) {
@@ -30,7 +30,14 @@ function CategoryBadge({ category }) {
   );
 }
 
-function VerificationBadge({ verified }) {
+const STATUS_CONFIG = {
+  lgu_verified: { bg: '#DCFCE7', color: '#15803D', label: '✓ Verified' },
+  draft:        { bg: '#F1F5F9', color: '#475569', label: 'Draft' },
+  needs_update: { bg: '#FFF7ED', color: '#EA580C', label: '⚠ Needs Update' },
+};
+
+function StatusBadge({ status }) {
+  const s = STATUS_CONFIG[status] ?? { bg: '#FEE2E2', color: '#DC2626', label: '⚠ Unverified' };
   return (
     <span style={{
       display: 'inline-flex',
@@ -38,12 +45,12 @@ function VerificationBadge({ verified }) {
       gap: 4,
       padding: '3px 9px',
       borderRadius: 6,
-      background: verified ? '#e1f5ee' : '#fbe9e7',
-      color: verified ? '#0F6E56' : '#D85A30',
+      background: s.bg,
+      color: s.color,
       fontSize: 11,
       fontWeight: 600,
     }}>
-      {verified ? '✓ Verified' : '⚠ Unverified'}
+      {s.label}
     </span>
   );
 }
@@ -98,7 +105,7 @@ export default function AssetTable({ listings }) {
       {/* Card header */}
       <div style={{
         padding: '16px 20px 14px',
-        borderBottom: '1px solid #f0ece6',
+        borderBottom: '1px solid #E2E8F0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -106,7 +113,7 @@ export default function AssetTable({ listings }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: '#fef0ea', color: '#D85A30',
+            background: '#CCFBF1', color: '#0D9488',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -117,8 +124,8 @@ export default function AssetTable({ listings }) {
           <span style={{ fontWeight: 600, fontSize: 14, color: '#1a1a1a' }}>Local Assets</span>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 600, color: '#aaa',
-          background: '#f5f1eb', borderRadius: 6, padding: '2px 8px',
+          fontSize: 11, fontWeight: 600, color: '#64748B',
+          background: '#F1F5F9', borderRadius: 6, padding: '2px 8px',
         }}>
           {listings.length} listing{listings.length !== 1 ? 's' : ''}
         </span>
@@ -126,15 +133,21 @@ export default function AssetTable({ listings }) {
 
       {/* Table */}
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '34%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '30%' }} />
+          </colgroup>
           <thead>
             <tr
               ref={headRef}
               style={{ background: '#faf8f5', borderBottom: '1px solid #f0ece6', opacity: 0 }}
             >
-              {['Name', 'Category', 'Status', 'Contact'].map((h) => (
+              {['Name', 'Category', 'Status', 'Address'].map((h) => (
                 <th key={h} style={{
-                  padding: '10px 20px',
+                  padding: '10px 24px',
                   textAlign: 'left',
                   fontSize: 11,
                   fontWeight: 600,
@@ -162,17 +175,17 @@ export default function AssetTable({ listings }) {
                 onMouseEnter={(e) => (e.currentTarget.style.background = '#fdfcfa')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
-                <td style={{ padding: '13px 20px', fontWeight: 500, color: '#1a1a1a' }}>
+                <td style={{ padding: '14px 24px', fontWeight: 500, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {listing.name}
                 </td>
-                <td style={{ padding: '13px 20px' }}>
+                <td style={{ padding: '14px 24px' }}>
                   <CategoryBadge category={listing.category} />
                 </td>
-                <td style={{ padding: '13px 20px' }}>
-                  <VerificationBadge verified={listing.lgu_verified} />
+                <td style={{ padding: '14px 24px' }}>
+                  <StatusBadge status={listing.verification_status} />
                 </td>
-                <td style={{ padding: '13px 20px', color: '#888', fontSize: 12 }}>
-                  {listing.contact || 'N/A'}
+                <td style={{ padding: '14px 24px', color: '#64748B', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {listing.address || '—'}
                 </td>
               </tr>
             ))}

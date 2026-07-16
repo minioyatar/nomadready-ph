@@ -34,10 +34,10 @@ const ICONS = {
 };
 
 const ACCENT_COLORS = [
-  { bg: '#f0eefb', color: '#534AB7' },
-  { bg: '#fef0ea', color: '#D85A30' },
-  { bg: '#fdf3e3', color: '#BA7517' },
-  { bg: '#eeedfe', color: '#7F77DD' },
+  { bg: '#CCFBF1', color: '#0D9488' },
+  { bg: '#E0F2FE', color: '#0891B2' },
+  { bg: '#D1FAE5', color: '#059669' },
+  { bg: '#FFF7ED', color: '#F97316' },
 ];
 
 function animateCounter(el, target, ms) {
@@ -125,7 +125,7 @@ export default function KeyMetricsCard({ metrics = [], loading = false }) {
         }
         .km-card {
           background: #ffffff;
-          border: 1px solid #e8e4de;
+          border: 1px solid #E2E8F0;
           border-radius: 12px;
           padding: 14px;
           position: relative;
@@ -134,7 +134,7 @@ export default function KeyMetricsCard({ metrics = [], loading = false }) {
           transition: border-color 0.2s ease, transform 0.2s ease;
         }
         .km-card:hover {
-          border-color: #ccc8c1;
+          border-color: #0D9488;
           transform: translateY(-2px);
         }
         .km-card::after {

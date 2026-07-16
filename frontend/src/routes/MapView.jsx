@@ -10,7 +10,7 @@ function Sk({ width = '100%', height = 13, radius = 6, style = {} }) {
   return (
     <div style={{
       width, height, borderRadius: radius,
-      background: 'linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)',
+      background: 'linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%)',
       backgroundSize: '200% 100%',
       animation: 'mapShimmer 1.4s ease-in-out infinite',
       ...style,
@@ -35,8 +35,8 @@ function MapSkeleton() {
             minHeight: 420,
             maxHeight: 780,
             borderRadius: 12,
-            border: '1px solid #ece8e2', overflow: 'hidden',
-            position: 'relative', background: '#f9f7f4',
+            border: '1px solid #E2E8F0', overflow: 'hidden',
+            position: 'relative', background: '#F8FAFC',
           }}
         >
           <div style={{
@@ -69,7 +69,7 @@ function MapSkeleton() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{
-            background: '#fff', border: '1px solid #ece8e2',
+            background: '#fff', border: '1px solid #E2E8F0',
             borderRadius: 12, padding: 16,
           }}>
             <Sk width="50%" height={12} style={{ marginBottom: 14 }} />
@@ -80,7 +80,7 @@ function MapSkeleton() {
               </div>
             ))}
           </div>
-          <div style={{ background: '#fff', border: '1px solid #ece8e2', borderRadius: 12, padding: 16 }}>
+          <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16 }}>
             <Sk width="40%" height={11} style={{ marginBottom: 8 }} />
             <Sk width="70%" height={10} />
           </div>
@@ -145,17 +145,15 @@ export default function MapView() {
   }, [loading, error]);
 
   return (
-    <div style={{ maxWidth: 1480, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto', padding: '8px 0' }}>
 
       <style>{`
         .map-view-grid {
-          grid-template-columns: 2fr 1fr;
+          grid-template-columns: 7fr 3fr;
         }
         .map-view-pane {
-          aspect-ratio: 16 / 9;
           width: 100%;
-          min-height: 360px;
-          max-height: 720px;
+          height: 560px;
           min-width: 0;
           display: flex;
           flex-direction: column;
@@ -165,9 +163,7 @@ export default function MapView() {
             grid-template-columns: 1fr !important;
           }
           .map-view-pane {
-            aspect-ratio: 4 / 3.4;
-            max-height: 520px !important;
-            height: auto !important;
+            height: 420px !important;
           }
         }
         .leaflet-div-icon.asset-map-pin {
@@ -181,10 +177,10 @@ export default function MapView() {
       `}</style>
 
       <div ref={headerRef} style={{ marginBottom: 20, opacity: 0, transform: 'translateY(16px)' }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#1a1a1a', marginBottom: 4 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>
           Carles Local Asset Map
         </h1>
-        <p style={{ color: '#888', fontSize: 13, margin: 0 }}>
+        <p style={{ color: '#64748B', fontSize: 13, margin: 0 }}>
           Map of seeded local assets — work spots, accommodations, services, transport, attractions
         </p>
       </div>
@@ -196,11 +192,12 @@ export default function MapView() {
         {!loading && error && (
           <div style={{
             textAlign: 'center', padding: '60px 20px',
-            background: '#fbe9e7', borderRadius: 12, color: '#D85A30',
+            background: '#FFF7ED', borderRadius: 14, color: '#EA580C',
+            border: '1px solid #FED7AA',
           }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
             <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Failed to load map data</h3>
-            <p style={{ fontSize: 13, color: '#C1553E' }}>{error}</p>
+            <p style={{ fontSize: 13, color: '#C2410C' }}>{error}</p>
           </div>
         )}
 
@@ -211,7 +208,7 @@ export default function MapView() {
               style={{
                 borderRadius: 12,
                 overflow: 'hidden',
-                border: '1px solid #ece8e2',
+                border: '1px solid #E2E8F0',
                 minWidth: 0,
               }}
             >
@@ -224,14 +221,14 @@ export default function MapView() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <MapLegend listings={listings} />
               <div style={{
-                background: '#FDFBF8', border: '1px solid #F4EFE7',
+                background: '#F8FAFC', border: '1px solid #E2E8F0',
                 borderRadius: 12, padding: 16,
               }}>
-                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Summary
                 </p>
-                <p style={{ margin: '0 0 4px', fontSize: 13, color: '#555' }}>
-                  <strong style={{ color: '#1a1a1a' }}>
+                <p style={{ margin: '0 0 4px', fontSize: 13, color: '#475569' }}>
+                  <strong style={{ color: '#0F172A' }}>
                     {listings.filter(l =>
                       l.latitude != null && l.longitude != null &&
                       l.latitude !== '' && l.longitude !== '' &&
@@ -240,7 +237,7 @@ export default function MapView() {
                     ).length}
                   </strong> total listings
                 </p>
-                <p style={{ margin: 0, fontSize: 12, color: '#aaa' }}>
+                <p style={{ margin: 0, fontSize: 12, color: '#94A3B8' }}>
                   Showing pins for assets with coordinates
                 </p>
               </div>

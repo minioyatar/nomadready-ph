@@ -48,8 +48,8 @@ export default function Topbar() {
           gap: 10px;
         }
         .tb-search-wrap.focused {
-          border-color: #D85A30;
-          box-shadow: 0 0 0 3px rgba(216,90,48,0.1);
+          border-color: #0D9488;
+          box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
         }
         .tb-search-input {
           border: none;
@@ -78,7 +78,7 @@ export default function Topbar() {
           top: 7px; right: 7px;
           width: 8px; height: 8px;
           border-radius: 50%;
-          background: #D85A30;
+          background: #0D9488;
           box-shadow: 0 0 0 2px #fff;
           animation: tbBadgePop 0.4s cubic-bezier(0.34,1.7,0.64,1) both;
         }
@@ -114,7 +114,7 @@ export default function Topbar() {
           <div className={`tb-search-wrap${searchFocused ? " focused" : ""}`}>
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke={searchFocused ? "#D85A30" : "#bbb"}
+              stroke={searchFocused ? "#0D9488" : "#bbb"}
               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
               style={{ flexShrink: 0, transition: "stroke 0.2s ease" }}
             >

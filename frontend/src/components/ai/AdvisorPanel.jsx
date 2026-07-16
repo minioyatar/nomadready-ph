@@ -12,9 +12,9 @@ function SparkleIcon() {
 }
 
 function scoreTone(score) {
-  if (score >= 75) return { ring: '#F0901F', soft: '#FCEBD6' };
-  if (score >= 50) return { ring: '#842B8E', soft: '#F0E2F2' };
-  return { ring: '#E2571A', soft: '#FBE3D4' };
+  if (score >= 75) return { ring: '#059669', soft: '#D1FAE5' };
+  if (score >= 50) return { ring: '#0D9488', soft: '#CCFBF1' };
+  return { ring: '#F97316', soft: '#FFF7ED' };
 }
 
 // Real SVG ring: a background track + a foreground arc that fills
@@ -95,7 +95,7 @@ export default function AdvisorPanel({ snapshot, onGenerate, generating, aiData 
         </div>
 
         {aiData && (
-          <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid #F0EBE2' }}>
+          <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid #E2E8F0' }}>
             <div className="section-title" style={{ fontSize: 14, marginBottom: 8 }}>
               <SparkleIcon />
               AI Preview

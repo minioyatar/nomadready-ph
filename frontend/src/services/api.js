@@ -30,12 +30,12 @@ const MOCK_SCORE = {
 };
 
 const MOCK_LISTINGS = [
-  { id: 1, name: 'Café Azul - coworking', category: 'work_spots', lgu_verified: true, contact: '0987-654-3210', latitude: 11.5585, longitude: 122.5890 },
-  { id: 2, name: 'SeaView Homestay', category: 'accommodations', lgu_verified: true, contact: '0912-345-6789', latitude: 11.5642, longitude: 122.5921 },
-  { id: 3, name: 'Carles Medical Clinic', category: 'services', lgu_verified: true, contact: '0981-234-5678', latitude: 11.5560, longitude: 122.5880 },
-  { id: 4, name: 'Island Ferry Service', category: 'transport', lgu_verified: true, contact: '0998-765-4321', latitude: 11.5505, longitude: 122.5855 },
-  { id: 5, name: 'Paradise Beach Resort', category: 'attractions', lgu_verified: true, contact: 'N/A', latitude: 11.5650, longitude: 122.5970 },
-  { id: 6, name: 'WiFi Hub Carles', category: 'work_spots', lgu_verified: false, contact: '0921-654-3210', latitude: 11.5595, longitude: 122.5905 },
+  { id: 1, name: 'Café Azul - coworking', category: 'work_spot',     verification_status: 'lgu_verified', address: 'Carles, Iloilo', latitude: 11.5585, longitude: 122.5890 },
+  { id: 2, name: 'SeaView Homestay',       category: 'accommodation', verification_status: 'lgu_verified', address: 'Carles, Iloilo', latitude: 11.5642, longitude: 122.5921 },
+  { id: 3, name: 'Carles Medical Clinic',  category: 'service',       verification_status: 'lgu_verified', address: 'Carles, Iloilo', latitude: 11.5560, longitude: 122.5880 },
+  { id: 4, name: 'Island Ferry Service',   category: 'transport',     verification_status: 'lgu_verified', address: 'Carles, Iloilo', latitude: 11.5505, longitude: 122.5855 },
+  { id: 5, name: 'Paradise Beach Resort',  category: 'attraction',    verification_status: 'lgu_verified', address: 'Carles, Iloilo', latitude: 11.5650, longitude: 122.5970 },
+  { id: 6, name: 'WiFi Hub Carles',        category: 'work_spot',     verification_status: 'draft',        address: 'Carles, Iloilo', latitude: 11.5595, longitude: 122.5905 },
 ];
 
 const MOCK_DESTINATION = {

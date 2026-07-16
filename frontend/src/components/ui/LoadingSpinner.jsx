@@ -9,7 +9,7 @@ export default function LoadingSpinner({ size = 36 }) {
           height: size,
           borderRadius: '50%',
           border: '4px solid rgba(0,0,0,0.08)',
-          borderTopColor: 'var(--orange)',
+          borderTopColor: 'var(--teal)',
           animation: 'spin 1s linear infinite',
         }}
       />

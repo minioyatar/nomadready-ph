@@ -109,12 +109,15 @@ export default function Assets() {
     }`;
 
   return (
-    <div className="max-w-[1200px] mx-auto">
+    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "8px 0" }}>
 
       {/* Header */}
-      <div className={`mb-6 ${block(0)}`}>
+      <div className={`mb-5 ${block(0)}`}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', marginBottom: 4, marginTop: 0 }}>
+          Local Assets
+        </h1>
         <p className="text-[13px] text-[#888] m-0">
-          Browse verified work spots, accommodations, and services
+          Browse verified work spots, accommodations, services, transport, and attractions
         </p>
       </div>
 
@@ -136,14 +139,16 @@ export default function Assets() {
 
         {/* Error */}
         {!loading && error && (
-          <div className="text-center py-16 px-5 bg-[#fbe9e7] rounded-xl text-[#D85A30]">
+          <div className="text-center py-16 px-5 rounded-xl" style={{ background: "#F0FDFA", color: "#0F766E" }}>
             <div className="text-4xl mb-3">⚠️</div>
             <h3 className="text-[15px] font-semibold mb-1">Failed to load assets</h3>
-            <p className="text-[13px] text-[#C1553E] mb-4">{error}</p>
+            <p className="text-[13px] mb-4" style={{ color: "#0D9488" }}>{error}</p>
             <button
               onClick={loadListings}
-              className="px-4 py-2 rounded-lg bg-[#D85A30] text-white text-[13px] font-semibold
-                         border-none cursor-pointer hover:bg-[#C1553E] transition-colors duration-150"
+              className="px-4 py-2 rounded-lg text-white text-[13px] font-semibold border-none cursor-pointer transition-colors duration-150"
+              style={{ background: "#0D9488" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#0F766E"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#0D9488"; }}
             >
               Try Again
             </button>
@@ -152,7 +157,7 @@ export default function Assets() {
 
         {/* Empty */}
         {!loading && !error && listings.length === 0 && (
-          <div className="text-center py-16 px-5 bg-[#f9f7f4] rounded-xl text-[#666]">
+          <div className="text-center py-16 px-5 rounded-xl" style={{ background: "#F8FAFC", color: "#475569" }}>
             <div className="text-4xl mb-3">📋</div>
             <h3 className="text-[15px] font-semibold mb-1">No assets found</h3>
             <p className="text-[13px] text-[#999]">
@@ -163,10 +168,64 @@ export default function Assets() {
           </div>
         )}
 
-        {/* Table */}
+        {/* Verification guide + Table */}
         {!loading && !error && listings.length > 0 && (
-          <AssetTable listings={listings} />
+          <>
+            <VerificationGuide />
+            <AssetTable listings={listings} />
+          </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Verification guide ───────────────────────────────────────────────────────
+
+const STATUS_LEGEND = [
+  { bg: '#DCFCE7', color: '#15803D', label: '✓ Verified',      desc: 'LGU-reviewed · counts toward score' },
+  { bg: '#F1F5F9', color: '#475569', label: 'Draft',           desc: 'Pending review · not counted' },
+  { bg: '#FFF7ED', color: '#EA580C', label: '⚠ Needs Update',  desc: 'Requires re-review before counting' },
+];
+
+function VerificationGuide() {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 12,
+      background: '#fff',
+      border: '1px solid #E2E8F0',
+      borderRadius: 10,
+      padding: '12px 16px',
+      marginBottom: 10,
+    }}>
+      <div style={{
+        flexShrink: 0,
+        width: 26, height: 26,
+        borderRadius: 8,
+        background: '#F0FDFA',
+        color: '#0D9488',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+      </div>
+      <div>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Verification Status — </span>
+        <span style={{ fontSize: 12, color: '#64748B' }}>Only verified assets are counted in the readiness score.</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
+          {STATUS_LEGEND.map(({ bg, color, label, desc }) => (
+            <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#64748B' }}>
+              <span style={{ padding: '2px 8px', borderRadius: 5, background: bg, color, fontWeight: 600, flexShrink: 0 }}>
+                {label}
+              </span>
+              {desc}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -177,7 +236,7 @@ export default function Assets() {
 function Sk({ className = '', style = {} }) {
   return (
     <div
-      className={`rounded-md bg-gradient-to-r from-[#f5f0e8] via-[#ece7de] to-[#f5f0e8]
+      className={`rounded-md bg-gradient-to-r from-[#F1F5F9] via-[#E2E8F0] to-[#F1F5F9]
                   bg-[length:200%_100%] animate-[shimmer_1.4s_ease-in-out_infinite] ${className}`}
       style={style}
     />
@@ -188,9 +247,9 @@ function AssetTableSkeleton() {
   return (
     <>
       {/* Shimmer keyframes are defined globally in index.css */}
-      <div className="rounded-xl border border-[#ece8e2] overflow-hidden">
+      <div className="rounded-xl border border-[#E2E8F0] overflow-hidden">
         {/* thead */}
-        <div className="bg-[#f9f7f4] border-b border-[#ece8e2] px-4 py-3
+        <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-4 py-3
                         grid grid-cols-[2fr_1fr_1fr_1fr] gap-4">
           {['w-[45%]', 'w-[35%]', 'w-[40%]', 'w-[30%]'].map((w, i) => (
             <Sk key={i} className={`h-[11px] ${w}`} />
@@ -199,7 +258,7 @@ function AssetTableSkeleton() {
         {/* rows */}
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="px-4 py-[14px] grid grid-cols-[2fr_1fr_1fr_1fr]
-                                  gap-4 border-b border-[#ece8e2] items-center">
+                                  gap-4 border-b border-[#E2E8F0] items-center">
             <Sk className="h-[13px] w-[70%]" />
             <Sk className="h-6 w-20 rounded-md" />
             <Sk className="h-6 w-[90px] rounded-md" />
