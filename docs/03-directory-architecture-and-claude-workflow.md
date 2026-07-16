@@ -247,11 +247,56 @@ AFTER CI/CD merges:
 
 ### Installed External Skills
 
-| Skill | Use in this project |
+| Skill | Invoke | Use in this project |
+|---|---|---|
+| `chart-visualization` | `/chart-visualization` | `feature/dashboard-overview` — Recharts score cards and charts |
+| `systematic-debugging` | `/systematic-debugging` | Any branch — structured fault isolation |
+| `test-driven-development` | `/test-driven-development` | `feature/scoring-engine` — write test first, then implement |
+| `graphify` | `/graphify` | Any branch — build a queryable knowledge graph of the codebase instead of grepping raw files |
+
+#### Graphify — Knowledge Graph Skill
+
+Graphify turns the project into a traversable knowledge graph (code + docs + SQL schema) using tree-sitter AST. It has **no API cost for code** — only docs/PDFs call a backend.
+
+**One-time setup (each dev runs this locally):**
+
+```bash
+# 1. Install the CLI
+uv tool install graphifyy
+
+# 2. Register the skill with Claude Code (project-scoped)
+graphify install --project
+```
+
+**Build the graph (run once, then after major refactors):**
+
+```bash
+/graphify .
+```
+
+This writes three files to `graphify-out/`:
+
+| File | Use |
 |---|---|
-| `chart-visualization` | `feature/dashboard-overview` — Recharts score cards and charts |
-| `systematic-debugging` | Any branch — structured fault isolation |
-| `test-driven-development` | `feature/scoring-engine` — write test first, then implement |
+| `graph.html` | Open in browser — clickable force-directed graph |
+| `GRAPH_REPORT.md` | Architecture overview, god nodes, surprising connections |
+| `graph.json` | Full graph — queried by all CLI commands |
+
+**Query the graph instead of grep:**
+
+```bash
+graphify query "how does scoring work"        # scoped subgraph for a question
+graphify path "Listing" "ScoreSnapshot"       # how two concepts connect
+graphify explain "calculate_destination_score" # focused concept + all edges
+```
+
+**Keep the graph fresh:**
+
+```bash
+graphify update .    # AST-only, no API call, fast
+```
+
+**Note:** `graphify-out/` is gitignored (large generated files). Each developer builds it locally once.
 
 ---
 

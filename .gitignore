@@ -43,3 +43,6 @@ build/
 
 # Logs
 *.log
+
+# Graphify — generated knowledge graph (build locally with: /graphify .)
+graphify-out/
