@@ -11,7 +11,7 @@ function Skeleton({ width = '100%', height = 16, radius = 8, style = {} }) {
     <div
       style={{
         width, height, borderRadius: radius,
-        background: 'linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)',
+        background: 'linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%)',
         backgroundSize: '200% 100%',
         animation: 'skeletonShimmer 1.4s ease-in-out infinite',
         ...style,
@@ -155,7 +155,7 @@ export default function AIAdvisor() {
   };
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 16px' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto', padding: '8px 0' }}>
       <div className="db-main">
         {loading ? (
           <AdvisorSkeleton />
@@ -228,10 +228,10 @@ export default function AIAdvisor() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
                   {(aiData.recommendations || []).map((rec) => {
                     const priorityStyle = rec.priority === 'high'
-                      ? { bg: '#FBE3D4', color: '#E2571A' }
+                      ? { bg: '#FFF7ED', color: '#EA580C' }
                       : rec.priority === 'medium'
-                      ? { bg: '#F0E2F2', color: '#842B8E' }
-                      : { bg: '#F5F0E8', color: '#7B6F64' };
+                      ? { bg: '#E0F2FE', color: '#0891B2' }
+                      : { bg: '#F1F5F9', color: '#64748B' };
                     return (
                       <div key={rec.title} className="card" style={{ padding: 18 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>

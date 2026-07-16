@@ -15,7 +15,7 @@ function Skeleton({ width = "100%", height = 16, radius = 8, style = {} }) {
         width,
         height,
         borderRadius: radius,
-        background: "linear-gradient(90deg, #f5f0e8 25%, #ece7de 50%, #f5f0e8 75%)",
+        background: "linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%)",
         backgroundSize: "200% 100%",
         animation: "skeletonShimmer 1.4s ease-in-out infinite",
         ...style,
@@ -37,7 +37,7 @@ function DashboardSkeleton() {
       {/* Key metrics row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 12 }}>
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} style={{ background: "#fff", border: "1px solid #e8e4de", borderRadius: 12, padding: 14 }}>
+          <div key={i} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, padding: 14 }}>
             <Skeleton width={32} height={32} radius={8} style={{ marginBottom: 10 }} />
             <Skeleton width="60%" height={10} style={{ marginBottom: 6 }} />
             <Skeleton width="40%" height={20} />
@@ -48,7 +48,7 @@ function DashboardSkeleton() {
       {/* ScoreCard + right column */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, marginTop: 20 }}>
         {/* ScoreCard skeleton */}
-        <div style={{ background: "#fff", border: "1px solid #e8e4de", borderRadius: 14, padding: 24 }}>
+        <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 24 }}>
           <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
             <Skeleton width={110} height={110} radius={99} />
             <div style={{ flex: 1 }}>
@@ -70,7 +70,7 @@ function DashboardSkeleton() {
 
         {/* Right column skeleton: AI Suggestions + Overall Score */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ background: "#fff", border: "1px solid #e8e4de", borderRadius: 12, padding: 20, flex: 1 }}>
+          <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, padding: 20, flex: 1 }}>
             <Skeleton width="50%" height={14} style={{ marginBottom: 12 }} />
             {[0, 1, 2, 3, 4].map((i) => (
               <div key={i} style={{ marginBottom: 10 }}>
@@ -79,7 +79,7 @@ function DashboardSkeleton() {
               </div>
             ))}
           </div>
-          <div style={{ background: "#fff", border: "1px solid #e8e4de", borderRadius: 12, padding: 20 }}>
+          <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, padding: 20 }}>
             <Skeleton width="40%" height={11} style={{ marginBottom: 10 }} />
             <Skeleton width="35%" height={40} style={{ marginBottom: 8 }} />
             <Skeleton width={110} height={22} radius={20} />
@@ -88,7 +88,7 @@ function DashboardSkeleton() {
       </div>
 
       {/* Top Gaps skeleton */}
-      <div style={{ background: "#fff", border: "1px solid #e8e4de", borderRadius: 14, padding: 20, marginTop: 20 }}>
+      <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 14, padding: 20, marginTop: 20 }}>
         <Skeleton width="30%" height={13} style={{ marginBottom: 14 }} />
         {[0, 1, 2].map((i) => (
           <div key={i} style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center" }}>
@@ -108,11 +108,11 @@ function DashboardSkeleton() {
 // ─── AI Suggestions ───────────────────────────────────────────────────────────
 
 const TAG_COLORS = {
-  "Internet":   { bg: "#eeedfe", color: "#534AB7" },
-  "Accom.":     { bg: "#fef0ea", color: "#D85A30" },
-  "Transport":  { bg: "#fdf3e3", color: "#BA7517" },
-  "Work spots": { bg: "#eeedfe", color: "#7F77DD" },
-  "Tourism":    { bg: "#e1f5ee", color: "#0F6E56" },
+  "Internet":   { bg: "#FFF7ED", color: "#EA580C" },
+  "Accom.":     { bg: "#CCFBF1", color: "#0F766E" },
+  "Transport":  { bg: "#E0F2FE", color: "#0369A1" },
+  "Work spots": { bg: "#CCFBF1", color: "#0D9488" },
+  "Tourism":    { bg: "#D1FAE5", color: "#059669" },
 };
 
 function AISuggestionsPanel({ suggestions = [] }) {
@@ -141,8 +141,8 @@ function AISuggestionsPanel({ suggestions = [] }) {
   return (
     <div
       style={{
-        background: "#FDFBF8",
-        border: "1px solid #F4EFE7",
+        background: "#F8FAFC",
+        border: "1px solid #E2E8F0",
         borderRadius: 12,
         padding: 20,
         flex: 1,
@@ -155,17 +155,17 @@ function AISuggestionsPanel({ suggestions = [] }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: "#fef0ea", color: "#D85A30",
+            background: "#CCFBF1", color: "#0F766E",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="m12 3.6 2.5 5.1 5.6.8-4.05 3.95.96 5.6L12 16.4l-5 2.65.96-5.6L3.9 9.5l5.6-.8z"/>
             </svg>
           </div>
-          <span style={{ fontWeight: 500, color: "#2D2B25", fontSize: 14 }}>AI Suggestions</span>
+          <span style={{ fontWeight: 500, color: "#0F172A", fontSize: 14 }}>AI Suggestions</span>
         </div>
         <span style={{
-          background: "#FCEBD6", color: "#D97B14",
+          background: "#CCFBF1", color: "#0F766E",
           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600,
           animation: "badgePop 0.4s cubic-bezier(0.34,1.7,0.64,1) 0.4s both",
         }}>
@@ -223,8 +223,8 @@ function AISuggestionsPanel({ suggestions = [] }) {
                     transition: "border-color 0.18s ease",
                     cursor: "default",
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.borderColor = "#D85A30"}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = "#ece8e2"}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = "#0D9488"}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = "#E2E8F0"}
                 >
                   <p style={{ margin: 0, fontSize: 12, color: "#555", lineHeight: 1.5 }}>{text}</p>
                   {tag && (
@@ -359,7 +359,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px" }}>
+    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "8px 0" }}>
       <style>{`
         /* 2-column: ScoreCard (left) | right column (AI Suggestions + Overall Score) */
         .db-grid {

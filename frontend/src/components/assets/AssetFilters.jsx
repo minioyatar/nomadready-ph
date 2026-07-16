@@ -25,8 +25,8 @@ export default function AssetFilters({ options, activeCategory, onCategoryChange
         const isActive = activeCategory === opt.value;
         const shown = visible.includes(i);
         const baseClasses = "px-3.5 py-1.5 rounded-md text-sm font-medium cursor-pointer border transition-colors";
-        const activeClasses = "border-[#D85A30] bg-[#fff5f0] text-[#D85A30] font-semibold";
-        const inactiveClasses = "border-[1.5px] border-[#e0dbd3] bg-white text-[#666] font-medium hover:border-[#D85A30] hover:bg-[#fdf9f6]";
+        const activeClasses = "border-[#0D9488] bg-[#CCFBF1] text-[#0F766E] font-semibold";
+        const inactiveClasses = "border-[1.5px] border-[#E2E8F0] bg-white text-[#475569] font-medium hover:border-[#0D9488] hover:bg-[#F0FDFA]";
         const visibilityClasses = shown ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2";
         return (
           <button

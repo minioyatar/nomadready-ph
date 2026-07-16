@@ -1,10 +1,26 @@
-import React, { useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useMemo, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CATEGORY_COLORS } from '../../lib/categoryPalette';
 
 const DEFAULT_COLOR = '#888888';
+const CARLES_CENTER = [11.572, 123.134];
+
+// Fits the map to the bounds of the provided coordinates, or falls back to
+// Carles center at zoom 13 when no valid coordinates are available.
+function FitBounds({ positions }) {
+  const map = useMap();
+  useEffect(() => {
+    if (positions.length > 0) {
+      const bounds = L.latLngBounds(positions);
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, minZoom: 11 });
+    } else {
+      map.setView(CARLES_CENTER, 13);
+    }
+  }, [map, positions]);
+  return null;
+}
 
 // ─── Build a Leaflet divIcon from inline SVG (no external PNG dependency) ─────
 
@@ -31,7 +47,7 @@ function buildPinIcon(color) {
 }
 
 export default function AssetMap({
-  center = [11.5585, 122.5890],
+  center = CARLES_CENTER,
   zoom = 13,
   listings = [],
   tileUrl,
@@ -62,6 +78,8 @@ export default function AssetMap({
 
   });
 
+  const positions = validListings.map((l) => [Number(l.latitude), Number(l.longitude)]);
+
   return (
     <MapContainer
       center={center}
@@ -77,6 +95,7 @@ export default function AssetMap({
       attributionControl={interactive}
     >
       <TileLayer url={tileUrl} />
+      <FitBounds positions={positions} />
       {validListings.map((l) => {
         const icon = iconsByCategory[l.category] || iconsByCategory.__default;
         return (
@@ -87,7 +106,7 @@ export default function AssetMap({
                 <div style={{ fontSize: 13, color: '#666' }}>{l.category}</div>
                 <div style={{ fontSize: 13, marginTop: 6 }}>{l.type ? l.type : '—'}</div>
                 <div style={{ fontSize: 13, marginTop: 6 }}>
-                  {l.lgu_verified ? 'LGU verified' : 'Not verified'}
+                  {l.verification_status === 'lgu_verified' ? 'LGU Verified' : l.verification_status || 'Unverified'}
                 </div>
               </div>
             </Popup>

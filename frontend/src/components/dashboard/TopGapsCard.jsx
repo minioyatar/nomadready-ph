@@ -64,7 +64,7 @@ export default function TopGapsCard({ topGaps = [] }) {
           background: #ffffff;
           border-radius: 16px;
           padding: 20px;
-          border: 1px solid #f2ede5;
+          border: 1px solid #E2E8F0;
         }
         .tg-header {
           display: flex; align-items: center; justify-content: space-between;
@@ -89,13 +89,13 @@ export default function TopGapsCard({ topGaps = [] }) {
         .tg-list { display: flex; flex-direction: column; gap: 8px; }
         .tg-item {
           border-radius: 12px;
-          background: #FDFBF8;
-          border: 1px solid #F4EFE7;
+          background: #F8FAFC;
+          border: 1px solid #E2E8F0;
           overflow: hidden;
           transition: border-color 0.18s ease, transform 0.18s ease;
           cursor: pointer;
         }
-        .tg-item:hover { border-color: #e0d8cc; transform: translateY(-1px); }
+        .tg-item:hover { border-color: #0D9488; transform: translateY(-1px); }
         .tg-item:active { transform: scale(0.99); }
         .tg-item-top {
           display: flex; align-items: center; gap: 12px;
@@ -116,7 +116,7 @@ export default function TopGapsCard({ topGaps = [] }) {
           flex-shrink: 0;
           transition: transform 0.25s ease, color 0.2s ease;
         }
-        .tg-chevron.open { transform: rotate(180deg); color: #D85A30; }
+        .tg-chevron.open { transform: rotate(180deg); color: #0D9488; }
         .tg-expand {
           overflow: hidden;
           max-height: 0;
@@ -147,7 +147,7 @@ export default function TopGapsCard({ topGaps = [] }) {
           font-family: inherit;
           transition: color 0.15s ease;
         }
-        .tg-dismiss:hover { color: #D85A30; }
+        .tg-dismiss:hover { color: #0D9488; }
         .tg-severity-dot {
           width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
           animation: tgDotPulse 2.5s ease-in-out infinite;

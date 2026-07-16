@@ -37,8 +37,8 @@ export const SCORE_LABELS = {
 };
 
 export const CARLES_CENTER = {
-  lat: 11.4000,
-  lng: 122.5583,
+  lat: 11.572,
+  lng: 123.134,
 };
 
 export const MAP_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';

@@ -9,11 +9,11 @@ const DATA_DEFAULTS = {
   explanation:
     "A scenic coastal municipality with emerging tourism appeal, moderate connectivity, and basic services — promising for digital nomads willing to pioneer off-the-beaten-path living.",
   categories: [
-    { name: "Internet & Work Readiness",   score: 48, color: "#534AB7" },
-    { name: "Long-Stay Accommodation",     score: 42, color: "#D85A30" },
-    { name: "Safety & Essential Services", score: 63, color: "#BA7517" },
-    { name: "Transport & Access",          score: 51, color: "#D85A30" },
-    { name: "Tourism & Lifestyle Appeal",  score: 72, color: "#7F77DD" },
+    { name: "Internet & Work Readiness",   score: 48, color: "#F97316" },
+    { name: "Long-Stay Accommodation",     score: 42, color: "#0D9488" },
+    { name: "Safety & Essential Services", score: 63, color: "#0D9488" },
+    { name: "Transport & Access",          score: 51, color: "#0891B2" },
+    { name: "Tourism & Lifestyle Appeal",  score: 72, color: "#059669" },
   ],
 };
 
@@ -24,11 +24,11 @@ function resolveData(snapshot) {
 
   const rawCats = s.category_scores || {};
   const categories = [
-    { name: "Internet & Work Readiness",   score: rawCats.internet_work     ?? s.internet_work_score     ?? DATA_DEFAULTS.categories[0].score, color: "#534AB7" },
-    { name: "Long-Stay Accommodation",     score: rawCats.accommodation     ?? s.accommodation_score     ?? DATA_DEFAULTS.categories[1].score, color: "#D85A30" },
-    { name: "Safety & Essential Services", score: rawCats.safety_services   ?? s.safety_services_score   ?? DATA_DEFAULTS.categories[2].score, color: "#BA7517" },
-    { name: "Transport & Access",          score: rawCats.transport         ?? s.transport_score         ?? DATA_DEFAULTS.categories[3].score, color: "#D85A30" },
-    { name: "Tourism & Lifestyle Appeal",  score: rawCats.tourism_lifestyle ?? s.tourism_lifestyle_score ?? DATA_DEFAULTS.categories[4].score, color: "#7F77DD" },
+    { name: "Internet & Work Readiness",   score: rawCats.internet_work     ?? s.internet_work_score     ?? DATA_DEFAULTS.categories[0].score, color: "#F97316" },
+    { name: "Long-Stay Accommodation",     score: rawCats.accommodation     ?? s.accommodation_score     ?? DATA_DEFAULTS.categories[1].score, color: "#0D9488" },
+    { name: "Safety & Essential Services", score: rawCats.safety_services   ?? s.safety_services_score   ?? DATA_DEFAULTS.categories[2].score, color: "#0D9488" },
+    { name: "Transport & Access",          score: rawCats.transport         ?? s.transport_score         ?? DATA_DEFAULTS.categories[3].score, color: "#0891B2" },
+    { name: "Tourism & Lifestyle Appeal",  score: rawCats.tourism_lifestyle ?? s.tourism_lifestyle_score ?? DATA_DEFAULTS.categories[4].score, color: "#059669" },
   ].map((c) => ({ ...c, score: Math.max(0, Math.min(100, Math.round(Number(c.score) || 0))) }));
 
   return {
@@ -192,22 +192,22 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
       <style>{`
         .nr-card {
           background: #ffffff;
-          border: 1px solid #e8e4de;
+          border: 1px solid #E2E8F0;
           border-radius: 14px;
           padding: 1.5rem;
           font-family: sans-serif;
           overflow: hidden;
           position: relative;
-          color: #1a1a1a;
+          color: #0F172A;
         }
         .nr-top { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; }
         .nr-donut-wrap { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
         .nr-donut-svg { width: 110px; height: 110px; transform: rotate(-90deg); }
-        .nr-donut-track { fill: none; stroke: #f0ece6; stroke-width: 10; }
-        .nr-donut-arc { fill: none; stroke: #D85A30; stroke-width: 10; stroke-linecap: round; }
+        .nr-donut-track { fill: none; stroke: #E2E8F0; stroke-width: 10; }
+        .nr-donut-arc { fill: none; stroke: #0D9488; stroke-width: 10; stroke-linecap: round; }
         .nr-donut-pulse {
           position: absolute; inset: 0; border-radius: 50%;
-          border: 2px solid #D85A30; opacity: 0;
+          border: 2px solid #0D9488; opacity: 0;
           animation: nrPulse 2.2s ease-out 1.5s infinite;
         }
         @keyframes nrPulse { 0%{transform:scale(0.85);opacity:0.5} 100%{transform:scale(1.2);opacity:0} }
@@ -221,12 +221,12 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
         .nr-info { flex: 1; min-width: 0; }
         .nr-stage-badge {
           display: inline-flex; align-items: center; gap: 6px;
-          font-size: 12px; font-weight: 500; color: #5f5e5a;
-          background: #f5f1eb; border: 0.5px solid #e0dbd3;
+          font-size: 12px; font-weight: 600; color: #0F766E;
+          background: #CCFBF1; border: 0.5px solid #99F6E4;
           border-radius: 20px; padding: 4px 10px;
         }
         .nr-stage-dot {
-          width: 7px; height: 7px; border-radius: 50%; background: #D85A30;
+          width: 7px; height: 7px; border-radius: 50%; background: #0D9488;
           animation: nrBlink 2s ease-in-out 2s infinite;
         }
         @keyframes nrBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -236,7 +236,7 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
         .nr-bar-name { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; min-width: 0; }
         .nr-bar-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
         .nr-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nr-bar-track { height: 6px; background: #f0ece6; border-radius: 99px; overflow: hidden; }
+        .nr-bar-track { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; }
         .nr-bar-fill {
           height: 100%; border-radius: 99px; width: 0%;
           transition: width 1.1s cubic-bezier(0.34,1.2,0.64,1);
@@ -255,13 +255,13 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
           display: flex; align-items: center; justify-content: space-between;
         }
         .nr-trend-label { font-size: 10px; color: #aaa; letter-spacing: 0.07em; text-transform: uppercase; }
-        .nr-trend-val { font-size: 13px; color: #D85A30; font-weight: 500; margin-top: 2px; }
+        .nr-trend-val { font-size: 13px; color: #0D9488; font-weight: 500; margin-top: 2px; }
         .nr-spark-path {
-          fill: none; stroke: #D85A30; stroke-width: 1.5;
+          fill: none; stroke: #0D9488; stroke-width: 1.5;
           stroke-linecap: round; stroke-linejoin: round;
           stroke-dasharray: 200; stroke-dashoffset: 200;
         }
-        .nr-spark-dot { fill: #D85A30; }
+        .nr-spark-dot { fill: #0D9488; }
         .nr-replay-btn {
           position: absolute; top: 1rem; right: 1rem;
           background: none; border: 0.5px solid #ddd; border-radius: 8px;
@@ -357,26 +357,26 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
       {!hideOverallScore && (
         <div style={{
           marginTop: 16,
-          background: "#FDFBF8",
-          border: "1px solid #F4EFE7",
+          background: "#F0FDFA",
+          border: "1px solid #99F6E4",
           borderRadius: 12,
           padding: 20,
         }}>
-          <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "#999", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "#0F766E", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Overall Score
           </p>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 8 }}>
-            <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: "#D85A30" }}>
+            <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: "#0D9488" }}>
               {data.overall}
             </span>
-            <span style={{ fontSize: 14, color: "#aaa", marginBottom: 6 }}>/&nbsp;100</span>
+            <span style={{ fontSize: 14, color: "#94A3B8", marginBottom: 6 }}>/&nbsp;100</span>
           </div>
           {data.score_label && (
             <span style={{
               display: "inline-block",
               fontSize: 11, fontWeight: 600,
               padding: "3px 10px", borderRadius: 20,
-              background: "#fef0ea", color: "#D85A30",
+              background: "#CCFBF1", color: "#0F766E",
             }}>
               {data.score_label}
             </span>
@@ -389,24 +389,24 @@ export default function ScoreCard({ snapshot = null, hideOverallScore = false })
 
 export const ScoreCardSummary = ({ overallScore, scoreLabel }) => (
   <div style={{
-    background: "#FDFBF8",
-    border: "1px solid #F4EFE7",
+    background: "#F0FDFA",
+    border: "1px solid #99F6E4",
     borderRadius: 12,
     padding: 20,
   }}>
-    <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "#999", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+    <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "#0F766E", textTransform: "uppercase", letterSpacing: "0.06em" }}>
       Overall Score
     </p>
     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, marginBottom: 8 }}>
-      <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: "#D85A30" }}>{overallScore}</span>
-      <span style={{ fontSize: 14, color: "#aaa", marginBottom: 6 }}>/&nbsp;100</span>
+      <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1, color: "#0D9488" }}>{overallScore}</span>
+      <span style={{ fontSize: 14, color: "#94A3B8", marginBottom: 6 }}>/&nbsp;100</span>
     </div>
     {scoreLabel && (
       <span style={{
         display: "inline-block",
         fontSize: 11, fontWeight: 600,
         padding: "3px 10px", borderRadius: 20,
-        background: "#fef0ea", color: "#D85A30",
+        background: "#CCFBF1", color: "#0F766E",
       }}>
         {scoreLabel}
       </span>
