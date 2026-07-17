@@ -325,8 +325,8 @@ def main():
         add_changed_file("D", f, g, deleted_nodes)
     for old_f, new_f in changed["renamed"]:
         g_old = base_graph if base_graph else head_graph
-        add_changed_file(f"R (from)", old_f, g_old, deleted_nodes)
-        add_changed_file(f"R (to)", new_f, head_graph, changed_nodes)
+        add_changed_file("R (from)", old_f, g_old, deleted_nodes)
+        add_changed_file("R (to)", new_f, head_graph, changed_nodes)
 
     all_changed_nodes = changed_nodes + deleted_nodes
     all_changed_ids = {n["id"] for n in all_changed_nodes}
@@ -386,7 +386,6 @@ def main():
     # ── graphify path calls ──────────────────────────────────────────────────
     path_results: list[tuple[str, str, bool, str]] = []
     skipped_pairs: list[tuple[str, str, str]] = []
-    budget_remaining = TIME_BUDGET - (time.monotonic() - start_time)
 
     # Build label lookup
     id_to_node = {n["id"]: n for n in head_graph["nodes"]}

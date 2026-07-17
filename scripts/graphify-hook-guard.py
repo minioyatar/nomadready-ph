@@ -5,7 +5,6 @@ Claude Code PreToolUse guard — Stage 1: warn only, never block.
 Called by Claude Code before Bash, Read, Glob, Edit, Write tool calls.
 Exits 0 always in Stage 1 (no exit 2 blocking).
 """
-import json
 import os
 import sys
 from pathlib import Path

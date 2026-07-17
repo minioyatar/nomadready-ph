@@ -9,7 +9,6 @@ Always exits 0 (Stage 1: never blocks).
 import json
 import os
 import sys
-import time
 from pathlib import Path
 
 # Allow import of shared module regardless of CWD
@@ -19,7 +18,6 @@ from graphify_common import (
     BRANCH_PATTERN,
     current_branch,
     generate_context_report,
-    load_graph,
 )
 
 GRAPH_PATH = Path("graphify-out/graph.json")

@@ -1,10 +1,10 @@
 """Shared Graphify workflow utilities."""
+import fcntl
 import hashlib
 import json
 import os
 import re
 import subprocess
-import sys
 import time
 from pathlib import Path
 from typing import Optional
@@ -308,10 +308,6 @@ def run_graphify_explain(label: str, timeout: int = 30) -> tuple[bool, str]:
 # Lock
 # ---------------------------------------------------------------------------
 
-import fcntl
-import tempfile
-
-
 LOCK_PATH = Path(".graphify/graph.lock")
 
 
@@ -427,7 +423,6 @@ def generate_context_report(
 
     regen, reason = should_regenerate(report_path, branch, task_text, graph, force)
     if not regen:
-        content = report_path.read_text()
         return False, str(report_path), f"Reusing existing report ({reason})"
 
     # Generate
