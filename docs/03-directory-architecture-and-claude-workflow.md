@@ -276,13 +276,19 @@ Graphify turns the project into a traversable knowledge graph (code + docs) usin
 |---|---|---|
 | `post-commit` | Every `git commit` | Silently rebuilds graph (AST, ~1s, no API) |
 | `post-checkout` | Every `git checkout` | Rebuilds graph for the new branch |
-| `PreToolUse:Bash` | Before any Bash search command | Reminds Claude to query graph first |
-| `PreToolUse:Read` | Before reading source files | Reminds Claude to query graph first |
+| `UserPromptSubmit` | Every Claude task prompt on a feature/fix/chore branch | Generates or reuses branch context report, injects into Claude automatically |
+| `PreToolUse:Bash/Read/Edit/Write` | Before tool calls on a feature/fix/chore branch | Warns if graph or context report is missing/stale (Stage 1: never blocks) |
+| CI: `graphify-blast-radius` | Every PR (analysis, read-only) | Builds head+base graphs, identifies dependents, produces artifact |
+| CI: `graphify-publish-comment` | Every PR (trusted publish, PR-write) | Creates/updates blast-radius PR comment with sentinel |
 
 **One-time setup per developer:**
 
 ```bash
-uv tool install graphifyy
+# Run the setup script — verifies/installs everything automatically
+bash scripts/setup-dev-workflow.sh
+
+# Or manually:
+uv tool install graphifyy==0.9.17
 graphify install --project   # registers skill + hooks
 graphify . --code-only       # build initial graph (no API key needed)
 ```

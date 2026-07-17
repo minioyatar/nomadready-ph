@@ -1102,15 +1102,15 @@ A **post-commit hook** keeps it current automatically — no manual rebuild need
 ### When graphify MUST run (no exceptions)
 
 #### 1. Before starting any feature
-Before reading files or writing any code, orient with the graph:
+
+**This is now automatic.** When you submit a task prompt on a `feature/*`, `fix/*`,
+or `chore/*` branch, the `UserPromptSubmit` hook runs automatically and injects
+the graph context before your first response. You do not need to run `graphify query`
+manually as part of the normal workflow.
+
+For manual refresh or if the hook did not fire:
 ```bash
-graphify query "<feature area>"          # understand what already exists
-graphify explain "<key concept>"         # see all callers and edges for a concept
-```
-Example for a scoring feature:
-```bash
-graphify query "how does scoring work"
-graphify explain "calculate_destination_score"
+python scripts/graphify-feature-context.py --task "<task description>" [--key "<node>"] [--force]
 ```
 
 #### 2. During PR review
@@ -1142,9 +1142,13 @@ graphify path "Destination" "generate_readiness_advice"
 |---|---|---|
 | `git commit` | Graph rebuilt (AST, no API cost) | None |
 | `git checkout` | Graph rebuilt for new branch | None |
-| Before feature start | Run `graphify query` | Required — do it |
-| During PR review | Run `graphify path` | Required — do it |
+| `UserPromptSubmit` hook | On every task prompt on a feature/fix/chore branch | Generates or reuses branch context report, injects into Claude |
+| Before feature start | Run `graphify query` | Automatic via hook — manual fallback available |
+| During PR review | Run `graphify path` | Required — do it (also automated in CI) |
 | Broad architecture review | Read `graphify-out/GRAPH_REPORT.md` | Optional |
+
+**Stage 1 (current):** PreToolUse hooks warn when context is missing but never block any tool.
+**Stage 2 (future):** Edit/Write will be blocked when no valid context report exists. Not yet active.
 
 ### Commands reference
 ```bash

@@ -88,6 +88,25 @@ Rules in use:
 - `react/react-in-jsx-scope` is OFF (React 17+ doesn't need the import)
 - `react/prop-types` is OFF (hackathon — prop-types are optional)
 
+### Graphify Blast Radius
+
+Two jobs run on every PR:
+
+**`Graphify Blast Radius` (analysis, read-only):**
+- Builds the head graph and a base graph (via git worktree at the exact base commit SHA)
+- Classifies changed files (added/modified/deleted/renamed)
+- Identifies direct dependents, BFS reachable nodes (≤3 hops), affected tests, cross-layer impacts
+- Produces a Markdown report with high-risk warnings first
+- Writes to GitHub Actions step summary and uploads as a workflow artifact
+
+**`Graphify Publish Comment` (trusted publish, PR-write):**
+- Downloads the artifact from the analysis job
+- Creates or updates a single reusable PR comment with sentinel `<!-- graphify-blast-radius -->`
+- Failure to comment is a warning — report remains available in summary and artifact
+
+**Stage 1:** Both jobs use `continue-on-error: true`. They are informational only and do not block merges.
+**Stage 2 (future):** Blast radius will become a required check for Graphify operational health failures only (install failure, graph build failure). Large blast radius, missing tests, or risky paths will remain warnings.
+
 ### Claude AI Code Review
 
 Claude reviews the PR diff and posts specific inline comments about:
@@ -203,8 +222,9 @@ This ensures GitHub Actions uses the exact same dependency versions that were te
 
 ```
 1. Check blast radius of what changed:
-      graphify path "<changed thing>" "<thing that might break>"
-2. Check that all three CI jobs passed (green)
+      → Now automated by the Graphify Blast Radius CI job (see PR comment with blast-radius report)
+      → Manual fallback: graphify path "<changed thing>" "<thing that might break>"
+2. Check that all CI jobs passed (green)
 3. Read Claude's review comments — they cover the same checklist as the audit
 4. Run the PR locally if it touches backend scoring or API integration
 5. Approve and merge, or request changes

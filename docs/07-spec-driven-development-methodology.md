@@ -63,8 +63,8 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 
 | You are working on | Invoke before starting |
 |---|---|
-| **Starting any feature** | `graphify query "<area>"` then `graphify explain "<key concept>"` — mandatory, before reading files |
-| **Any PR review** | `graphify path "<changed>" "<affected>"` then `/review` |
+| **Starting any feature** | Automatic via `UserPromptSubmit` hook — graph context is injected before Claude's first response on any `feature/*`, `fix/*`, or `chore/*` branch. Manual fallback: `python scripts/graphify-feature-context.py --task "<area>" [--force]` |
+| **Any PR review** | Blast-radius report is now posted automatically as a PR comment by CI. Manual fallback: `graphify path "<changed>" "<affected>"` then `/review` |
 | Any Python test | `/python-testing` |
 | Any React component | `/react-dev` |
 | Any chart or data viz | Use installed `chart-visualization` skill (active automatically) |
