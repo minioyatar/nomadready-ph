@@ -270,5 +270,23 @@ class TestBlastRadiusHelpers(unittest.TestCase):
         self.assertIn("deleted.py", changed["deleted"])
 
 
+class TestCIWorkflowStructure(unittest.TestCase):
+    """Regression: publication job must use workspace-relative paths."""
+
+    @classmethod
+    def setUpClass(cls):
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
+        cls.ci_text = ci_path.read_text()
+
+    def test_no_hashfiles_tmp(self):
+        self.assertNotIn("hashFiles('/tmp", self.ci_text)
+
+    def test_workspace_relative_report_path(self):
+        self.assertIn("blast-radius/graphify-blast-radius-report.md", self.ci_text)
+
+    def test_sentinel_preserved(self):
+        self.assertIn("<!-- graphify-blast-radius -->", self.ci_text)
+
+
 if __name__ == "__main__":
     unittest.main()

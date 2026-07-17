@@ -287,16 +287,26 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: graphify-blast-radius-pr-${{ github.event.pull_request.number }}
-          path: /tmp/blast-radius
+          path: blast-radius
         continue-on-error: true   # if no artifact, skip comment gracefully
 
+      - name: Check report availability
+        id: report
+        run: |
+          if [ -f "blast-radius/graphify-blast-radius-report.md" ]; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "::warning::Graphify blast-radius report not found — skipping PR comment"
+          fi
+
       - name: Publish PR comment
-        if: hashFiles('/tmp/blast-radius/graphify-blast-radius-report.md') != ''
+        if: steps.report.outputs.available == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const reportPath = '/tmp/blast-radius/graphify-blast-radius-report.md';
+            const reportPath = 'blast-radius/graphify-blast-radius-report.md';
             const sentinel = '<!-- graphify-blast-radius -->';
             const body = fs.readFileSync(reportPath, 'utf8');
 
