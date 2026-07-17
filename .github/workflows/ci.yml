@@ -79,42 +79,42 @@ jobs:
           # ── Ask Claude for structured JSON review ────────────────────────────
           prompt = f"""Review PR #{pr_num} "{pr_title}" by {pr_author} (branch: {pr_branch}) for the NomadReady PH hackathon project.
 
-PROJECT RULES (non-negotiable):
-- LGU dashboard: Digital Nomad Readiness Score for Carles, Iloilo, Philippines
-- Stack: Django + DRF backend | React + Vite + Tailwind CSS frontend | PostgreSQL
-- Numeric scoring is deterministic Python ONLY — OpenAI must never calculate the score
-- Only lgu_verified listings count toward the score. Draft listings must not increase it.
-- Category scores capped at 100. Overall score rounded to nearest whole number.
-- Approved screens: /dashboard /assets /map /ai-advisor
-- Out-of-scope (flag immediately): auth, booking, payments, reviews, multi-LGU
-- Frontend must use Tailwind utility classes — not inline styles or injected <style> tags
-- AI Advisor screen: recommendations must be sliced to a maximum of 3
-- Backend: scoring logic stays in scoring/services.py only
+          PROJECT RULES (non-negotiable):
+          - LGU dashboard: Digital Nomad Readiness Score for Carles, Iloilo, Philippines
+          - Stack: Django + DRF backend | React + Vite + Tailwind CSS frontend | PostgreSQL
+          - Numeric scoring is deterministic Python ONLY — OpenAI must never calculate the score
+          - Only lgu_verified listings count toward the score. Draft listings must not increase it.
+          - Category scores capped at 100. Overall score rounded to nearest whole number.
+          - Approved screens: /dashboard /assets /map /ai-advisor
+          - Out-of-scope (flag immediately): auth, booking, payments, reviews, multi-LGU
+          - Frontend must use Tailwind utility classes — not inline styles or injected <style> tags
+          - AI Advisor screen: recommendations must be sliced to a maximum of 3
+          - Backend: scoring logic stays in scoring/services.py only
 
-PR DIFF:
-{diff}
+          PR DIFF:
+          {diff}
 
-Return ONLY a valid JSON object. No markdown fences, no explanation — just the JSON.
+          Return ONLY a valid JSON object. No markdown fences, no explanation — just the JSON.
 
-{{
-  "summary": "2-3 sentence overall assessment of this PR for the team lead",
-  "verdict": "READY TO MERGE | NEEDS CHANGES | BLOCKED",
-  "event": "COMMENT | REQUEST_CHANGES",
-  "inline_comments": [
-    {{
-      "path": "exact/relative/path/from/repo/root/file.ext",
-      "line": <integer — line number in the RIGHT (new) side of the diff>,
-      "body": "Specific actionable comment. Prefix with: ❌ must-fix | ⚠️ warning | [optional] style note"
-    }}
-  ]
-}}
+          {{
+            "summary": "2-3 sentence overall assessment of this PR for the team lead",
+            "verdict": "READY TO MERGE | NEEDS CHANGES | BLOCKED",
+            "event": "COMMENT | REQUEST_CHANGES",
+            "inline_comments": [
+              {{
+                "path": "exact/relative/path/from/repo/root/file.ext",
+                "line": <integer line number in the RIGHT (new) side of the diff>,
+                "body": "Specific actionable comment. Prefix with: MUST-FIX | WARNING | OPTIONAL"
+              }}
+            ]
+          }}
 
-Rules:
-- Set event to REQUEST_CHANGES when verdict is NEEDS CHANGES or BLOCKED; otherwise COMMENT
-- inline_comments: only on lines present in the diff; read line numbers from @@ headers (right/new side)
-- path must match exactly as shown after b/ in the diff header
-- Maximum 8 inline comments — prioritize must-fix issues
-- Use [] for inline_comments when no specific line has an issue"""
+          Rules:
+          - Set event to REQUEST_CHANGES when verdict is NEEDS CHANGES or BLOCKED; otherwise COMMENT
+          - inline_comments: only on lines present in the diff; read line numbers from @@ headers (right/new side)
+          - path must match exactly as shown after b/ in the diff header
+          - Maximum 8 inline comments — prioritize must-fix issues
+          - Use [] for inline_comments when no specific line has an issue"""
 
           payload = json.dumps({
               "model": "claude-sonnet-4-6",
