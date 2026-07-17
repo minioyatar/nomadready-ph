@@ -194,3 +194,133 @@ Rules:
               result_data = post_review([])
               print(f"✅ Plain review #{result_data['id']} posted")
           EOF
+
+  # ── 4. Graphify Blast Radius — Analysis (read-only, runs untrusted PR code) ──
+  graphify-blast-radius:
+    name: Graphify Blast Radius
+    runs-on: ubuntu-latest
+    continue-on-error: true       # Stage 1: never blocks merge
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read              # read-only — no PR write here
+    steps:
+      - name: Checkout PR head (full history)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read pinned Graphify version
+        id: gfy-version
+        run: |
+          VERSION=$(cat .graphify-version | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Pinned version: $VERSION"
+
+      - name: Cache Graphify install
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/uv/tools/graphifyy
+          key: graphify-${{ runner.os }}-${{ steps.gfy-version.outputs.version }}
+          restore-keys: graphify-${{ runner.os }}-
+
+      - name: Install uv
+        run: pip install uv --quiet
+
+      - name: Install pinned Graphify
+        run: |
+          uv tool install "graphifyy==${{ steps.gfy-version.outputs.version }}"
+          # Ensure executable is on PATH
+          uv tool update-shell 2>/dev/null || true
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify Graphify installation
+        run: graphify --version
+
+      - name: Fetch base branch for worktree
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: Build head graph
+        run: graphify . --code-only
+        env:
+          GRAPHIFY_SKIP_HOOK: "1"
+
+      - name: Run blast-radius analysis
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GRAPHIFY_VERSION: ${{ steps.gfy-version.outputs.version }}
+        run: python3 .github/scripts/graphify_blast_radius.py
+
+      - name: Upload blast-radius report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: graphify-blast-radius-pr-${{ github.event.pull_request.number }}
+          path: /tmp/graphify-blast-radius-report.md
+          retention-days: 14
+
+  # ── 5. Graphify Blast Radius — Publish (trusted code, PR write permission) ──
+  graphify-publish-comment:
+    name: Graphify Publish Comment
+    runs-on: ubuntu-latest
+    continue-on-error: true       # Stage 1: never blocks merge
+    needs: graphify-blast-radius
+    if: |
+      github.event_name == 'pull_request' &&
+      (needs.graphify-blast-radius.result == 'success' ||
+       needs.graphify-blast-radius.result == 'failure')
+    permissions:
+      pull-requests: write        # write permission in this trusted job only
+      contents: read
+    steps:
+      - name: Download blast-radius report
+        uses: actions/download-artifact@v4
+        with:
+          name: graphify-blast-radius-pr-${{ github.event.pull_request.number }}
+          path: /tmp/blast-radius
+        continue-on-error: true   # if no artifact, skip comment gracefully
+
+      - name: Publish PR comment
+        if: hashFiles('/tmp/blast-radius/graphify-blast-radius-report.md') != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = '/tmp/blast-radius/graphify-blast-radius-report.md';
+            const sentinel = '<!-- graphify-blast-radius -->';
+            const body = fs.readFileSync(reportPath, 'utf8');
+
+            try {
+              const comments = await github.paginate(
+                github.rest.issues.listComments,
+                { owner: context.repo.owner, repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number }
+              );
+              const existing = comments.find(c => c.body && c.body.includes(sentinel));
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  comment_id: existing.id, body
+                });
+                core.info(`Updated comment #${existing.id}`);
+              } else {
+                const result = await github.rest.issues.createComment({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number, body
+                });
+                core.info(`Created comment #${result.data.id}`);
+              }
+            } catch (e) {
+              core.warning(`PR comment failed: ${e.message}. Report available as artifact.`);
+            }
