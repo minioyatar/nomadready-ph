@@ -20,12 +20,7 @@ Spec → graphify query → Task → Branch → Claude Implementation → Human 
 
 ## Claude Code Protocol
 
-Before coding any feature, Claude **must first** run:
-```bash
-graphify query "<feature area>"
-graphify explain "<key model or function>"
-```
-Then responds with:
+Before coding any feature, Claude responds with:
 0. What the graph revealed about this area
 1. What I understand
 2. Files I expect to modify
@@ -63,7 +58,7 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 
 | You are working on | Invoke before starting |
 |---|---|
-| **Starting any feature** | Automatic via `UserPromptSubmit` hook — graph context is injected before Claude's first response on any `feature/*`, `fix/*`, or `chore/*` branch. Manual fallback: `python scripts/graphify-feature-context.py --task "<area>" [--force]` |
+| **Starting any feature** | Automatic via `UserPromptSubmit` hook — graph context is generated (or reused from the previous prompt on the same branch) and injected before Claude's first response on any `feature/*`, `fix/*`, or `chore/*` branch. Manual deep-dive or troubleshooting: `graphify query "<area>"` (optional, not a required first step). Force regeneration: `python scripts/graphify-feature-context.py --task "<area>" --force` |
 | **Any PR review** | Blast-radius report is now posted automatically as a PR comment by CI. Manual fallback: `graphify path "<changed>" "<affected>"` then `/review` |
 | Any Python test | `/python-testing` |
 | Any React component | `/react-dev` |
