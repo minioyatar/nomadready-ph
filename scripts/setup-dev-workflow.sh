@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Sets up the Graphify local architecture map for NomadReady PH.
+# Graphify is an optional advisory tool — it does not gate commits or CI.
 set -euo pipefail
 
 PASS=0
@@ -6,30 +8,27 @@ FAIL=0
 
 pass() { echo "✅ $1"; PASS=$((PASS+1)); }
 fail() { echo "❌ $1"; FAIL=$((FAIL+1)); }
-warn() { echo "⚠️  $1"; }
 
-# 1. Read pinned version (.graphify-version is the source of truth)
+# 1. Read pinned version
 if [ ! -f .graphify-version ]; then
     fail ".graphify-version not found in repo root"
-    echo ""; echo "Setup failed: $PASS passed, $FAIL failed"; exit 1
+    exit 1
 fi
 GFY_VERSION=$(tr -d '[:space:]' < .graphify-version)
 echo "Pinned graphify version: $GFY_VERSION"
 
-# ── Phase 1: Install prerequisites ──────────────────────────────────────────
-
-# 2. Verify/install uv
+# 2. Ensure uv is available
 if command -v uv >/dev/null 2>&1; then
     pass "uv is available ($(uv --version))"
 else
-    warn "uv not found — installing via official installer"
+    echo "Installing uv …"
     curl -LsSf https://astral.sh/uv/install.sh | sh || { fail "uv install failed"; exit 1; }
     # shellcheck source=/dev/null
     source "$HOME/.cargo/env" 2>/dev/null || true
     command -v uv >/dev/null 2>&1 && pass "uv installed" || { fail "uv not on PATH after install"; exit 1; }
 fi
 
-# 3. Install pinned graphify (always attempt — uv tool install is idempotent)
+# 3. Install exact pinned Graphify version
 INSTALLED_VERSION=""
 if command -v graphify >/dev/null 2>&1; then
     INSTALLED_VERSION=$(graphify --version 2>/dev/null | awk '{print $2}' || echo "")
@@ -42,68 +41,35 @@ else
     if uv tool install "graphifyy==$GFY_VERSION" 2>&1; then
         pass "graphify $GFY_VERSION installed"
     else
-        fail "graphify install failed"
-        echo ""; echo "Setup failed: $PASS passed, $FAIL failed"; exit 1
+        fail "graphify install failed"; exit 1
     fi
 fi
 
-# 4. Ensure graphify is on PATH (uv tool install creates the shim; update shell if needed)
+# 4. Verify graphify command works
 if ! command -v graphify >/dev/null 2>&1; then
-    warn "graphify not on PATH — attempting uv tool update-shell"
     uv tool update-shell 2>/dev/null || true
-    if command -v graphify >/dev/null 2>&1; then
-        pass "graphify now on PATH"
-    else
-        fail "graphify not on PATH. Run: uv tool update-shell then open a new terminal"
-    fi
+fi
+if graphify --version >/dev/null 2>&1; then
+    pass "graphify command works ($(graphify --version))"
 else
-    pass "graphify is on PATH"
+    fail "graphify not executable — run: uv tool update-shell then open a new terminal"
+    exit 1
 fi
 
-# ── Phase 2: Configure git hooks and Claude settings ────────────────────────
-
-# 5-6. Verify/install graphify git hooks (both post-commit and post-checkout)
-HOOKS_OK=true
-if ! [ -f .git/hooks/post-commit ] || ! grep -q "graphify-hook-start" .git/hooks/post-commit 2>/dev/null; then
-    HOOKS_OK=false
-fi
-if ! [ -f .git/hooks/post-checkout ] || ! grep -q "graphify-checkout-hook-start" .git/hooks/post-checkout 2>/dev/null; then
-    HOOKS_OK=false
-fi
-
-if $HOOKS_OK; then
-    pass "graphify git hooks present (post-commit, post-checkout)"
+# 5. Install official Graphify git hooks (post-commit + post-checkout)
+# These are Graphify's standard hooks that rebuild the local map after commits.
+# A hook failure does not undo the commit.
+if GRAPHIFY_SKIP_HOOK=1 graphify hook install 2>&1; then
+    pass "graphify git hooks installed (post-commit, post-checkout)"
 else
-    echo "Installing graphify git hooks …"
-    if GRAPHIFY_SKIP_HOOK=1 graphify hook install 2>&1; then
-        # Verify post-commit
-        if [ -f .git/hooks/post-commit ] && grep -q "graphify-hook-start" .git/hooks/post-commit 2>/dev/null; then
-            pass "post-commit hook installed"
-        else
-            fail "post-commit hook missing after install"
-        fi
-        # Verify post-checkout
-        if [ -f .git/hooks/post-checkout ] && grep -q "graphify-checkout-hook-start" .git/hooks/post-checkout 2>/dev/null; then
-            pass "post-checkout hook installed"
-        else
-            fail "post-checkout hook missing after install"
-        fi
-    else
-        fail "graphify hook install failed"
-    fi
+    fail "graphify hook install failed"
 fi
 
-# 7. Create .graphify/context/ directory
-mkdir -p .graphify/context
-pass ".graphify/context/ ready"
-
-# ── Phase 3: Build or validate Graphify context ──────────────────────────────
-
-# 8. Build initial graph if missing
+# 6. Build initial local graph
 if [ -f graphify-out/graph.json ]; then
     pass "graphify-out/graph.json exists"
 else
-    echo "Building initial graph (code-only, no API key needed) …"
+    echo "Building initial local graph (code-only, no API key needed) …"
     if GRAPHIFY_SKIP_HOOK=1 graphify . --code-only 2>&1; then
         pass "Initial graph built"
     else
@@ -111,24 +77,15 @@ else
     fi
 fi
 
-# ── Phase 4: Strict final verification ──────────────────────────────────────
-
-# 9. Verify Claude Code hook scripts are referenced in .claude/settings.json
-if [ -f .claude/settings.json ]; then
-    if grep -q "graphify-user-prompt-hook" .claude/settings.json && \
-       grep -q "graphify-hook-guard" .claude/settings.json; then
-        pass ".claude/settings.json references graphify hook scripts"
-    else
-        fail ".claude/settings.json does not reference graphify hook scripts"
-        warn "Update .claude/settings.json or re-run: graphify install --project"
-    fi
-else
-    fail ".claude/settings.json not found — run: graphify install --project"
-fi
-
-# Summary
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Setup complete: $PASS passed, $FAIL failed"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Optional Graphify queries (advisory only):"
+echo "  graphify query \"where is lgu_verified enforced\""
+echo "  graphify path \"Listing\" \"ScoreSnapshot\""
+echo "  graphify explain \"calculate_destination_score\""
+echo "  graphify update .   # manual map rebuild (post-commit hook does this automatically)"
+echo ""
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

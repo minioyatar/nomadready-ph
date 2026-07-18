@@ -9,13 +9,13 @@
 ```
 Claude Code implements and tests locally
         │
-        ├── Graphify — feature context and blast-radius analysis
-        │
         ├── Ruff — Python lint
         │
         ├── ESLint — JavaScript/React lint
         │
-        ├── Tests and frontend build (local)
+        ├── Backend Tests — Django test suite
+        │
+        ├── Frontend Production Build
         │
         ├── CodeRabbit — reviews the GitHub PR
         │
@@ -29,30 +29,6 @@ Claude Code implements and tests locally
 ### Claude Code — Coding and Implementation Agent
 
 Claude Code is the team's coding and implementation agent. It reads specs, writes code, runs tests, and opens PRs. It is a local CLI tool, not a cloud PR-review service.
-
-Claude Code is **not** used to review GitHub PRs via the Anthropic API. Anthropic API-based Claude PR review is not part of this workflow.
-
-### Graphify — Feature Context and Blast-Radius Analysis
-
-Graphify maintains a live knowledge graph of the codebase (code only, no API cost).
-
-**On every prompt** on a `feature/*`, `fix/*`, or `chore/*` branch, the `UserPromptSubmit` hook automatically injects branch context before Claude responds.
-
-**On every PR**, two CI jobs run:
-
-**`Graphify Blast Radius` (analysis, read-only):**
-- Builds the head graph and a base graph
-- Classifies changed files (added / modified / deleted / renamed)
-- Identifies direct dependents, BFS reachable nodes (≤3 hops), affected tests, cross-layer impacts
-- Produces a Markdown report with high-risk warnings first
-- Uploads the report as a workflow artifact and writes to the Actions step summary
-
-**`Graphify Publish Comment` (trusted publish, PR-write):**
-- Downloads the artifact from the analysis job
-- Creates or updates a single reusable PR comment with sentinel `<!-- graphify-blast-radius -->`
-- Failure to comment is a warning — report remains available in the artifact
-
-**Stage 1:** Both jobs use `continue-on-error: true`. They are informational only and do not block merges.
 
 ### Ruff — Python Lint
 
@@ -73,11 +49,19 @@ Rules in use:
 - `react/react-in-jsx-scope` is OFF (React 17+ JSX transform)
 - `react/prop-types` is OFF (hackathon — prop-types are optional)
 
+### Backend Tests
+
+The backend test job runs the Django test suite against a PostgreSQL service container. Django's test runner creates the test database, applies all migrations, and runs all discovered tests.
+
+### Frontend Production Build
+
+The frontend build job installs dependencies via `npm ci` and runs `npm run build` (Vite production build). This confirms the application bundles correctly independent of lint results.
+
 ### CodeRabbit — PR Review
 
 CodeRabbit reviews the GitHub pull request and posts inline comments. It is free for public repositories.
 
-CodeRabbit is the approved automated PR reviewer. No other AI PR-review agent (UltraReview, Anthropic API-based Claude review, PR-Agent, Reviewdog, or similar) is part of this workflow.
+CodeRabbit is the approved automated PR reviewer. No other AI PR-review agent is part of this workflow.
 
 ### Human Tech Lead — Required Approval
 
@@ -90,15 +74,13 @@ Human approval is mandatory before any merge. No automated tool can approve a me
 ```
 PR opened or updated
         │
-        ├── Job 1: Python Lint (Ruff)         ← checks backend/
+        ├── Job 1: Python Lint (Ruff)           ← checks backend/
         │
-        ├── Job 2: JavaScript Lint (ESLint)   ← checks frontend/src/
+        ├── Job 2: JavaScript Lint (ESLint)     ← checks frontend/src/
         │
-        ├── Job 3: Graphify Blast Radius       ← read-only, continue-on-error
-        │            analysis job
+        ├── Job 3: Backend Tests                ← Django test suite + PostgreSQL
         │
-        └── Job 4: Graphify Publish Comment   ← needs job 3, continue-on-error
-                     posts or updates sentinel comment
+        └── Job 4: Frontend Production Build    ← npm ci && npm run build
 ```
 
 No CI job calls the Anthropic API. No CI job requires `ANTHROPIC_API_KEY`.
@@ -132,14 +114,12 @@ npm run lint -- --fix       # auto-fix safe issues
 
 ```
 1. Open feature branch from main
-2. Orient with the graph before touching files:
-      graphify query "<feature area>"
-      graphify explain "<key model or function>"
-3. Implement the approved feature
-4. Open a PR against main
-5. Wait for CI (Ruff, ESLint, Graphify Blast Radius)
-6. Read CodeRabbit's inline comments
-7. Read the Graphify blast-radius report in the PR comment
+2. Read the relevant source files
+3. Optionally query the local Graphify map for cross-file relationships
+4. Implement the approved feature
+5. Open a PR against main
+6. Wait for CI (Ruff, ESLint, Backend Tests, Frontend Production Build)
+7. Read CodeRabbit's inline comments
 8. Fix any must-fix issues
 9. Push fixes — CI reruns automatically
 10. Tag @minioyatar for human Tech Lead review
@@ -148,24 +128,22 @@ npm run lint -- --fix       # auto-fix safe issues
 ### Team Lead
 
 ```
-1. Check blast radius — automated Graphify Blast Radius comment in the PR
-   Manual fallback: graphify path "<changed thing>" "<thing that might break>"
-2. Confirm CI jobs pass (Ruff, ESLint)
-3. Read CodeRabbit's review comments
-4. Run the PR locally if it touches backend scoring or API integration
-5. Approve and merge, or request changes
+1. Confirm CI jobs pass (Ruff, ESLint, Backend Tests, Frontend Build)
+2. Read CodeRabbit's review comments
+3. Run the PR locally if it touches backend scoring or API integration
+4. Approve and merge, or request changes
 ```
 
 ---
 
 ## What Is Not Part of This Workflow
 
+- Automatic Graphify context injection into Claude prompts
+- Graphify blast-radius CI jobs or PR comments
 - UltraReview
 - Anthropic API-based Claude PR review
 - Local AI code-review agents (Ollama, PR-Agent, CodeFox, Reviewdog, Bandit, or similar)
 - Scheduled daily AI re-check
-
-No additional local or cloud AI reviewer is currently planned or required.
 
 ---
 
@@ -173,9 +151,8 @@ No additional local or cloud AI reviewer is currently planned or required.
 
 | File | What it does |
 |------|-------------|
-| `.github/workflows/ci.yml` | Ruff + ESLint + Graphify Blast Radius + Graphify Publish Comment |
-| `.github/scripts/graphify_blast_radius.py` | Blast-radius analysis script |
-| `frontend/package.json` | `"lint": "eslint src"` script and ESLint devDependencies |
+| `.github/workflows/ci.yml` | Ruff + ESLint + Backend Tests + Frontend Production Build |
+| `frontend/package.json` | `"lint": "eslint src"` and `"build": "vite build"` scripts |
 | `frontend/eslint.config.js` | ESLint v9 flat config for React + hooks |
 
 ---

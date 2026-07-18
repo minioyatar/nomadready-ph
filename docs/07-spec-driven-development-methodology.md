@@ -13,7 +13,7 @@ Build only what is specified. Approve before building.
 ## Workflow
 
 ```
-Spec → graphify query → Task → Branch → Claude Implementation → Human Review (graphify path) → Test → Merge → Deploy
+Spec → Task → Branch → Claude Implementation → Test → Human Review → Merge → Deploy
 ```
 
 ---
@@ -21,7 +21,6 @@ Spec → graphify query → Task → Branch → Claude Implementation → Human 
 ## Claude Code Protocol
 
 Before coding any feature, Claude responds with:
-0. What the graph revealed about this area
 1. What I understand
 2. Files I expect to modify
 3. Implementation steps
@@ -58,8 +57,8 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 
 | You are working on | Invoke before starting |
 |---|---|
-| **Starting any feature** | Automatic via `UserPromptSubmit` hook — graph context is generated (or reused from the previous prompt on the same branch) and injected before Claude's first response on any `feature/*`, `fix/*`, or `chore/*` branch. Manual deep-dive or troubleshooting: `graphify query "<area>"` (optional, not a required first step). Force regeneration: `python scripts/graphify-feature-context.py --task "<area>" --force` |
-| **Any PR review** | Blast-radius report is now posted automatically as a PR comment by CI. Manual fallback: `graphify path "<changed>" "<affected>"` then `/review` |
+| **Starting any feature** | Read the relevant source files. Optionally run `graphify query "<area>"` for cross-file dependency context on complex tasks. |
+| **Any PR review** | Read the diff. Optionally run `graphify path "<changed>" "<affected>"` to trace dependencies. Then `/review`. |
 | Any Python test | `/python-testing` |
 | Any React component | `/react-dev` |
 | Any chart or data viz | Use installed `chart-visualization` skill (active automatically) |
@@ -70,7 +69,7 @@ Skills are slash commands that give Claude domain-specific capabilities. Invoke 
 | Security review | `/security-review` |
 | npm/pip vulnerability check | `/dependency-vulnerability-triage` |
 | CI/CD pipeline | `/agent-ops-cicd-github` |
-| Codebase exploration / debugging | `graphify query` or `/graphify` to rebuild the graph |
+| Codebase exploration / debugging | `graphify query` or `/graphify` to rebuild the graph (optional, local only) |
 
 ### Skills audit for this project
 

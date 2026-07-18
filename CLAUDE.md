@@ -942,17 +942,9 @@ docker compose up -d --build
 
 ## Claude Code Task Protocol
 
-**Step 0 — Graph orientation (mandatory before anything else):**
-```bash
-graphify query "<feature or area you are about to work on>"
-graphify explain "<key model or function involved>"
-```
-Do not read source files or grep until graphify has oriented you.
-
 Before coding any feature, respond with:
 
 ```text
-0. graphify query run — what the graph revealed about this area
 1. What I understand
 2. Files I expect to modify
 3. Implementation steps
@@ -1094,66 +1086,48 @@ Pilot destination:
 
 **Carles, Iloilo — from island tourism destination to digital nomad-ready destination.**
 
-## graphify — Knowledge Graph (Mandatory)
+## Graphify — Optional Local Architecture Map
 
-This project has a live knowledge graph at `graphify-out/` (655 nodes, 796 edges across code + docs).
-A **post-commit hook** keeps it current automatically — no manual rebuild needed after commits.
+Graphify maintains a local structural map of the committed repository. It is an
+advisory tool. It does not control the workflow, inject context automatically,
+guard tool use, or act as a CI gate.
 
-### When graphify MUST run (no exceptions)
+### When to use Graphify
 
-#### 1. Before starting any feature
+Use Graphify when a task:
+- crosses backend and frontend at the same time
+- changes a model, serializer, API endpoint, and UI component together
+- affects a shared service used by multiple apps
+- requires tracing which files depend on a changed function or class
+- involves an unfamiliar part of the repository
 
-**This is now automatic.** When you submit a task prompt on a `feature/*`, `fix/*`,
-or `chore/*` branch, the `UserPromptSubmit` hook runs automatically and injects
-the graph context before your first response. You do not need to run `graphify query`
-manually as part of the normal workflow.
+Graphify may be skipped for:
+- copy or content changes
+- isolated CSS or style changes
+- small lint fixes
+- obvious single-file changes
+- tasks where reading the source directly is faster
 
-For manual refresh or if the hook did not fire:
-```bash
-python scripts/graphify-feature-context.py --task "<task description>" [--key "<node>"] [--force]
-```
+### Claude behavior
 
-#### 2. During PR review
-Before reviewing a diff, check blast radius:
-```bash
-graphify path "<changed thing>" "<thing that might break>"
-graphify query "<area the PR touches>"
-```
-Example for a Listing model change:
-```bash
-graphify path "Listing" "ScoreSnapshot"
-graphify path "Listing" "ListingSerializer"
-```
+- Read the actual source files before modifying them.
+- Treat Graphify output as advisory.
+- Verify important relationships in source code.
+- Never assume that absence from the graph means no dependency.
+- Rely on tests and human review for correctness.
 
-#### 3. For any codebase question
-`graphify query` before `grep`. Always.
+Manual Graphify queries are optional tools, not mandatory workflow gates.
+
+### Optional Graphify queries
+
 ```bash
 graphify query "where is lgu_verified enforced"
+graphify explain "calculate_destination_score"
+graphify path "Listing" "ScoreSnapshot"
 graphify path "Destination" "generate_readiness_advice"
+graphify update .   # rebuild local map manually if needed
 ```
 
-### What NOT to do
-- Do not grep raw files without running `graphify query` first
-- Do not read 5 files to understand context — query the graph, then read only what the graph points to
-- Do not run `graphify .` manually — the post-commit hook handles rebuilds automatically
-
-### Automation summary
-| Trigger | What happens | Manual step? |
-|---|---|---|
-| `git commit` | Graph rebuilt (AST, no API cost) | None |
-| `git checkout` | Graph rebuilt for new branch | None |
-| `UserPromptSubmit` hook | On every task prompt on a feature/fix/chore branch | Generates or reuses branch context report, injects into Claude |
-| Before feature start | Run `graphify query` | Automatic via hook — manual fallback available |
-| During PR review | Run `graphify path` | Required — do it (also automated in CI) |
-| Broad architecture review | Read `graphify-out/GRAPH_REPORT.md` | Optional |
-
-**Stage 1 (current):** PreToolUse hooks warn when context is missing but never block any tool.
-**Stage 2 (future):** Edit/Write will be blocked when no valid context report exists. Not yet active.
-
-### Commands reference
-```bash
-graphify query "<question>"        # scoped subgraph for a question
-graphify explain "<concept>"       # concept + all edges
-graphify path "<A>" "<B>"          # shortest path between two things
-graphify update .                  # manual rebuild if needed (no API cost)
-```
+The local map is rebuilt automatically after each commit via Graphify's
+standard post-commit hook (`graphify hook install`). A hook failure does
+not undo or invalidate the Git commit.
