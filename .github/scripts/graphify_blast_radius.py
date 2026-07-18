@@ -32,6 +32,9 @@ TIME_BUDGET   = 120.0  # seconds for all graphify path calls
 HOP_LIMIT     = 3
 SKIP_ENV      = {**os.environ, "GRAPHIFY_SKIP_HOOK": "1"}
 
+# Full 40-character hex SHA required for deterministic diff references.
+_SHA_RE = re.compile(r'^[0-9a-f]{40}$')
+
 # Layer classification by file prefix
 LAYER_MAP = [
     (r"backend/apps/\w+/models\.py",          "Model"),
@@ -53,6 +56,23 @@ def classify_layer(file_path: str) -> str:
 
 def is_test_file(file_path: str) -> bool:
     return bool(re.search(r"tests?\.py$|test_\w+\.py$", file_path))
+
+
+def validate_sha(sha: str, name: str) -> str:
+    """
+    Validate and return a 40-character hex commit SHA.
+    Raises ValueError with a clear diagnostic when the value is missing or malformed.
+    Never used to construct shell command strings — callers pass the value as an
+    argument list element to subprocess.run.
+    """
+    if not sha:
+        raise ValueError(f"{name} is missing — CI must provide a full 40-char commit SHA")
+    if not _SHA_RE.match(sha.lower()):
+        raise ValueError(
+            f"{name} is not a valid 40-character hex SHA: {sha!r}. "
+            "Only exact commit SHAs are accepted; branch names are not permitted."
+        )
+    return sha.lower()
 
 
 # ── Graph loading ───────────────────────────────────────────────────────────
@@ -98,14 +118,17 @@ def nodes_by_file(graph: dict, file_path: str) -> list[dict]:
 
 # ── Changed files ───────────────────────────────────────────────────────────
 
-def get_changed_files(base_branch: str) -> dict:
+def get_changed_files(base_sha: str, head_sha: str) -> dict:
     """
     Returns dict with keys: added, modified, deleted, renamed.
     renamed entries are (old_path, new_path) tuples.
+
+    Uses exact commit SHAs for deterministic comparison.
+    Never interpolates branch names into the git command.
     """
     r = subprocess.run(
         ["git", "diff", "--diff-filter=ADMR", "--name-status",
-         f"origin/{base_branch}...HEAD"],
+         f"{base_sha}...{head_sha}"],
         capture_output=True, text=True
     )
     changed = {"added": [], "modified": [], "deleted": [], "renamed": []}
@@ -274,6 +297,16 @@ def upsert_pr_comment(body: str):
 
 def main():
     start_time = time.monotonic()
+
+    # Validate exact commit SHAs before any git operations.
+    # Branch names are not accepted — only full 40-char hex SHAs.
+    try:
+        base_sha_validated = validate_sha(BASE_SHA, "BASE_SHA")
+        head_sha_validated = validate_sha(HEAD_SHA, "HEAD_SHA")
+    except ValueError as e:
+        print(f"[blast-radius] ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
     print("[blast-radius] Loading head graph …")
     head_graph = load_graph(Path("graphify-out/graph.json"))
     if head_graph is None:
@@ -282,13 +315,13 @@ def main():
 
     head_graph_commit = head_graph.get("built_at_commit", "unknown")
 
-    print(f"[blast-radius] Building base graph at {BASE_SHA[:8] if BASE_SHA else 'unknown'} …")
-    base_graph = build_base_graph(BASE_SHA) if BASE_SHA else None
+    print(f"[blast-radius] Building base graph at {base_sha_validated[:8]} …")
+    base_graph = build_base_graph(base_sha_validated)
     base_graph_commit = (base_graph or {}).get("built_at_commit", "N/A")
     if base_graph is None:
-        print("[blast-radius] ⚠️ Base graph unavailable — deleted nodes will use head graph", file=sys.stderr)
+        print("[blast-radius] ⚠️ Base graph unavailable — deleted/renamed nodes will have no base context", file=sys.stderr)
 
-    changed = get_changed_files(BASE_BRANCH)
+    changed = get_changed_files(base_sha_validated, head_sha_validated)
     total_changed = (len(changed["added"]) + len(changed["modified"]) +
                      len(changed["deleted"]) + len(changed["renamed"]))
 
@@ -299,13 +332,21 @@ def main():
         upsert_pr_comment(report)
         return
 
-    # Build head adjacency
+    # Build head adjacency for added/modified/renamed-to nodes
     _, rev_adj_head = build_adjacency(head_graph)
     deg_head = node_degree(head_graph)
 
+    # Build base adjacency for deleted/renamed-from nodes.
+    # Deleted nodes no longer exist in head, so their incoming edges must be
+    # traversed in the base graph to find what depended on them.
+    if base_graph:
+        _, rev_adj_base = build_adjacency(base_graph)
+    else:
+        rev_adj_base = defaultdict(list)
+
     # Identify changed nodes and their layers
-    changed_nodes: list[dict] = []        # from head graph
-    deleted_nodes: list[dict] = []        # from base graph
+    changed_nodes: list[dict] = []        # from head graph (added/modified/renamed-to)
+    deleted_nodes: list[dict] = []        # from base graph (deleted/renamed-from)
     changed_file_rows: list[str] = []
     changed_layers: set[str] = set()
 
@@ -321,19 +362,25 @@ def main():
     for f in changed["modified"]:
         add_changed_file("M", f, head_graph, changed_nodes)
     for f in changed["deleted"]:
+        # Use base_graph: deleted files no longer exist in head
         g = base_graph if base_graph else head_graph
         add_changed_file("D", f, g, deleted_nodes)
     for old_f, new_f in changed["renamed"]:
+        # Old path: traverse base graph to find what depended on it
         g_old = base_graph if base_graph else head_graph
         add_changed_file("R (from)", old_f, g_old, deleted_nodes)
+        # New path: traverse head graph for new dependents
         add_changed_file("R (to)", new_f, head_graph, changed_nodes)
 
     all_changed_nodes = changed_nodes + deleted_nodes
     all_changed_ids = {n["id"] for n in all_changed_nodes}
 
     # ── Priority 1: Direct dependents ───────────────────────────────────────
-    direct_deps: list[tuple[dict, dict, str, str]] = []  # (dep_node, via_changed_node, relation, confidence)
-    for changed_node in all_changed_nodes:
+    # Added/modified/renamed-to nodes: look up dependents in head graph
+    # Deleted/renamed-from nodes: look up dependents in base graph
+    direct_deps: list[tuple[dict, dict, str, str]] = []
+
+    for changed_node in changed_nodes:
         for dep in rev_adj_head.get(changed_node["id"], []):
             dep_id = dep["node"]
             if dep_id in all_changed_ids:
@@ -342,12 +389,48 @@ def main():
             if dep_nodes:
                 direct_deps.append((dep_nodes[0], changed_node, dep["relation"], dep["confidence"]))
 
+    for changed_node in deleted_nodes:
+        for dep in rev_adj_base.get(changed_node["id"], []):
+            dep_id = dep["node"]
+            if dep_id in all_changed_ids:
+                continue
+            # Prefer head graph for the dependent node; fall back to base
+            dep_nodes = [n for n in head_graph["nodes"] if n["id"] == dep_id]
+            if not dep_nodes and base_graph:
+                dep_nodes = [n for n in base_graph["nodes"] if n["id"] == dep_id]
+            if dep_nodes:
+                direct_deps.append((dep_nodes[0], changed_node, dep["relation"], dep["confidence"]))
+
     # ── Priority 2: BFS incoming edges ≤3 hops ──────────────────────────────
+    # Split time budget evenly between head and base BFS.
     bfs_time_limit = min(30.0, (TIME_BUDGET - (time.monotonic() - start_time)) * 0.3)
-    reachable = bfs_dependents(
-        list(all_changed_ids), rev_adj_head,
-        max_hops=HOP_LIMIT, time_limit=bfs_time_limit
-    )
+    half_limit = bfs_time_limit / 2
+
+    head_node_ids = {n["id"] for n in changed_nodes}
+    base_node_ids = {n["id"] for n in deleted_nodes}
+
+    # BFS from head nodes (added/modified/renamed-to) against head graph
+    reachable_head = bfs_dependents(
+        list(head_node_ids), rev_adj_head,
+        max_hops=HOP_LIMIT, time_limit=half_limit
+    ) if head_node_ids else {}
+
+    # BFS from deleted/renamed-from nodes against base graph
+    reachable_base = bfs_dependents(
+        list(base_node_ids), rev_adj_base,
+        max_hops=HOP_LIMIT, time_limit=half_limit
+    ) if base_node_ids else {}
+
+    # Merge: keep minimum hop distance, exclude changed nodes themselves
+    reachable: dict[str, int] = {}
+    for nid, hop in reachable_head.items():
+        if nid not in all_changed_ids:
+            reachable[nid] = hop
+    for nid, hop in reachable_base.items():
+        if nid not in all_changed_ids:
+            if nid not in reachable or hop < reachable[nid]:
+                reachable[nid] = hop
+
     reachable_nodes = [
         n for n in head_graph["nodes"]
         if n["id"] in reachable and n["id"] not in all_changed_ids
