@@ -46,3 +46,6 @@ build/
 
 # Graphify — generated knowledge graph (build locally with: /graphify .)
 graphify-out/
+
+# Graphify local context reports (generated per branch, never commit)
+.graphify/

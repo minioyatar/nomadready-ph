@@ -1,4 +1,4 @@
-name: CI — Lint + AI Review
+name: CI
 
 "on":
   pull_request:
@@ -11,8 +11,8 @@ jobs:
     name: Python Lint (Ruff)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: astral-sh/ruff-action@d0a0e814ec17e92d33be7d24dd922b479f1bcd38 # v1
         with:
           src: "./backend"
 
@@ -21,8 +21,8 @@ jobs:
     name: JavaScript Lint (ESLint)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
       - name: Install dependencies
@@ -32,165 +32,57 @@ jobs:
         run: npm run lint
         working-directory: frontend
 
-  # ── 3. Claude AI code review — runs after linters on every PR ───────────────
-  claude-review:
-    name: Claude AI Code Review
-    needs: [backend-lint, frontend-lint]
-    if: always() && github.event_name == 'pull_request'
+  # ── 3. Backend Tests ─────────────────────────────────────────────────────────
+  backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Post Claude inline review
+    services:
+      postgres:
+        image: postgres:15
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: |
-          python3 << 'EOF'
-          import os, json, subprocess, urllib.request, urllib.error, re
+          POSTGRES_DB: nomadready_test
+          POSTGRES_USER: nomadready
+          POSTGRES_PASSWORD: nomadready_dev
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+        working-directory: backend
+      - name: Run Django tests
+        run: python manage.py test
+        working-directory: backend
+        env:
+          POSTGRES_DB: nomadready_test
+          POSTGRES_USER: nomadready
+          POSTGRES_PASSWORD: nomadready_dev
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          DJANGO_SECRET_KEY: ci-test-secret-key-not-for-production
+          DJANGO_DEBUG: "True"
+          OPENAI_API_KEY: ci-placeholder
 
-          repo       = os.environ['REPO']
-          api_key    = os.environ['ANTHROPIC_API_KEY']
-          gh_token   = os.environ['GH_TOKEN']
-          pr_num     = os.environ['PR_NUMBER']
-          commit_sha = os.environ['COMMIT_SHA']
-          pr_title   = os.environ['PR_TITLE']
-          pr_author  = os.environ['PR_AUTHOR']
-          pr_branch  = os.environ['PR_BRANCH']
-
-          # ── Get the PR diff ─────────────────────────────────────────────────
-          diff_result = subprocess.run(
-              ['gh', 'pr', 'diff', pr_num, '--repo', repo],
-              capture_output=True, text=True
-          )
-          diff = diff_result.stdout[:9000]
-
-          # ── Ask Claude for structured JSON review ────────────────────────────
-          prompt = f"""Review PR #{pr_num} "{pr_title}" by {pr_author} (branch: {pr_branch}) for the NomadReady PH hackathon project.
-
-PROJECT RULES (non-negotiable):
-- LGU dashboard: Digital Nomad Readiness Score for Carles, Iloilo, Philippines
-- Stack: Django + DRF backend | React + Vite + Tailwind CSS frontend | PostgreSQL
-- Numeric scoring is deterministic Python ONLY — OpenAI must never calculate the score
-- Only lgu_verified listings count toward the score. Draft listings must not increase it.
-- Category scores capped at 100. Overall score rounded to nearest whole number.
-- Approved screens: /dashboard /assets /map /ai-advisor
-- Out-of-scope (flag immediately): auth, booking, payments, reviews, multi-LGU
-- Frontend must use Tailwind utility classes — not inline styles or injected <style> tags
-- AI Advisor screen: recommendations must be sliced to a maximum of 3
-- Backend: scoring logic stays in scoring/services.py only
-
-PR DIFF:
-{diff}
-
-Return ONLY a valid JSON object. No markdown fences, no explanation — just the JSON.
-
-{{
-  "summary": "2-3 sentence overall assessment of this PR for the team lead",
-  "verdict": "READY TO MERGE | NEEDS CHANGES | BLOCKED",
-  "event": "COMMENT | REQUEST_CHANGES",
-  "inline_comments": [
-    {{
-      "path": "exact/relative/path/from/repo/root/file.ext",
-      "line": <integer — line number in the RIGHT (new) side of the diff>,
-      "body": "Specific actionable comment. Prefix with: ❌ must-fix | ⚠️ warning | [optional] style note"
-    }}
-  ]
-}}
-
-Rules:
-- Set event to REQUEST_CHANGES when verdict is NEEDS CHANGES or BLOCKED; otherwise COMMENT
-- inline_comments: only on lines present in the diff; read line numbers from @@ headers (right/new side)
-- path must match exactly as shown after b/ in the diff header
-- Maximum 8 inline comments — prioritize must-fix issues
-- Use [] for inline_comments when no specific line has an issue"""
-
-          payload = json.dumps({
-              "model": "claude-sonnet-4-6",
-              "max_tokens": 2000,
-              "messages": [{"role": "user", "content": prompt}]
-          }).encode()
-
-          req = urllib.request.Request(
-              "https://api.anthropic.com/v1/messages",
-              data=payload,
-              headers={
-                  "x-api-key": api_key,
-                  "anthropic-version": "2023-06-01",
-                  "content-type": "application/json",
-              }
-          )
-
-          try:
-              with urllib.request.urlopen(req, timeout=60) as resp:
-                  data = json.loads(resp.read())
-                  raw  = data['content'][0]['text'].strip()
-          except Exception as e:
-              print(f"Claude API error: {e}")
-              exit(1)
-
-          # ── Parse response ───────────────────────────────────────────────────
-          try:
-              if '```' in raw:
-                  match = re.search(r'```(?:json)?\s*(.*?)\s*```', raw, re.DOTALL)
-                  raw = match.group(1) if match else raw
-              review = json.loads(raw)
-          except json.JSONDecodeError:
-              review = {"summary": raw, "verdict": "SEE COMMENTS",
-                        "event": "COMMENT", "inline_comments": []}
-
-          icons   = {"READY TO MERGE": "✅", "NEEDS CHANGES": "⚠️", "BLOCKED": "🚫"}
-          icon    = icons.get(review.get("verdict", ""), "🤖")
-          body    = (
-              f"## 🤖 Claude AI Code Review\n\n"
-              f"{review.get('summary', '')}\n\n"
-              f"**Verdict: {icon} {review.get('verdict', 'SEE COMMENTS')}**\n\n"
-              "---\n"
-              "*Automated review by Claude · Human approval required before merge*"
-          )
-
-          inline = [
-              {"path": c["path"], "line": int(c["line"]), "side": "RIGHT", "body": c["body"]}
-              for c in review.get("inline_comments", [])
-              if c.get("path") and c.get("line") and c.get("body")
-          ]
-
-          # ── Post GitHub PR Review ────────────────────────────────────────────
-          def post_review(comments):
-              payload = {
-                  "commit_id": commit_sha,
-                  "body": body,
-                  "event": review.get("event", "COMMENT"),
-                  "comments": comments,
-              }
-              api_req = urllib.request.Request(
-                  f"https://api.github.com/repos/{repo}/pulls/{pr_num}/reviews",
-                  data=json.dumps(payload).encode(),
-                  headers={
-                      "Authorization": f"token {gh_token}",
-                      "Content-Type": "application/json",
-                      "Accept": "application/vnd.github.v3+json",
-                  }
-              )
-              with urllib.request.urlopen(api_req, timeout=30) as r:
-                  return json.loads(r.read())
-
-          try:
-              result_data = post_review(inline)
-              print(f"✅ Review #{result_data['id']} posted — {len(inline)} inline comment(s)")
-          except urllib.error.HTTPError as e:
-              print(f"Inline error ({e.code}), retrying without inline comments...")
-              result_data = post_review([])
-              print(f"✅ Plain review #{result_data['id']} posted")
-          EOF
+  # ── 4. Frontend Production Build ──────────────────────────────────────────────
+  frontend-build:
+    name: Frontend Production Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+      - name: Build production bundle
+        run: npm run build
+        working-directory: frontend
