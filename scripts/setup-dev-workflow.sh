@@ -8,13 +8,15 @@ pass() { echo "✅ $1"; PASS=$((PASS+1)); }
 fail() { echo "❌ $1"; FAIL=$((FAIL+1)); }
 warn() { echo "⚠️  $1"; }
 
-# 1. Read pinned version
+# 1. Read pinned version (.graphify-version is the source of truth)
 if [ ! -f .graphify-version ]; then
     fail ".graphify-version not found in repo root"
     echo ""; echo "Setup failed: $PASS passed, $FAIL failed"; exit 1
 fi
 GFY_VERSION=$(tr -d '[:space:]' < .graphify-version)
 echo "Pinned graphify version: $GFY_VERSION"
+
+# ── Phase 1: Install prerequisites ──────────────────────────────────────────
 
 # 2. Verify/install uv
 if command -v uv >/dev/null 2>&1; then
@@ -27,7 +29,7 @@ else
     command -v uv >/dev/null 2>&1 && pass "uv installed" || { fail "uv not on PATH after install"; exit 1; }
 fi
 
-# 3. Verify/install pinned graphify
+# 3. Install pinned graphify (always attempt — uv tool install is idempotent)
 INSTALLED_VERSION=""
 if command -v graphify >/dev/null 2>&1; then
     INSTALLED_VERSION=$(graphify --version 2>/dev/null | awk '{print $2}' || echo "")
@@ -41,10 +43,11 @@ else
         pass "graphify $GFY_VERSION installed"
     else
         fail "graphify install failed"
+        echo ""; echo "Setup failed: $PASS passed, $FAIL failed"; exit 1
     fi
 fi
 
-# 4. Ensure graphify is on PATH
+# 4. Ensure graphify is on PATH (uv tool install creates the shim; update shell if needed)
 if ! command -v graphify >/dev/null 2>&1; then
     warn "graphify not on PATH — attempting uv tool update-shell"
     uv tool update-shell 2>/dev/null || true
@@ -57,28 +60,44 @@ else
     pass "graphify is on PATH"
 fi
 
-# 5. Verify/install post-commit hook
-if [ -f .git/hooks/post-commit ] && grep -q "graphify-hook-start" .git/hooks/post-commit 2>/dev/null; then
-    pass "post-commit hook present"
+# ── Phase 2: Configure git hooks and Claude settings ────────────────────────
+
+# 5-6. Verify/install graphify git hooks (both post-commit and post-checkout)
+HOOKS_OK=true
+if ! [ -f .git/hooks/post-commit ] || ! grep -q "graphify-hook-start" .git/hooks/post-commit 2>/dev/null; then
+    HOOKS_OK=false
+fi
+if ! [ -f .git/hooks/post-checkout ] || ! grep -q "graphify-checkout-hook-start" .git/hooks/post-checkout 2>/dev/null; then
+    HOOKS_OK=false
+fi
+
+if $HOOKS_OK; then
+    pass "graphify git hooks present (post-commit, post-checkout)"
 else
     echo "Installing graphify git hooks …"
     if GRAPHIFY_SKIP_HOOK=1 graphify hook install 2>&1; then
-        pass "graphify git hooks installed"
+        # Verify post-commit
+        if [ -f .git/hooks/post-commit ] && grep -q "graphify-hook-start" .git/hooks/post-commit 2>/dev/null; then
+            pass "post-commit hook installed"
+        else
+            fail "post-commit hook missing after install"
+        fi
+        # Verify post-checkout
+        if [ -f .git/hooks/post-checkout ] && grep -q "graphify-checkout-hook-start" .git/hooks/post-checkout 2>/dev/null; then
+            pass "post-checkout hook installed"
+        else
+            fail "post-checkout hook missing after install"
+        fi
     else
         fail "graphify hook install failed"
     fi
 fi
 
-# 6. Verify post-checkout hook
-if [ -f .git/hooks/post-checkout ] && grep -q "graphify-checkout-hook-start" .git/hooks/post-checkout 2>/dev/null; then
-    pass "post-checkout hook present"
-else
-    fail "post-checkout hook missing — run: graphify hook install"
-fi
-
 # 7. Create .graphify/context/ directory
 mkdir -p .graphify/context
 pass ".graphify/context/ ready"
+
+# ── Phase 3: Build or validate Graphify context ──────────────────────────────
 
 # 8. Build initial graph if missing
 if [ -f graphify-out/graph.json ]; then
@@ -91,6 +110,8 @@ else
         fail "Initial graph build failed — see output above"
     fi
 fi
+
+# ── Phase 4: Strict final verification ──────────────────────────────────────
 
 # 9. Verify Claude Code hook scripts are referenced in .claude/settings.json
 if [ -f .claude/settings.json ]; then
