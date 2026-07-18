@@ -1086,6 +1086,18 @@ Pilot destination:
 
 **Carles, Iloilo — from island tourism destination to digital nomad-ready destination.**
 
+## Post-Acceptance Security Review
+
+After the human Tech Lead explicitly accepts an implementation and the accepted change is committed locally, read and follow `SECURITY_REVIEW_INSTRUCTIONS.md` before pushing the commit or updating the pull request.
+
+The review is report-only.
+
+Do not modify code, infrastructure, GitHub settings, or commits in response to a finding until the human Tech Lead reviews the report and authorizes remediation.
+
+Graphify may be consulted as an optional map, but all security conclusions must be verified in the actual source code and configuration.
+
+---
+
 ## Graphify — Optional Local Architecture Map
 
 Graphify maintains a local structural map of the committed repository. It is an
