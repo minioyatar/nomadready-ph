@@ -130,11 +130,16 @@ jobs:
 
       - name: Install pinned Graphify
         run: |
-          uv tool install "graphifyy==${{ steps.gfy-version.outputs.version }}"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          uv tool install --force "graphifyy==${{ steps.gfy-version.outputs.version }}"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Verify Graphify installation
-        run: graphify --version
+      - name: Verify Graphify shim
+        run: "$HOME/.local/bin/graphify" --version
+
+      - name: Verify PATH propagation
+        run: |
+          command -v graphify
+          graphify --version
 
       - name: Fetch base branch for worktree
         run: git fetch origin ${{ github.base_ref }}
