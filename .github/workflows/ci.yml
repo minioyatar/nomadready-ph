@@ -134,7 +134,8 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Verify Graphify shim
-        run: "$HOME/.local/bin/graphify" --version
+        run: |
+          "$HOME/.local/bin/graphify" --version
 
       - name: Verify PATH propagation
         run: |
