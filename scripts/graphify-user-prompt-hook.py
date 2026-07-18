@@ -59,18 +59,22 @@ def main():
 
     # Generate or reuse context (never blocks — catch all exceptions)
     try:
-        generated, report_path, message = generate_context_report(
+        status, report_path, message = generate_context_report(
             branch=branch,
             task_text=prompt,
             force=False,
         )
 
-        if not Path(report_path).exists():
+        if status == "failed":
             emit_response(f"⚠️ Graphify context generation failed: {message}")
             sys.exit(0)
 
+        if not Path(report_path).exists():
+            emit_response(f"⚠️ Graphify context missing after generation: {message}")
+            sys.exit(0)
+
         content = Path(report_path).read_text()
-        action = "Generated" if generated else "Reusing"
+        action = "Generated" if status == "generated" else "Reusing"
         header = f"<!-- Graphify Context ({action}: {Path(report_path).name}) -->\n\n"
         emit_response(header + content)
 

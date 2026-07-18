@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from graphify_common import (
-    current_branch, BRANCH_PATTERN, generate_context_report
+    current_branch, BRANCH_PATTERN, generate_context_report,
 )
 
 
@@ -31,15 +31,19 @@ def main():
         print(f"Branch '{branch}' is not a feature/fix/chore branch. Skipping context generation.")
         sys.exit(0)
 
-    generated, report_path, message = generate_context_report(
+    status, report_path, message = generate_context_report(
         branch=branch,
         task_text=args.task,
         key_node=args.key,
         force=args.force,
     )
 
-    status = "Generated" if generated else "Reused"
-    print(f"{status}: {report_path}")
+    if status == "failed":
+        print(f"ERROR: {message}", file=sys.stderr)
+        sys.exit(1)
+
+    label = "Generated" if status == "generated" else "Reused"
+    print(f"{label}: {report_path}")
     print(message)
     sys.exit(0)
 

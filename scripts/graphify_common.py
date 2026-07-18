@@ -364,6 +364,52 @@ class GraphLock:
 # Core context generation
 # ---------------------------------------------------------------------------
 
+def context_staleness_warnings(
+    meta: dict,
+    branch: str,
+    graph_path: Path = Path("graphify-out/graph.json"),
+) -> list[str]:
+    """
+    Return a list of human-readable warning strings for staleness signals in a
+    context report's front-matter metadata. Empty list means the report appears current.
+
+    Checked signals: branch mismatch, graphify version, base commit (rebase detection),
+    graph commit. Does NOT compare task text hashes — later prompts on the same branch
+    legitimately reuse the original branch report.
+    """
+    warnings_out: list[str] = []
+
+    if meta.get("branch") != branch:
+        warnings_out.append(
+            f"Report is for branch '{meta.get('branch')}', current branch is '{branch}'"
+        )
+
+    current_version = pinned_version() or installed_graphify_version()
+    if current_version and meta.get("graphify_version") != current_version:
+        warnings_out.append(
+            f"Report generated with graphify {meta.get('graphify_version')}, "
+            f"current is {current_version}"
+        )
+
+    current_base = branch_base_commit(branch)
+    if current_base and meta.get("base_commit") and meta["base_commit"] != current_base:
+        warnings_out.append(
+            f"Branch base changed (possible rebase): "
+            f"{meta['base_commit'][:8]} → {current_base[:8]}"
+        )
+
+    g = load_graph(graph_path)
+    if g:
+        current_graph_commit = g.get("built_at_commit", "")
+        if meta.get("graph_commit") and meta["graph_commit"] != current_graph_commit:
+            warnings_out.append(
+                f"Graph rebuilt since context report: "
+                f"{meta.get('graph_commit', '?')[:8]} → {current_graph_commit[:8]}"
+            )
+
+    return warnings_out
+
+
 def generate_context_report(
     branch: str,
     task_text: str,
@@ -371,10 +417,13 @@ def generate_context_report(
     force: bool = False,
     graph_path: Path = Path("graphify-out/graph.json"),
     context_dir: Path = Path(".graphify/context"),
-) -> tuple[bool, str, str]:
+) -> tuple[str, str, str]:
     """
     Generate (or reuse) a branch context report.
-    Returns (generated: bool, report_path: str, message: str).
+    Returns (status, report_path, message) where status is one of:
+      'generated' — new report written
+      'reused'    — existing valid report reused
+      'failed'    — could not produce or validate report
     """
     context_dir.mkdir(parents=True, exist_ok=True)
     slug = branch_slug(branch)
@@ -391,39 +440,50 @@ def generate_context_report(
             time.sleep(3)
             graph = load_graph(graph_path)
             if graph is None:
-                return False, str(report_path), "Graph unavailable and could not acquire lock to rebuild"
+                return "failed", str(report_path), "Graph unavailable and could not acquire lock to rebuild"
         else:
             try:
                 ok = build_graph_code_only()
                 if not ok:
-                    return False, str(report_path), "Graph build failed. Check ~/.cache/graphify-rebuild.log"
+                    return "failed", str(report_path), "Graph build failed. Check ~/.cache/graphify-rebuild.log"
                 graph = load_graph(graph_path)
             finally:
                 lock.release()
 
     if graph is None:
-        return False, str(report_path), "Graph still unavailable after rebuild attempt"
+        return "failed", str(report_path), "Graph still unavailable after rebuild attempt"
 
     # Check graph validity (not just freshness)
     is_valid, validity_reason = graph_is_valid(graph_path, branch)
     if not is_valid:
-        # Try to update
         lock = GraphLock(timeout=30)
         acquired = lock.acquire()
-        if acquired:
+        if not acquired:
+            graph = load_graph(graph_path)
+            if graph is None:
+                return "failed", str(report_path), "Graph unavailable and repair lock timed out"
+        else:
             try:
                 env = {**os.environ, **GRAPHIFY_SKIP_ENV}
-                subprocess.run(
+                r = subprocess.run(
                     ["graphify", "update", ".", "--code-only"],
-                    env=env, timeout=180, capture_output=True
+                    env=env, timeout=180, capture_output=True, text=True
                 )
+                if r.returncode != 0:
+                    err = r.stderr.strip()[:200] or "no output"
+                    return "failed", str(report_path), f"Graph repair failed (exit {r.returncode}): {err}"
                 graph = load_graph(graph_path)
+                if graph is None:
+                    return "failed", str(report_path), "Graph unreadable after repair"
+                is_valid, validity_reason = graph_is_valid(graph_path, branch)
+                if not is_valid:
+                    return "failed", str(report_path), f"Graph still invalid after repair: {validity_reason}"
             finally:
                 lock.release()
 
     regen, reason = should_regenerate(report_path, branch, task_text, graph, force)
     if not regen:
-        return False, str(report_path), f"Reusing existing report ({reason})"
+        return "reused", str(report_path), f"Reusing existing report ({reason})"
 
     # Generate
     base_commit = branch_base_commit(branch)
@@ -487,4 +547,4 @@ graphify_version: {version}
     report_content = "\n\n".join(s for s in sections if s is not None)
     report_path.write_text(report_content)
 
-    return True, str(report_path), f"Generated context report for branch '{branch}'"
+    return "generated", str(report_path), f"Generated context report for branch '{branch}'"

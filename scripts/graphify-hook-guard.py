@@ -13,11 +13,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from graphify_common import (
     BRANCH_PATTERN,
     branch_slug,
+    context_staleness_warnings,
     current_branch,
     graph_is_valid,
     read_report_meta,
-    installed_graphify_version,
-    pinned_version,
 )
 
 GRAPH_PATH = Path("graphify-out/graph.json")
@@ -60,14 +59,15 @@ def main():
         # Stage 1: always allow
         sys.exit(0)
 
-    # Report exists — check metadata for major staleness signals
+    # Report exists — check all relevant metadata for staleness signals
     meta = read_report_meta(report_path)
     if meta:
-        current_version = pinned_version() or installed_graphify_version()
-        if current_version and meta.get("graphify_version") != current_version:
-            warn(f"Context report was generated with graphify {meta.get('graphify_version')}, "
-                 f"current is {current_version}. Consider: python scripts/graphify-feature-context.py "
-                 f"--task '<original task>' --force")
+        stale_warnings = context_staleness_warnings(meta, branch, GRAPH_PATH)
+        for stale_msg in stale_warnings:
+            warn(
+                f"{stale_msg}. "
+                "Consider: python scripts/graphify-feature-context.py --task '<task>' --force"
+            )
 
     # Stage 1: always allow the tool
     sys.exit(0)
